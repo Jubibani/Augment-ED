@@ -5,21 +5,47 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.School
-import androidx.compose.runtime.*
+import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.augment_ed.ui.theme.AugmentEDTheme
 import com.google.ar.core.ArCoreApk
 import com.google.ar.core.Session
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException
+import kotlinx.coroutines.delay
+import kotlin.random.Random
 
 class MainActivity : ComponentActivity() {
 
@@ -94,36 +120,106 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier, isArSupported: Boolean) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        if (isArSupported) {
-            MaterialIconButton(
-                text = "Scan",
-                icon = Icons.Filled.QrCodeScanner,
-                onClick = { /* Handle Scan button click */ }
+    Box(modifier = modifier.fillMaxSize()) {
+        // Dynamic background with particles
+        ParticleBackground()
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable(
+                    onClick = { /* Handle background click */ },
+                    indication = rememberRipple(bounded = true),
+                    interactionSource = remember { MutableInteractionSource() }
+                ),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            if (isArSupported) {
+                AnimatedMaterialIconButton(
+                    text = "Scan",
+                    icon = Icons.Filled.QrCodeScanner,
+                    onClick = { /* Handle Scan button click */ }
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            AnimatedMaterialIconButton(
+                text = "Practice",
+                icon = Icons.Filled.School,
+                onClick = { /* Handle Practice button click */ }
             )
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        MaterialIconButton(
-            text = "Practice",
-            icon = Icons.Filled.School,
-            onClick = { /* Handle Practice button click */ }
-        )
     }
 }
 
 @Composable
-fun MaterialIconButton(
+fun ParticleBackground() {
+    val particles = remember { mutableStateListOf<Particle>() }
+    val infiniteTransition = rememberInfiniteTransition()
+
+    // Add new particles periodically
+    LaunchedEffect(Unit) {
+        while (true) {
+            particles.add(Particle())
+            delay(100) // Add a new particle every 100ms
+        }
+    }
+
+    // Update particle positions
+    particles.forEach { particle ->
+        particle.y += particle.speed
+        if (particle.y > 1000f) { // Reset particle if it goes off screen
+            particle.y = 0f
+            particle.x = Random.nextFloat() * 1000f
+        }
+    }
+
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        particles.forEach { particle ->
+            drawCircle(
+                color = particle.color,
+                radius = particle.size,
+                center = Offset(particle.x, particle.y)
+            )
+        }
+    }
+}
+
+data class Particle(
+    var x: Float = Random.nextFloat() * 1000f,
+    var y: Float = Random.nextFloat() * 1000f,
+    val size: Float = Random.nextFloat() * 5f + 2f,
+    val speed: Float = Random.nextFloat() * 2f + 1f,
+    val color: Color = Color(
+        Random.nextFloat(),
+        Random.nextFloat(),
+        Random.nextFloat(),
+        0.5f
+    )
+)
+
+@Composable
+fun AnimatedMaterialIconButton(
     text: String,
     icon: ImageVector,
     onClick: () -> Unit
 ) {
+    var isPressed by remember { mutableStateOf(false) }
+    val size by animateDpAsState(if (isPressed) 140.dp else 120.dp)
+
     FilledTonalIconButton(
         onClick = onClick,
-        modifier = Modifier.size(120.dp)
+        modifier = Modifier
+            .size(size)
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onPress = {
+                        isPressed = true
+                        tryAwaitRelease()
+                        isPressed = false
+                    }
+                )
+            }
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,

@@ -71,6 +71,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Typography
 import androidx.compose.ui.draw.scale
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.unit.IntOffset
 
 
 private fun isARCoreSupportedAndUpToDate(context: Context): Boolean {
@@ -202,6 +205,7 @@ val MinecraftFontFamily = FontFamily(
 
 )
 
+
 @Composable
 fun MainScreen(modifier: Modifier = Modifier, isArSupported: Boolean, sensorX: Float, sensorY: Float) {
     val infiniteTransition = rememberInfiniteTransition()
@@ -237,9 +241,25 @@ fun MainScreen(modifier: Modifier = Modifier, isArSupported: Boolean, sensorX: F
     ) {
         ParticleBackground(sensorX, sensorY)
 
+        val textOffsetY by animateDpAsState(
+            targetValue = 0.dp,
+            animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
+        )
+
+        val idleAnimation = rememberInfiniteTransition()
+        val idleOffsetY by idleAnimation.animateFloat(
+            initialValue = -5f,
+            targetValue = 5f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 2000, easing = LinearEasing),
+                repeatMode = RepeatMode.Reverse
+            )
+        )
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .offset { IntOffset(0, (textOffsetY + idleOffsetY.dp).roundToPx()) }
                 .clickable(
                     onClick = { /* Handle background click */ },
                     indication = rememberRipple(bounded = true),
@@ -250,7 +270,7 @@ fun MainScreen(modifier: Modifier = Modifier, isArSupported: Boolean, sensorX: F
         ) {
             Text(
                 text = "Augment-ED",
-                fontSize =45.sp,
+                fontSize = 45.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = Color(0xFFD4AF37), // Gold color for a premium look
                 fontFamily = MinecraftFontFamily,

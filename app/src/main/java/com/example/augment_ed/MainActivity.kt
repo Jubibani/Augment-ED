@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.Canvas
@@ -53,6 +54,9 @@ import kotlinx.coroutines.delay
 import kotlin.random.Random
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Brush
 
 class MainActivity : ComponentActivity(), SensorEventListener {
 
@@ -141,7 +145,29 @@ class MainActivity : ComponentActivity(), SensorEventListener {
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier, isArSupported: Boolean, sensorX: Float, sensorY: Float) {
-    Box(modifier = modifier.fillMaxSize()) {
+    val infiniteTransition = rememberInfiniteTransition()
+    val color1 by infiniteTransition.animateColor(
+        initialValue = Color(0xFF3F51B5),
+        targetValue = Color(0xFF2196F3),
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 5000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+    val color2 by infiniteTransition.animateColor(
+        initialValue = Color(0xFF2196F3),
+        targetValue = Color(0xFF3F51B5),
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 5000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Brush.verticalGradient(listOf(color1, color2)))
+    ) {
         ParticleBackground(sensorX, sensorY)
 
         Column(

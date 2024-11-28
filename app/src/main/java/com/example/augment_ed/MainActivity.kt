@@ -74,6 +74,13 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.unit.IntOffset
+import androidx.activity.compose.setContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.*
+import com.example.augment_ed.ui.theme.AugmentEDTheme
 
 
 private fun isARCoreSupportedAndUpToDate(context: Context): Boolean {
@@ -112,6 +119,8 @@ private fun isARCoreSupportedAndUpToDate(context: Context): Boolean {
         }
     }
 }
+
+
 
 class MainActivity : ComponentActivity(), SensorEventListener {
 
@@ -196,6 +205,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 
+
 }
 
 // Define the Minecraft font family
@@ -249,9 +259,9 @@ fun MainScreen(modifier: Modifier = Modifier, isArSupported: Boolean, sensorX: F
         val idleAnimation = rememberInfiniteTransition()
         val idleOffsetY by idleAnimation.animateFloat(
             initialValue = -5f,
-            targetValue = 5f,
+            targetValue = 10f,
             animationSpec = infiniteRepeatable(
-                animation = tween(durationMillis = 2000, easing = LinearEasing),
+                animation = tween(durationMillis = 2000, easing = FastOutSlowInEasing),
                 repeatMode = RepeatMode.Reverse
             )
         )

@@ -1,5 +1,10 @@
 package com.example.augment_ed
 
+import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -46,23 +51,26 @@ import com.google.ar.core.Session
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException
 import kotlinx.coroutines.delay
 import kotlin.random.Random
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), SensorEventListener {
 
     private var mUserRequestedInstall = true
     private var mSession: Session? = null
+    private lateinit var sensorManager: SensorManager
+    private var accelerometer: Sensor? = null
+    private var sensorX = 0f
+    private var sensorY = 0f
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            // Permission is granted. Continue with AR session creation.
             tryCreateArSession()
         } else {
-            // Permission is denied. Show a message to the user.
             Toast.makeText(this, "Camera permission is needed to run this application", Toast.LENGTH_LONG).show()
             if (!CameraPermissionHelper.shouldShowRequestPermissionRationale(this)) {
-                // Permission denied with checking "Do not ask again".
                 CameraPermissionHelper.launchPermissionSettings(this)
             }
             finish()
@@ -71,24 +79,31 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+
         setContent {
             AugmentEDTheme {
-                MainScreen(isArSupported = mSession != null)
+                MainScreen(isArSupported = mSession != null, sensorX = sensorX, sensorY = sensorY)
             }
         }
     }
 
     override fun onResume() {
         super.onResume()
+        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI)
 
-        // ARCore requires camera permission to operate.
         if (!CameraPermissionHelper.hasCameraPermission(this)) {
             requestPermissionLauncher.launch(android.Manifest.permission.CAMERA)
             return
         }
 
-        // Try to create AR session if permission is already granted.
         tryCreateArSession()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        sensorManager.unregisterListener(this)
     }
 
     private fun tryCreateArSession() {
@@ -96,33 +111,38 @@ class MainActivity : ComponentActivity() {
             if (mSession == null) {
                 when (ArCoreApk.getInstance().requestInstall(this, mUserRequestedInstall)) {
                     ArCoreApk.InstallStatus.INSTALLED -> {
-                        // Success: Safe to create the AR session.
                         mSession = Session(this)
                     }
                     ArCoreApk.InstallStatus.INSTALL_REQUESTED -> {
-                        // Installation requested, return to avoid session creation.
                         mUserRequestedInstall = false
                         return
                     }
                 }
             }
         } catch (e: UnavailableUserDeclinedInstallationException) {
-            // Display an appropriate message to the user and return gracefully.
             Toast.makeText(this, "ARCore installation was declined by the user.", Toast.LENGTH_LONG).show()
             return
         } catch (e: Exception) {
-            // Handle other exceptions.
             Toast.makeText(this, "ARCore is not available: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
             return
         }
     }
+
+    override fun onSensorChanged(event: SensorEvent?) {
+        if (event?.sensor?.type == Sensor.TYPE_ACCELEROMETER) {
+            sensorX = event.values[0]
+            sensorY = event.values[1]
+        }
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+
 }
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier, isArSupported: Boolean) {
+fun MainScreen(modifier: Modifier = Modifier, isArSupported: Boolean, sensorX: Float, sensorY: Float) {
     Box(modifier = modifier.fillMaxSize()) {
-        // Dynamic background with particles
-        ParticleBackground()
+        ParticleBackground(sensorX, sensorY)
 
         Column(
             modifier = Modifier
@@ -153,24 +173,28 @@ fun MainScreen(modifier: Modifier = Modifier, isArSupported: Boolean) {
 }
 
 @Composable
-fun ParticleBackground() {
+fun ParticleBackground(sensorX: Float, sensorY: Float) {
     val particles = remember { mutableStateListOf<Particle>() }
-    val infiniteTransition = rememberInfiniteTransition()
+    val configuration = LocalConfiguration.current
+    val screenWidthDp = configuration.screenWidthDp.dp
+    val screenHeightDp = configuration.screenHeightDp.dp
 
-    // Add new particles periodically
+    val screenWidth = with(LocalDensity.current) { screenWidthDp.toPx() }
+    val screenHeight = with(LocalDensity.current) { screenHeightDp.toPx() }
+
     LaunchedEffect(Unit) {
         while (true) {
-            particles.add(Particle())
-            delay(100) // Add a new particle every 100ms
+            particles.add(Particle(screenWidth, screenHeight))
+            delay(100)
         }
     }
 
-    // Update particle positions
     particles.forEach { particle ->
-        particle.y += particle.speed
-        if (particle.y > 1000f) { // Reset particle if it goes off screen
+        particle.x += sensorX * 2
+        particle.y += sensorY * 2
+        if (particle.y > screenHeight) {
             particle.y = 0f
-            particle.x = Random.nextFloat() * 1000f
+            particle.x = Random.nextFloat() * screenWidth
         }
     }
 
@@ -186,8 +210,8 @@ fun ParticleBackground() {
 }
 
 data class Particle(
-    var x: Float = Random.nextFloat() * 1000f,
-    var y: Float = Random.nextFloat() * 1000f,
+    var x: Float,
+    var y: Float,
     val size: Float = Random.nextFloat() * 5f + 2f,
     val speed: Float = Random.nextFloat() * 2f + 1f,
     val color: Color = Color(
@@ -196,7 +220,12 @@ data class Particle(
         Random.nextFloat(),
         0.5f
     )
-)
+) {
+    constructor(screenWidth: Float, screenHeight: Float) : this(
+        x = Random.nextFloat() * screenWidth,
+        y = Random.nextFloat() * screenHeight
+    )
+}
 
 @Composable
 fun AnimatedMaterialIconButton(
@@ -240,6 +269,6 @@ fun AnimatedMaterialIconButton(
 @Composable
 fun MainScreenPreview() {
     AugmentEDTheme {
-        MainScreen(isArSupported = true)
+        MainScreen(isArSupported = true, sensorX = 0f, sensorY = 0f)
     }
 }

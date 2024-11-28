@@ -59,10 +59,15 @@ import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.Brush
 import android.util.Log
 import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.google.ar.core.ArCoreApk
 import com.google.ar.core.exceptions.UnavailableException
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.sp
+import androidx.compose.material3.Typography
 
 
 private fun isARCoreSupportedAndUpToDate(context: Context): Boolean {
@@ -187,6 +192,13 @@ class MainActivity : ComponentActivity(), SensorEventListener {
 
 }
 
+// Define the Minecraft font family
+val MinecraftFontFamily = FontFamily(
+    Font(R.font.minecraftregular, FontWeight.Normal),
+    Font(R.font.minecraftbold, FontWeight.Bold)
+
+)
+
 @Composable
 fun MainScreen(modifier: Modifier = Modifier, isArSupported: Boolean, sensorX: Float, sensorY: Float) {
     val infiniteTransition = rememberInfiniteTransition()
@@ -238,14 +250,16 @@ fun MainScreen(modifier: Modifier = Modifier, isArSupported: Boolean, sensorX: F
                 fontSize = 32.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = Color(0xFFD4AF37), // Gold color for a premium look
-                modifier = Modifier.padding(bottom = 32.dp)
+                fontFamily = MinecraftFontFamily,
+                modifier = Modifier.padding(bottom = 10.dp)
             )
             Text(
                 text = "welcome!",
                 fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Normal,
                 color = Color.White,
-                modifier = Modifier.padding(bottom = 16.dp)
+                fontFamily = MinecraftFontFamily,
+                modifier = Modifier.padding(bottom = 50.dp)
             )
 
             if (isArSupported) {
@@ -255,7 +269,7 @@ fun MainScreen(modifier: Modifier = Modifier, isArSupported: Boolean, sensorX: F
                     onClick = { /* Handle Scan button click */ }
                 )
             }
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(32.dp))
             AnimatedMaterialIconButton(
                 text = "Practice",
                 icon = Icons.Filled.School,
@@ -355,7 +369,10 @@ fun AnimatedMaterialIconButton(
                 modifier = Modifier.size(48.dp)
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text(text = text)
+            Text(
+                text = text,
+                fontFamily = MinecraftFontFamily // Use the Minecraft font
+            )
         }
     }
 }

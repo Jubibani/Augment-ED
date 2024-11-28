@@ -65,9 +65,12 @@ import com.google.ar.core.exceptions.UnavailableException
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Typography
+import androidx.compose.ui.draw.scale
 
 
 private fun isARCoreSupportedAndUpToDate(context: Context): Boolean {
@@ -247,7 +250,7 @@ fun MainScreen(modifier: Modifier = Modifier, isArSupported: Boolean, sensorX: F
         ) {
             Text(
                 text = "Augment-ED",
-                fontSize = 32.sp,
+                fontSize =45.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = Color(0xFFD4AF37), // Gold color for a premium look
                 fontFamily = MinecraftFontFamily,
@@ -334,6 +337,7 @@ data class Particle(
     )
 }
 
+
 @Composable
 fun AnimatedMaterialIconButton(
     text: String = "Scan",
@@ -342,6 +346,7 @@ fun AnimatedMaterialIconButton(
 ) {
     var isPressed by remember { mutableStateOf(false) }
     val size by animateDpAsState(if (isPressed) 140.dp else 120.dp, label = "")
+    val scale by animateFloatAsState(if (isPressed) 1.1f else 1.0f, label = "")
 
     FilledTonalIconButton(
         onClick = {
@@ -349,6 +354,7 @@ fun AnimatedMaterialIconButton(
         },
         modifier = Modifier
             .size(size)
+            .scale(scale)
             .pointerInput(Unit) {
                 detectTapGestures(
                     onPress = {
@@ -357,8 +363,12 @@ fun AnimatedMaterialIconButton(
                         isPressed = false
                     }
                 )
-            }
+            },
+        colors = IconButtonDefaults.filledTonalIconButtonColors(
+            containerColor = Color(0xFFD4AF37)
+        )
     ) {
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -366,12 +376,14 @@ fun AnimatedMaterialIconButton(
             Icon(
                 imageVector = icon,
                 contentDescription = text,
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier.size(48.dp),
+                tint = Color.White, // White color for the icon
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = text,
-                fontFamily = MinecraftFontFamily // Use the Minecraft font
+                fontFamily = MinecraftFontFamily, // Use the Minecraft font
+                color = Color.White, // White color for the text
             )
         }
     }

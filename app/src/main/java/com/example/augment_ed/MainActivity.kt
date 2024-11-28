@@ -1,5 +1,6 @@
 package com.example.augment_ed
 
+import android.app.Activity
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -47,7 +48,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.augment_ed.ui.theme.AugmentEDTheme
-import com.google.ar.core.ArCoreApk
 import com.google.ar.core.Session
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException
 import kotlinx.coroutines.delay
@@ -57,6 +57,47 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.Brush
+import android.util.Log
+import com.google.ar.core.ArCoreApk
+import com.google.ar.core.exceptions.UnavailableException
+
+
+private fun isARCoreSupportedAndUpToDate(context: Context): Boolean {
+    val availability = ArCoreApk.getInstance().checkAvailability(context)
+    return when (availability) {
+        ArCoreApk.Availability.SUPPORTED_INSTALLED -> true
+
+        ArCoreApk.Availability.SUPPORTED_APK_TOO_OLD,
+        ArCoreApk.Availability.SUPPORTED_NOT_INSTALLED -> {
+            try {
+                // Request ARCore installation or update if needed.
+                val installStatus = ArCoreApk.getInstance().requestInstall(context as Activity, true)
+                when (installStatus) {
+                    ArCoreApk.InstallStatus.INSTALL_REQUESTED -> {
+                        Log.i("MainActivity", "ARCore installation requested.")
+                        false
+                    }
+                    ArCoreApk.InstallStatus.INSTALLED -> true
+                }
+            } catch (e: UnavailableException) {
+                Log.e("MainActivity", "ARCore not installed", e)
+                false
+            }
+        }
+
+        ArCoreApk.Availability.UNSUPPORTED_DEVICE_NOT_CAPABLE -> {
+            // This device is not supported for AR.
+            false
+        }
+
+        ArCoreApk.Availability.UNKNOWN_CHECKING,
+        ArCoreApk.Availability.UNKNOWN_ERROR,
+        ArCoreApk.Availability.UNKNOWN_TIMED_OUT -> {
+            // Handle the error appropriately.
+            false
+        }
+    }
+}
 
 class MainActivity : ComponentActivity(), SensorEventListener {
 
@@ -147,18 +188,26 @@ class MainActivity : ComponentActivity(), SensorEventListener {
 fun MainScreen(modifier: Modifier = Modifier, isArSupported: Boolean, sensorX: Float, sensorY: Float) {
     val infiniteTransition = rememberInfiniteTransition()
     val color1 by infiniteTransition.animateColor(
-        initialValue = Color(0xFF3F51B5),
-        targetValue = Color(0xFF2196F3),
+        initialValue = Color(0xFF0D1B2A), // Deep Space Blue
+        targetValue = Color(0xFF1B263B), // Darker Blue
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = 5000, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
         )
     )
     val color2 by infiniteTransition.animateColor(
-        initialValue = Color(0xFF2196F3),
-        targetValue = Color(0xFF3F51B5),
+        initialValue = Color(0xFF1B263B), // Darker Blue
+        targetValue = Color(0xFF415A77), // Aurora Blue
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 5000, easing = LinearEasing),
+            animation = tween(durationMillis = 8000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+    val color3 by infiniteTransition.animateColor(
+        initialValue = Color(0xFF415A77), // Aurora Blue
+        targetValue = Color(0xFF778DA9), // Light Aurora
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 4000, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
         )
     )
@@ -166,7 +215,7 @@ fun MainScreen(modifier: Modifier = Modifier, isArSupported: Boolean, sensorX: F
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(color1, color2)))
+            .background(Brush.verticalGradient(listOf(color1, color2, color3)))
     ) {
         ParticleBackground(sensorX, sensorY)
 
@@ -211,7 +260,7 @@ fun ParticleBackground(sensorX: Float, sensorY: Float) {
     LaunchedEffect(Unit) {
         while (true) {
             particles.add(Particle(screenWidth, screenHeight))
-            delay(100)
+            delay(50) // Reduce delay for smoother animation
         }
     }
 
@@ -227,8 +276,8 @@ fun ParticleBackground(sensorX: Float, sensorY: Float) {
     Canvas(modifier = Modifier.fillMaxSize()) {
         particles.forEach { particle ->
             drawCircle(
-                color = particle.color,
-                radius = particle.size,
+                color = particle.color.copy(alpha = 0.3f), // Increase opacity for visibility
+                radius = particle.size * 2, // Increase size for visibility
                 center = Offset(particle.x, particle.y)
             )
         }
@@ -238,13 +287,13 @@ fun ParticleBackground(sensorX: Float, sensorY: Float) {
 data class Particle(
     var x: Float,
     var y: Float,
-    val size: Float = Random.nextFloat() * 5f + 2f,
+    val size: Float = Random.nextFloat() * 2f + 1f, // Increase base size
     val speed: Float = Random.nextFloat() * 2f + 1f,
     val color: Color = Color(
         Random.nextFloat(),
         Random.nextFloat(),
         Random.nextFloat(),
-        0.5f
+        0.3f // Increase base opacity
     )
 ) {
     constructor(screenWidth: Float, screenHeight: Float) : this(
@@ -255,15 +304,17 @@ data class Particle(
 
 @Composable
 fun AnimatedMaterialIconButton(
-    text: String,
-    icon: ImageVector,
+    text: String = "Scan",
+    icon: ImageVector = Icons.Filled.QrCodeScanner,
     onClick: () -> Unit
 ) {
     var isPressed by remember { mutableStateOf(false) }
-    val size by animateDpAsState(if (isPressed) 140.dp else 120.dp)
+    val size by animateDpAsState(if (isPressed) 140.dp else 120.dp, label = "")
 
     FilledTonalIconButton(
-        onClick = onClick,
+        onClick = {
+            onClick()
+        },
         modifier = Modifier
             .size(size)
             .pointerInput(Unit) {

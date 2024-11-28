@@ -23,6 +23,7 @@ import androidx.compose.runtime.*
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : ComponentActivity() {
+    @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -30,11 +31,10 @@ class SplashActivity : ComponentActivity() {
 
             LaunchedEffect(Unit) {
                 visible = true
-                delay(4000) // Duration of the splash screen
+                delay(3000) // Duration of the splash screen
                 visible = false
-                delay(500) // Duration of the fade-out animation
                 startActivity(Intent(this@SplashActivity, MainActivity::class.java))
-                finish()
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
             }
 
             Box(
@@ -45,8 +45,8 @@ class SplashActivity : ComponentActivity() {
             ) {
                 androidx.compose.animation.AnimatedVisibility(
                     visible = visible,
-                    enter = fadeIn(animationSpec = tween(1000)), // Fade in over 1 second
-                    exit = fadeOut(animationSpec = tween(500)) // Fade out over 0.5 seconds
+                    enter = fadeIn(animationSpec = tween(2500)), // Fade in over 1.5 seconds
+                    exit = fadeOut(animationSpec = tween(2500)) // Fade out over 1 second
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.splashscreentext),

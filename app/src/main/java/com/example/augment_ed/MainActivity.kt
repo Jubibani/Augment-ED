@@ -75,8 +75,12 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.unit.IntOffset
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
@@ -152,7 +156,21 @@ class MainActivity : ComponentActivity(), SensorEventListener {
 
         setContent {
             AugmentEDTheme {
-                MainScreen(isArSupported = mSession != null, sensorX = sensorX, sensorY = sensorY)
+                var isVisible by remember { mutableStateOf(false) }
+
+                // Start the animation after a delay
+                LaunchedEffect(Unit) {
+                    isVisible = true
+                }
+
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = fadeIn(animationSpec = tween(3000)),
+                    exit = fadeOut(animationSpec = tween(1000))
+                ) {
+                    MainScreen(isArSupported = mSession != null, sensorX = sensorX, sensorY = sensorY)
+                }
+
             }
         }
     }

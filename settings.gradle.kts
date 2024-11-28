@@ -11,11 +11,11 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        google()
-        mavenCentral()
+        google()  // Add Google's Maven repository here
+        mavenCentral() // You'll likely want this for other dependencies
     }
 }
 

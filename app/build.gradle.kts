@@ -61,4 +61,7 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.material:material-icons-extended:1.5.4")
+
+    //AR Core
+    implementation("com.google.ar:core:1.33.0")
 }

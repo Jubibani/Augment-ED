@@ -84,7 +84,12 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
+import androidx.lifecycle.lifecycleScope
+import com.example.augment_ed.data.AppDatabase
+import com.example.augment_ed.data.ConceptRepository
+import com.example.augment_ed.data.DatabaseInitializer
 import com.example.augment_ed.ui.theme.AugmentEDTheme
+import kotlinx.coroutines.launch
 
 
 private fun isARCoreSupportedAndUpToDate(context: Context): Boolean {
@@ -135,6 +140,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     private var sensorX = 0f
     private var sensorY = 0f
 
+    private lateinit var conceptRepository: ConceptRepository
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -149,10 +155,21 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         }
     }
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+
+
+        val database = AppDatabase.getDatabase(applicationContext)
+        conceptRepository = ConceptRepository(database.conceptDao())
+
+        // Initialize database (if needed)
+        lifecycleScope.launch {
+            DatabaseInitializer(applicationContext).initializeDatabase()
+        }
 
         setContent {
             AugmentEDTheme {

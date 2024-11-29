@@ -2,13 +2,13 @@
   {
     "term": "Heart",
     "description": "The heart is a muscular organ that pumps blood through the blood vessels of the circulatory system.",
-    "modelPath": "models/heart.glb",
+    "modelPath": "assets/models/glb/marine_toad_on_leaf.glb",
     "pronunciationGuide": "hahrt"
   },
   {
     "term": "Brain",
-    "description": "The brain is the center of the nervous system and the most complex organ in the human body.",
-    "modelPath": "models/brain.glb",
-    "pronunciationGuide": "breyn"
+    "description": "Frog is an example of an amphibian.",
+    "modelPath": "assets/models/glb/marine_toad_on_leaf.glb",
+    "pronunciationGuide": "frag"
   }
 ]

@@ -8,7 +8,7 @@ class ConceptRepository(private val conceptDao: ConceptDao) {
         conceptDao.getConceptByTerm(term)
     }
 
-    suspend fun insertConcept(concept: Concept) = withContext(Dispatchers.IO) {
-        conceptDao.insert(concept)
+    suspend fun getRandomConcept(): Concept? {
+        return conceptDao.getRandomConcept()
     }
 }

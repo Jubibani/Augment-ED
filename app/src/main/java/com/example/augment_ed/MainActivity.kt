@@ -2,6 +2,7 @@ package com.example.augment_ed
 
 import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -48,9 +49,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.augment_ed.ui.theme.AugmentEDTheme
+import com.google.ar.core.ArCoreApk
 import com.google.ar.core.Session
-import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException
-import kotlinx.coroutines.delay
+import com.google.ar.core.exceptions.UnavailableException
 import kotlin.random.Random
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -60,36 +61,38 @@ import androidx.compose.ui.graphics.Brush
 import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.unit.sp
-import com.google.ar.core.ArCoreApk
-import com.google.ar.core.exceptions.UnavailableException
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.sp
-import androidx.compose.material3.Typography
 import androidx.compose.ui.draw.scale
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.unit.IntOffset
-import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
 import com.example.augment_ed.data.AppDatabase
+import com.example.augment_ed.data.Concept
+import com.example.augment_ed.data.ConceptDao
 import com.example.augment_ed.data.ConceptRepository
 import com.example.augment_ed.data.DatabaseInitializer
-import com.example.augment_ed.ui.theme.AugmentEDTheme
+import com.example.augment_ed.viewmodels.ARViewModel
+import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import android.Manifest
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 
 
 private fun isARCoreSupportedAndUpToDate(context: Context): Boolean {
@@ -130,7 +133,46 @@ private fun isARCoreSupportedAndUpToDate(context: Context): Boolean {
 }
 
 
+class ARViewModelFactory(private val repository: ConceptRepository) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(ARViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return ARViewModel(repository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
 
+class ARViewModel(private val repository: ConceptRepository) : ViewModel() {
+    fun startARScan() {
+        // Implement AR scanning logic here
+        // This could involve starting an AR session, processing camera frames, etc.
+    }
+
+    // ... other ViewModel functions
+}
+
+@Database(entities = [Concept::class], version = 1)
+abstract class AppDatabase : RoomDatabase() {
+    abstract fun conceptDao(): ConceptDao
+
+    companion object {
+        @Volatile
+        private var INSTANCE: AppDatabase? = null
+
+        fun getDatabase(context: Context): AppDatabase {
+            return INSTANCE ?: synchronized(this) {
+                val instance = Room.databaseBuilder(
+                    context.applicationContext,
+                    AppDatabase::class.java,
+                    "app_database"
+                ).build()
+                INSTANCE = instance
+                instance
+            }
+        }
+    }
+}
 class MainActivity : ComponentActivity(), SensorEventListener {
 
     private var mUserRequestedInstall = true
@@ -139,13 +181,17 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     private var accelerometer: Sensor? = null
     private var sensorX = 0f
     private var sensorY = 0f
+    
+    //AR
+    private lateinit var arCoreSession: Session
+    private var userRequestedInstall = false
 
     private lateinit var conceptRepository: ConceptRepository
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            tryCreateArSession()
+            setupArSession()
         } else {
             Toast.makeText(this, "Camera permission is needed to run this application", Toast.LENGTH_LONG).show()
             if (!CameraPermissionHelper.shouldShowRequestPermissionRationale(this)) {
@@ -159,6 +205,9 @@ class MainActivity : ComponentActivity(), SensorEventListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        
+        //sensor
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
@@ -170,7 +219,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         lifecycleScope.launch {
             DatabaseInitializer(applicationContext).initializeDatabase()
         }
-
+        
         setContent {
             AugmentEDTheme {
                 var isVisible by remember { mutableStateOf(false) }
@@ -192,6 +241,37 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         }
     }
 
+     fun setupArSession() {
+         // Check AR availability
+         when (ArCoreApk.getInstance().checkAvailability(this)) {
+             ArCoreApk.Availability.SUPPORTED_INSTALLED -> setupArSession()
+             ArCoreApk.Availability.SUPPORTED_APK_TOO_OLD, ArCoreApk.Availability.SUPPORTED_NOT_INSTALLED -> {
+                 try {
+                     when (ArCoreApk.getInstance().requestInstall(this, userRequestedInstall)) {
+                         ArCoreApk.InstallStatus.INSTALLED -> setupArSession()
+                         ArCoreApk.InstallStatus.INSTALL_REQUESTED -> userRequestedInstall = true
+                     }
+                 } catch (e: UnavailableException) {
+                     Toast.makeText(this, "ARCore not available", Toast.LENGTH_LONG).show()
+                 }
+             }
+             ArCoreApk.Availability.UNSUPPORTED_DEVICE_NOT_CAPABLE ->
+                 Toast.makeText(this, "Your device does not support AR", Toast.LENGTH_LONG).show()
+             ArCoreApk.Availability.UNKNOWN_CHECKING, ArCoreApk.Availability.UNKNOWN_ERROR, ArCoreApk.Availability.UNKNOWN_TIMED_OUT -> {
+                 // Handle other cases
+             }
+         }
+         
+        if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            try {
+                arCoreSession = Session(this)
+            } catch (e: UnavailableException) {
+                Toast.makeText(this, "Unable to create AR session", Toast.LENGTH_LONG).show()
+            }
+        } else {
+            requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
     override fun onResume() {
         super.onResume()
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI)
@@ -251,8 +331,18 @@ val MinecraftFontFamily = FontFamily(
 )
 
 
+
 @Composable
-fun MainScreen(modifier: Modifier = Modifier, isArSupported: Boolean, sensorX: Float, sensorY: Float) {
+fun MainScreen(
+    modifier: Modifier = Modifier,
+    isArSupported: Boolean,
+    sensorX: Float,
+    sensorY: Float
+) {
+    val viewModel: ARViewModel = viewModel(
+        factory = ARViewModelFactory(ConceptRepository(AppDatabase.getDatabase(LocalContext.current).conceptDao()))
+    )
+
     val infiniteTransition = rememberInfiniteTransition()
     val color1 by infiniteTransition.animateColor(
         initialValue = Color(0xFF0D1B2A), // Deep Space Blue
@@ -334,7 +424,10 @@ fun MainScreen(modifier: Modifier = Modifier, isArSupported: Boolean, sensorX: F
                 AnimatedMaterialIconButton(
                     text = "Scan",
                     icon = Icons.Filled.QrCodeScanner,
-                    onClick = { /* Handle Scan button click */ }
+                    onClick = {
+                        // Trigger AR scan
+                        viewModel.startARScan()
+                    }
                 )
             }
             Spacer(modifier = Modifier.height(32.dp))

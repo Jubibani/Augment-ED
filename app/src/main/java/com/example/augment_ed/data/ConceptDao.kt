@@ -15,4 +15,10 @@ interface ConceptDao {
 
     @Query("SELECT COUNT(*) FROM concept_table")
     suspend fun getConceptCount(): Int
+    abstract fun insert(concept: Concept)
+    abstract fun getRandomConcept(): Concept?
+
+
+    @Query("SELECT * FROM concept_table ORDER BY RANDOM() LIMIT 1")
+    abstract fun getRandomConceptFromDatabase(): Concept?
 }

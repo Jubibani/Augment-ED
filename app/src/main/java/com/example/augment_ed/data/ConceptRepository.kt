@@ -1,14 +1,22 @@
 package com.example.augment_ed.data
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 
 class ConceptRepository(private val conceptDao: ConceptDao) {
-    suspend fun getConceptByTerm(term: String): Concept? = withContext(Dispatchers.IO) {
-        conceptDao.getConceptByTerm(term)
+    fun getConceptByTerm(term: String): Flow<Concept?> {
+        return conceptDao.getConceptByTerm(term)
     }
 
     suspend fun getRandomConcept(): Concept? {
-        return conceptDao.getRandomConcept()
+        return conceptDao.getRandomConceptFromDatabase().firstOrNull()
+    }
+
+    suspend fun insertConcept(concept: Concept) {
+        conceptDao.insertConcept(concept)
+    }
+
+    fun getConceptCount(): Flow<Int> {
+        return conceptDao.getConceptCount()
     }
 }

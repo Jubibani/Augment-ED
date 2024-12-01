@@ -1,9 +1,7 @@
 package com.example.augment_ed.data
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ConceptDao {
@@ -11,14 +9,11 @@ interface ConceptDao {
     suspend fun insertConcept(concept: Concept)
 
     @Query("SELECT * FROM concept_table WHERE term = :term LIMIT 1")
-    suspend fun getConceptByTerm(term: String): Concept?
+    fun getConceptByTerm(term: String): Flow<Concept?>
 
     @Query("SELECT COUNT(*) FROM concept_table")
-    suspend fun getConceptCount(): Int
-    abstract fun insert(concept: Concept)
-    abstract fun getRandomConcept(): Concept?
-
+    fun getConceptCount(): Flow<Int>
 
     @Query("SELECT * FROM concept_table ORDER BY RANDOM() LIMIT 1")
-    abstract fun getRandomConceptFromDatabase(): Concept?
+    fun getRandomConceptFromDatabase(): Flow<Concept?>
 }

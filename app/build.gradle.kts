@@ -1,4 +1,5 @@
 
+val room_version = "2.5.1"
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -8,6 +9,13 @@ plugins {
 android {
     namespace = "com.example.augment_ed"
     compileSdk = 35
+
+    configurations.all {
+        resolutionStrategy {
+            force("androidx.core:core-ktx:1.10.1")
+            // Add other AndroidX libraries if needed
+        }
+    }
 
     defaultConfig {
         applicationId = "com.example.augment_ed"
@@ -19,6 +27,16 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += mapOf(
+                    "room.schemaLocation" to "$projectDir/schemas",
+                    "room.incremental" to "true",
+                    "room.expandProjection" to "true"
+                )
+            }
         }
     }
 
@@ -52,7 +70,8 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.core:core-ktx:1.10.1")
+    implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation("androidx.activity:activity-compose:1.8.1")
     implementation(platform("androidx.compose:compose-bom:2023.10.01"))
@@ -77,4 +96,11 @@ dependencies {
 
     // Gson for JSON parsing
     implementation("com.google.code.gson:gson:2.8.9")
+
+
+    implementation("androidx.room:room-runtime:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
+    kapt("androidx.room:room-compiler:$room_version")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 }

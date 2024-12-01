@@ -2,13 +2,13 @@
   {
     "term": "Heart",
     "description": "The heart is a muscular organ that pumps blood through the blood vessels of the circulatory system.",
-    "modelPath": "assets/models/glb/marine_toad_on_leaf.glb",
-    "pronunciationGuide": "hahrt"
+    "modelPath": "com/example/augment_ed/assets/models/realistic_human_heart.glb",
+    "pronunciationGuide": null
   },
   {
-    "term": "Brain",
+    "term": "Amphibian",
     "description": "Frog is an example of an amphibian.",
-    "modelPath": "assets/models/glb/marine_toad_on_leaf.glb",
-    "pronunciationGuide": "frag"
+    "modelPath": "com/example/augment_ed/assets/models/model_6_-_marine_toad_on_leaf.glb",
+    "pronunciationGuide": null
   }
 ]

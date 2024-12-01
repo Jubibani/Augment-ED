@@ -1,14 +1,15 @@
 
-val room_version = "2.5.1"
+val room_version = "2.6.1"
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp") version "1.9.0-1.0.13"
+    kotlin("kapt")
 }
 
 android {
     namespace = "com.example.augment_ed"
-    compileSdk = 35
+    compileSdk = 34
 
     configurations.all {
         resolutionStrategy {
@@ -23,6 +24,7 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+        vectorDrawables.useSupportLibrary = true
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -70,7 +72,7 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.10.1")
+    implementation("androidx.core:core-ktx:1.12.1")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation("androidx.activity:activity-compose:1.8.1")
@@ -85,13 +87,15 @@ dependencies {
     implementation("androidx.compose.runtime:runtime-livedata:1.5.4")
 
     //AR Core
-    implementation("com.google.ar:core:1.33.0")
-    implementation("com.google.ar.sceneform.ux:sceneform-ux:1.17.1")
+    implementation("com.google.ar:core:1.31.0")
+    implementation("com.google.ar:core-ktx:1.31.0")
 
     // Room
     implementation("androidx.room:room-runtime:2.5.0")
     implementation("androidx.room:room-ktx:2.5.0")
     implementation(libs.androidx.appcompat)
+    implementation(libs.sceneform.ux)
+    implementation(libs.core)
     kapt("androidx.room:room-compiler:2.5.0")
 
     // Gson for JSON parsing

@@ -4,6 +4,7 @@ import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 
 class DatabaseInitializer(private val context: Context) {
@@ -12,7 +13,8 @@ class DatabaseInitializer(private val context: Context) {
 
     suspend fun initializeDatabase() {
         withContext(Dispatchers.IO) {
-            if (conceptDao.getConceptCount() == 0) {
+            val count = conceptDao.getConceptCount().first() // Collect the first emitted value
+            if (count == 0) {
                 val concepts = loadConceptsFromJson()
                 concepts.forEach { concept ->
                     conceptDao.insertConcept(concept)

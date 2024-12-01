@@ -8,6 +8,7 @@ import com.example.augment_ed.data.ConceptRepository
 import com.google.ar.sceneform.rendering.ModelRenderable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 class ARViewModel(private val conceptRepository: ConceptRepository) : ViewModel() {
@@ -16,17 +17,18 @@ class ARViewModel(private val conceptRepository: ConceptRepository) : ViewModel(
 
     fun getConceptByTerm(term: String) {
         viewModelScope.launch {
-            _currentConcept.value = conceptRepository.getConceptByTerm(term)
+            _currentConcept.value = conceptRepository.getConceptByTerm(term).firstOrNull()
         }
     }
+
     fun startARScan() {
-    // Implement AR scanning logic here
-    // For now, let's just simulate scanning by getting a random concept
-    viewModelScope.launch {
-        val randomConcept = conceptRepository.getRandomConcept()
-        _currentConcept.value = randomConcept
+        // Implement AR scanning logic here
+        // For now, let's just simulate scanning by getting a random concept
+        viewModelScope.launch {
+            val randomConcept = conceptRepository.getRandomConcept()
+            _currentConcept.value = randomConcept
+        }
     }
-}
 
     fun loadModelForConcept(context: Context, onModelLoaded: (ModelRenderable) -> Unit) {
         val concept = _currentConcept.value ?: return

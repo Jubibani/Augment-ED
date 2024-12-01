@@ -17,7 +17,7 @@ data class Concept(
     val pronunciationGuide: String?
 )
 
-class ARViewModel(private val repository: ConceptRepository)  {
+class ARViewModel(private val repository: ConceptRepository) : ViewModel()  {
     private val _recognizedTerm = MutableStateFlow<String?>(null)
     val recognizedTerm: StateFlow<String?> = _recognizedTerm
 

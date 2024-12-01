@@ -526,7 +526,7 @@ fun AnimatedMaterialIconButton(
             containerColor = Color(0xFFD4AF37)
         )
     ) {
-
+        // Button content
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -543,8 +543,8 @@ fun AnimatedMaterialIconButton(
                 fontFamily = MinecraftFontFamily, // Use the Minecraft font
                 color = Color.White, // White color for the text
             )
+
         }
-    }
 }
 
 @Preview(showBackground = true)

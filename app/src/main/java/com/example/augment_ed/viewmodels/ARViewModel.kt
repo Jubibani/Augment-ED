@@ -2,7 +2,6 @@ package com.example.augment_ed.viewmodels
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.augment_ed.data.Concept
@@ -16,6 +15,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 
+
 class ARViewModel(private val conceptRepository: ConceptRepository) : ViewModel() {
     private val _arState = MutableStateFlow<ARState>(ARState.Idle)
     val arState: StateFlow<ARState> = _arState.asStateFlow()
@@ -24,7 +24,7 @@ class ARViewModel(private val conceptRepository: ConceptRepository) : ViewModel(
 
     fun getConceptByTerm(term: String) {
         viewModelScope.launch {
-            _currentConcept.value = conceptRepository.getConceptByTerm(term).firstOrNull()
+            _currentConcept.value = conceptRepository.getConceptByTerm(term)
         }
     }
 
@@ -38,7 +38,9 @@ class ARViewModel(private val conceptRepository: ConceptRepository) : ViewModel(
                 val recognizedText = TextRecognitionHelper.recognizeText(bitmap)
                 val concept = conceptRepository.getConceptByName(recognizedText)
                 if (concept != null) {
-                    loadModelForConcept(context, concept.modelPath)
+                    loadModelForConcept(context, concept.modelPath) { modelRenderable ->
+                        _arState.value = ARState.ModelLoaded(modelRenderable)
+                    }
                 } else {
                     _arState.value = ARState.Error("Concept not found: $recognizedText")
                 }
@@ -48,16 +50,22 @@ class ARViewModel(private val conceptRepository: ConceptRepository) : ViewModel(
         }
     }
 
-    private suspend fun loadModelForConcept(context: Context, modelPath: String) {
-        try {
-            val modelRenderable = ModelRenderable.builder()
-                .setSource(context, Uri.parse(modelPath))
-                .build()
-                .await()
-            _arState.value = ARState.ModelLoaded(modelRenderable)
-        } catch (e: Exception) {
-            _arState.value = ARState.Error("Error loading model: ${e.message}")
+    fun loadModelForConcept(context: Context, modelPath: String, onModelLoaded: (ModelRenderable) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val modelRenderable = ModelRenderable.builder()
+                    .setSource(context, android.net.Uri.parse(modelPath))
+                    .build()
+                    .await()
+                onModelLoaded(modelRenderable)
+            } catch (e: Exception) {
+                _arState.value = ARState.Error("Error loading model: ${e.message}")
+            }
         }
+    }
+
+    suspend fun getRandomConcept(): Concept? {
+        return conceptRepository.getRandomConcept()
     }
 
     sealed class ARState {

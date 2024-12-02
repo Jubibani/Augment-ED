@@ -7,21 +7,24 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import com.example.augment_ed.viewmodels.ARViewModel
-import com.google.ar.core.Config
+import com.google.ar.core.HitResult
 import com.google.ar.sceneform.AnchorNode
+import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.ux.ArFragment
 import com.google.ar.sceneform.ux.TransformableNode
+import kotlinx.coroutines.launch
 
-// Custom ArFragment that extends Fragment
 class CustomArFragment : Fragment() {
     private lateinit var arFragment: ArFragment
 
@@ -36,23 +39,27 @@ class CustomArFragment : Fragment() {
 @Composable
 fun ARScanView(viewModel: ARViewModel) {
     val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val customArFragment = remember { CustomArFragment() }
+    val coroutineScope = rememberCoroutineScope()
+    var customArFragment by remember { mutableStateOf<CustomArFragment?>(null) }
 
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                customArFragment.getArFragment().arSceneView.session?.let { session ->
-                    val config = Config(session)
-                    config.updateMode = Config.UpdateMode.LATEST_CAMERA_IMAGE
-                    config.focusMode = Config.FocusMode.AUTO
-                    session.configure(config)
+    DisposableEffect(Unit) {
+        val fragment = CustomArFragment()
+        customArFragment = fragment
+        onDispose { }
+    }
+
+    LaunchedEffect(customArFragment) {
+        customArFragment?.let { fragment ->
+            fragment.getArFragment().setOnTapArPlaneListener { hitResult: HitResult, _, _ ->
+                coroutineScope.launch {
+                    val concept = viewModel.getRandomConcept()
+                    concept?.let {
+                        viewModel.loadModelForConcept(context, it.modelPath) { modelRenderable ->
+                            addModelToScene(hitResult, modelRenderable, fragment.getArFragment())
+                        }
+                    }
                 }
             }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 
@@ -69,23 +76,23 @@ fun ARScanView(viewModel: ARViewModel) {
         update = { view ->
             (view.parent as? ViewGroup)?.let { parent ->
                 val fragmentManager = (context as androidx.fragment.app.FragmentActivity).supportFragmentManager
-                fragmentManager.beginTransaction()
-                    .replace(view.id, customArFragment)
-                    .commit()
-
-                customArFragment.getArFragment().setOnTapArPlaneListener { hitResult, plane, motionEvent ->
-                    viewModel.loadModelForConcept(context) { modelRenderable ->
-                        val anchor = hitResult.createAnchor()
-                        val anchorNode = AnchorNode(anchor)
-                        anchorNode.setParent(customArFragment.getArFragment().arSceneView.scene)
-
-                        val transformableNode = TransformableNode(customArFragment.getArFragment().transformationSystem)
-                        transformableNode.setParent(anchorNode)
-                        transformableNode.renderable = modelRenderable
-                        transformableNode.select()
-                    }
+                customArFragment?.let { fragment ->
+                    fragmentManager.beginTransaction()
+                        .replace(view.id, fragment)
+                        .commit()
                 }
             }
         }
     )
+}
+
+private fun addModelToScene(hitResult: HitResult, modelRenderable: ModelRenderable, arFragment: ArFragment) {
+    val anchor = hitResult.createAnchor()
+    val anchorNode = AnchorNode(anchor)
+    anchorNode.setParent(arFragment.arSceneView.scene)
+
+    val transformableNode = TransformableNode(arFragment.transformationSystem)
+    transformableNode.setParent(anchorNode)
+    transformableNode.renderable = modelRenderable
+    transformableNode.select()
 }

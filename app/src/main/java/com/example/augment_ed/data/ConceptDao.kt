@@ -19,6 +19,6 @@ interface ConceptDao {
     fun getConceptCount(): Flow<Int>
 
     @Query("SELECT * FROM concept_table ORDER BY RANDOM() LIMIT 1")
-    suspend fun getRandomConceptFromDatabase(term: String): Concept?
+    suspend fun getRandomConceptFromDatabase(): Concept?
 
 }

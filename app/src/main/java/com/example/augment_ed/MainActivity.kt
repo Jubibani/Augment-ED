@@ -276,14 +276,11 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     }
     override fun onResume() {
         super.onResume()
-        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI)
-
-        if (!CameraPermissionHelper.hasCameraPermission(this)) {
-            requestPermissionLauncher.launch(android.Manifest.permission.CAMERA)
-            return
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            setupArSession()
+        } else {
+            requestPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
-
-        tryCreateArSession()
     }
 
     override fun onPause() {
@@ -341,9 +338,10 @@ fun MainScreen(
     sensorX: Float,
     sensorY: Float
 ) {
-    val viewModel: ARViewModel = viewModel(
-        factory = ARViewModelFactory(ConceptRepository(AppDatabase.getDatabase(LocalContext.current).conceptDao()))
-    )
+    val context = LocalContext.current
+    val database = AppDatabase.getDatabase(context)
+    val repository = ConceptRepository(database.conceptDao())
+    val viewModel: ARViewModel = viewModel(factory = ARViewModelFactory(repository))
 
     val infiniteTransition = rememberInfiniteTransition()
     val color1 by infiniteTransition.animateColor(

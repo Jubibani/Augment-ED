@@ -80,6 +80,8 @@ dependencies {
 
     // AR Core
     implementation(libs.ar.core)
+    //OCR
+    implementation(libs.play.services.mlkit.text.recognition)
 
     // Room
     implementation(libs.room.runtime)

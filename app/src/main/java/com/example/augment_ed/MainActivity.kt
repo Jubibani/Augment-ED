@@ -119,7 +119,7 @@ private fun isARCoreSupportedAndUpToDate(context: Context): Boolean {
         }
 
         ArCoreApk.Availability.UNSUPPORTED_DEVICE_NOT_CAPABLE -> {
-            // This device is not supported for AR.
+            // This device  is not supported for AR.
             false
         }
 
@@ -234,7 +234,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                     enter = fadeIn(animationSpec = tween(3000)),
                     exit = fadeOut(animationSpec = tween(1000))
                 ) {
-                    MainScreen(isArSupported = mSession != null, sensorX = sensorX, sensorY = sensorY)
+                    MainScreen(isArSupported = mSession != null, sensorX = sensorX, sensorY = sensorY, viewModel = ARViewModel(conceptRepository))
                 }
 
             }
@@ -337,7 +337,8 @@ fun MainScreen(
     modifier: Modifier = Modifier,
     isArSupported: Boolean,
     sensorX: Float,
-    sensorY: Float
+    sensorY: Float,
+    viewModel: ARViewModel
 ) {
     val viewModel: ARViewModel = viewModel(
         factory = ARViewModelFactory(ConceptRepository(AppDatabase.getDatabase(LocalContext.current).conceptDao()))
@@ -393,6 +394,7 @@ fun MainScreen(
 
         Column(
             modifier = Modifier
+
                 .fillMaxSize()
                 .offset { IntOffset(0, (textOffsetY + idleOffsetY.dp).roundToPx()) }
                 .clickable(
@@ -551,6 +553,6 @@ fun AnimatedMaterialIconButton(
 @Composable
 fun MainScreenPreview() {
     AugmentEDTheme {
-        MainScreen(isArSupported = true, sensorX = 0f, sensorY = 0f)
+        MainScreen(isArSupported = true, sensorX = 0f, sensorY = 0f, viewModel = ARViewModel(ConceptRepository(AppDatabase.getDatabase(LocalContext.current).conceptDao())))
     }
 }

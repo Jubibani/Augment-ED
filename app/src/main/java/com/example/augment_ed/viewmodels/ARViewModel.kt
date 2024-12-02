@@ -1,19 +1,26 @@
 package com.example.augment_ed.viewmodels
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.augment_ed.data.Concept
 import com.example.augment_ed.data.ConceptRepository
+import com.example.augment_ed.utils.TextRecognitionHelper
 import com.google.ar.sceneform.rendering.ModelRenderable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 
 class ARViewModel(private val conceptRepository: ConceptRepository) : ViewModel() {
+    private val _arState = MutableStateFlow<ARState>(ARState.Idle)
+    val arState: StateFlow<ARState> = _arState.asStateFlow()
     private val _currentConcept = MutableStateFlow<Concept?>(null)
-    val currentConcept: StateFlow<Concept?> = _currentConcept
+    val currentConcept: StateFlow<Concept?> = _currentConcept.asStateFlow()
 
     fun getConceptByTerm(term: String) {
         viewModelScope.launch {
@@ -22,28 +29,41 @@ class ARViewModel(private val conceptRepository: ConceptRepository) : ViewModel(
     }
 
     fun startARScan() {
-        // Implement AR scanning logic here
-        // For now, let's just simulate scanning by getting a random concept
+        _arState.value = ARState.Scanning
+    }
+
+    fun processImage(bitmap: Bitmap, context: Context) {
         viewModelScope.launch {
-            val randomConcept = conceptRepository.getRandomConcept()
-            _currentConcept.value = randomConcept
+            try {
+                val recognizedText = TextRecognitionHelper.recognizeText(bitmap)
+                val concept = conceptRepository.getConceptByName(recognizedText)
+                if (concept != null) {
+                    loadModelForConcept(context, concept.modelPath)
+                } else {
+                    _arState.value = ARState.Error("Concept not found: $recognizedText")
+                }
+            } catch (e: Exception) {
+                _arState.value = ARState.Error("Error processing image: ${e.message}")
+            }
         }
     }
 
-    fun loadModelForConcept(context: Context, onModelLoaded: (ModelRenderable) -> Unit) {
-        val concept = _currentConcept.value ?: return
-        val modelPath = concept.modelPath
-        val modelUri = android.net.Uri.parse("file:///android_asset/$modelPath")
-        
-        ModelRenderable.builder()
-            .setSource(context, modelUri)
-            .build()
-            .thenAccept { renderable ->
-                onModelLoaded(renderable)
-            }
-            .exceptionally { throwable ->
-                // Handle any errors
-                null
-            }
+    private suspend fun loadModelForConcept(context: Context, modelPath: String) {
+        try {
+            val modelRenderable = ModelRenderable.builder()
+                .setSource(context, Uri.parse(modelPath))
+                .build()
+                .await()
+            _arState.value = ARState.ModelLoaded(modelRenderable)
+        } catch (e: Exception) {
+            _arState.value = ARState.Error("Error loading model: ${e.message}")
+        }
+    }
+
+    sealed class ARState {
+        object Idle : ARState()
+        object Scanning : ARState()
+        data class ModelLoaded(val modelRenderable: ModelRenderable) : ARState()
+        data class Error(val message: String) : ARState()
     }
 }

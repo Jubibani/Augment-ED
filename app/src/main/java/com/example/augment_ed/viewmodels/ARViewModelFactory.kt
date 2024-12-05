@@ -2,6 +2,7 @@ package com.example.augment_ed.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.augment_ed.ARViewModel
 import com.example.augment_ed.data.ConceptRepository
 
 class ARViewModelFactory(private val repository: ConceptRepository) : ViewModelProvider.Factory {

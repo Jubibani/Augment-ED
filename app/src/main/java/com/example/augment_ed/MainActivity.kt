@@ -85,12 +85,14 @@ import com.example.augment_ed.data.Concept
 import com.example.augment_ed.data.ConceptDao
 import com.example.augment_ed.data.ConceptRepository
 import com.example.augment_ed.data.DatabaseInitializer
-import com.example.augment_ed.viewmodels.ARViewModel
+//import com.example.augment_ed.viewmodels.ARViewModel
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import android.Manifest
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.Surface
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 
@@ -274,14 +276,11 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     }
     override fun onResume() {
         super.onResume()
-        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI)
-
-        if (!CameraPermissionHelper.hasCameraPermission(this)) {
-            requestPermissionLauncher.launch(android.Manifest.permission.CAMERA)
-            return
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            setupArSession()
+        } else {
+            requestPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
-
-        tryCreateArSession()
     }
 
     override fun onPause() {
@@ -339,9 +338,10 @@ fun MainScreen(
     sensorX: Float,
     sensorY: Float
 ) {
-    val viewModel: ARViewModel = viewModel(
-        factory = ARViewModelFactory(ConceptRepository(AppDatabase.getDatabase(LocalContext.current).conceptDao()))
-    )
+    val context = LocalContext.current
+    val database = AppDatabase.getDatabase(context)
+    val repository = ConceptRepository(database.conceptDao())
+    val viewModel: ARViewModel = viewModel(factory = ARViewModelFactory(repository))
 
     val infiniteTransition = rememberInfiniteTransition()
     val color1 by infiniteTransition.animateColor(
@@ -391,51 +391,79 @@ fun MainScreen(
             )
         )
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .offset { IntOffset(0, (textOffsetY + idleOffsetY.dp).roundToPx()) }
-                .clickable(
-                    onClick = { /* Handle background click */ },
-                    indication = rememberRipple(bounded = true),
-                    interactionSource = remember { MutableInteractionSource() }
-                ),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Augment-ED",
-                fontSize = 45.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = Color(0xFFD4AF37), // Gold color for a premium look
-                fontFamily = MinecraftFontFamily,
-                modifier = Modifier.padding(bottom = 10.dp)
-            )
-            Text(
-                text = "welcome!",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Normal,
-                color = Color.White,
-                fontFamily = MinecraftFontFamily,
-                modifier = Modifier.padding(bottom = 50.dp)
-            )
-
-            if (isArSupported) {
-                AnimatedMaterialIconButton(
-                    text = "Scan",
-                    icon = Icons.Filled.QrCodeScanner,
-                    onClick = {
-                        // Trigger AR scan
-                        viewModel.startARScan()
-                    }
-                )
+        Surface(
+            modifier = modifier.fillMaxSize(),
+            color = Color.Transparent,
+            onClick = {
+                // Handle background click
+                // For example, you could show a toast message:
+                // Toast.makeText(LocalContext.current, "Background clicked", Toast.LENGTH_SHORT).show()
             }
-            Spacer(modifier = Modifier.height(32.dp))
-            AnimatedMaterialIconButton(
-                text = "Practice",
-                icon = Icons.Filled.School,
-                onClick = { /* Handle Practice button click */ }
-            )
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Brush.verticalGradient(listOf(color1, color2, color3)))
+            ) {
+                ParticleBackground(sensorX, sensorY)
+
+                val textOffsetY by animateDpAsState(
+                    targetValue = 0.dp,
+                    animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
+                )
+
+                val idleAnimation = rememberInfiniteTransition()
+                val idleOffsetY by idleAnimation.animateFloat(
+                    initialValue = -5f,
+                    targetValue = 10f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(durationMillis = 2000, easing = FastOutSlowInEasing),
+                        repeatMode = RepeatMode.Reverse
+                    )
+                )
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .offset { IntOffset(0, (textOffsetY + idleOffsetY.dp).roundToPx()) },
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "Augment-ED",
+                        fontSize = 45.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color(0xFFD4AF37),
+                        fontFamily = MinecraftFontFamily,
+                        modifier = Modifier.padding(bottom = 10.dp)
+                    )
+                    Text(
+                        text = "welcome!",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.White,
+                        fontFamily = MinecraftFontFamily,
+                        modifier = Modifier.padding(bottom = 50.dp)
+                    )
+
+                    if (isArSupported) {
+                        AnimatedMaterialIconButton(
+                            text = "Scan",
+                            icon = Icons.Filled.QrCodeScanner,
+                            onClick = {
+                                // Trigger AR scan
+                                viewModel.startARScan()
+                            }
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(32.dp))
+                    AnimatedMaterialIconButton(
+                        text = "Practice",
+                        icon = Icons.Filled.School,
+                        onClick = { /* Handle Practice button click */ }
+                    )
+                }
+            }
         }
     }
 }
@@ -526,7 +554,7 @@ fun AnimatedMaterialIconButton(
             containerColor = Color(0xFFD4AF37)
         )
     ) {
-
+        // Button content
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -543,10 +571,11 @@ fun AnimatedMaterialIconButton(
                 fontFamily = MinecraftFontFamily, // Use the Minecraft font
                 color = Color.White, // White color for the text
             )
+
         }
     }
-}
 
+}
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
@@ -554,3 +583,5 @@ fun MainScreenPreview() {
         MainScreen(isArSupported = true, sensorX = 0f, sensorY = 0f)
     }
 }
+
+

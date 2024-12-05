@@ -77,6 +77,10 @@ dependencies {
     implementation(libs.material3)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+
+
 
     // AR Core
     implementation(libs.ar.core)
@@ -86,6 +90,9 @@ dependencies {
     implementation(libs.room.ktx)
     implementation(libs.sceneform.ux)
     implementation(libs.androidx.fragment.ktx)
+    implementation(libs.androidx.material3.android)
+    implementation(libs.play.services.mlkit.text.recognition.common)
+    implementation(libs.play.services.mlkit.text.recognition)
     kapt(libs.room.compiler)
 
     // Gson for JSON parsing

@@ -1,5 +1,6 @@
 package com.google.ar.core.examples.kotlin.helloar
 
+import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -7,15 +8,19 @@ import com.google.ar.sceneform.SceneView
 
 class HelloArView(private val activity: HelloArActivity) : DefaultLifecycleObserver {
 
-  val root: View = View.inflate(activity, R.layout.activity_main, null)
+  // Root view layout for the AR experience
+  val root: View = LayoutInflater.from(activity).inflate(R.layout.activity_main, null)
+
+  // SceneView for rendering ARCore content
   val sceneView: SceneView = root.findViewById(R.id.scene_view)
 
-  // No need for onResume() or onPause()
+  // Resume the AR scene when the activity is resumed
   override fun onResume(owner: LifecycleOwner) {
-    // SceneView manages its own lifecycle. No need for explicit calls.
+    sceneView.resume()
   }
 
+  // Pause the AR scene when the activity is paused
   override fun onPause(owner: LifecycleOwner) {
-    // SceneView manages its own lifecycle. No need for explicit calls.
+    sceneView.pause()
   }
 }

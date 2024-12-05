@@ -55,7 +55,6 @@ import androidx.compose.ui.unit.sp
 import com.example.augment_ed.ui.theme.AugmentEDTheme
 import com.example.textrecognition.RefinedTextRecognitionScreen
 import com.google.ar.core.examples.kotlin.helloar.HelloArActivity
-import com.google.ar.core.examples.kotlin.helloar.HelloArRenderer
 import com.google.ar.core.examples.kotlin.helloar.R
 import kotlinx.coroutines.delay
 import kotlin.random.Random
@@ -66,12 +65,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             AugmentEDTheme {
-                MainScreen(
-                    isArSupported = true,
-                    sensorX = 0f,
-                    sensorY = 0f,
-                    activity = this // Pass the activity reference
-                )
+                MainScreen()
             }
         }
     }
@@ -83,63 +77,42 @@ val MinecraftFontFamily = FontFamily(
 )
 
 @Composable
-fun MainScreen(
-    modifier: Modifier = Modifier,
-    isArSupported: Boolean,
-    sensorX: Float,
-    sensorY: Float,
-    activity: MainActivity
-) {
+fun MainScreen() {
     val context = LocalContext.current
-    var showTextRecognition by remember { mutableStateOf(false) } // State to toggle screens
+    var showTextRecognition by remember { mutableStateOf(false) }
 
-    // Initialize AR components only when text recognition is active
-    val arComponent = remember(showTextRecognition) {
-        if (showTextRecognition) {
-            object {
-                val intent = Intent(context, HelloArActivity::class.java)
-                fun launchAR() {
-                    context.startActivity(intent)
-                }
-            }
-        } else null
-    }
-
-
-    // Background animation colors
     val infiniteTransition = rememberInfiniteTransition()
     val color1 by infiniteTransition.animateColor(
-        initialValue = Color(0xFF0D1B2A), // Deep Space Blue
-        targetValue = Color(0xFF1B263B), // Darker Blue
+        initialValue = Color(0xFF0D1B2A),
+        targetValue = Color(0xFF1B263B),
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = 2000, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
-        ), label = ""
+        )
     )
     val color2 by infiniteTransition.animateColor(
-        initialValue = Color(0xFF1B263B), // Darker Blue
-        targetValue = Color(0xFF415A77), // Aurora Blue
+        initialValue = Color(0xFF1B263B),
+        targetValue = Color(0xFF415A77),
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = 2000, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
-        ), label = ""
+        )
     )
     val color3 by infiniteTransition.animateColor(
-        initialValue = Color(0xFF415A77), // Aurora Blue
-        targetValue = Color(0xFF778DA9), // Light Aurora
+        initialValue = Color(0xFF415A77),
+        targetValue = Color(0xFF778DA9),
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = 2000, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
-        ), label = ""
+        )
     )
 
-    // Full-screen background with gradient
     Box(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .background(Brush.verticalGradient(listOf(color1, color2, color3)))
     ) {
-        ParticleBackground() // Your particle background effect
+        ParticleBackground()
 
         Column(
             modifier = Modifier
@@ -148,85 +121,56 @@ fun MainScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // App title animations
-            AnimatedText(
-                text = "Augment-ED",
-                fontSize = 45,
-                fontWeight = FontWeight.ExtraBold,
-                fontFamily = MinecraftFontFamily,
-                startColor = Color(0xFFD4AF37),
-                endColor = Color(0xFFE5C158)
-            )
-            AnimatedText(
-                text = "Welcome!",
-                fontSize = 24,
-                fontWeight = FontWeight.Normal,
-                fontFamily = MinecraftFontFamily,
-                startColor = Color.White,
-                endColor = Color(0xFF778DA9)
-            )
+            AnimatedText("Augment-ED", 45, FontWeight.ExtraBold, MinecraftFontFamily, Color(0xFFD4AF37), Color(0xFFE5C158))
+            AnimatedText("Welcome!", 24, FontWeight.Normal, MinecraftFontFamily, Color.White, Color(0xFF778DA9))
 
             Spacer(modifier = Modifier.height(25.dp))
 
-            // Toggle between AR and Text Recognition screens
             if (showTextRecognition) {
-                // Display the Text Recognition Screen
                 Box(modifier = Modifier.fillMaxSize()) {
-                    // Launch AR Activity instead of trying to use renderer directly
-                    LaunchedEffect(Unit) {
-                        arComponent?.launchAR()
-                    }
+                    // Replace this with Text Recognition composable
+                    Text(text = "Text Recognition Screen", color = Color.White)
                 }
 
                 Spacer(modifier = Modifier.height(22.dp))
 
-                // Back to Main AR Menu Button
                 AnimatedMaterialIconButton(
                     text = "Back to Main Menu",
                     icon = Icons.Filled.ArrowBack,
-                    onClick = { showTextRecognition = false } // Switch back to the main menu
+                    onClick = { showTextRecognition = false }
                 )
             } else {
-                // Main menu with AR and Library buttons
-                if (isArSupported) {
-                    AnimatedMaterialIconButton(
-                        text = "Scan",
-                        icon = Icons.Filled.QrCodeScanner,
-                        onClick = {
-                            // Start HelloAR activity (AR scanning)
-                            val intent = Intent(context, HelloArActivity::class.java)
-                            context.startActivity(intent)
-                        }
-                    )
-                }
+                AnimatedMaterialIconButton(
+                    text = "Scan",
+                    icon = Icons.Filled.QrCodeScanner,
+                    onClick = {
+                        val intent = Intent(context, HelloArActivity::class.java)
+                        context.startActivity(intent)
+                    }
+                )
                 Spacer(modifier = Modifier.height(22.dp))
 
                 AnimatedMaterialIconButton(
                     text = "Practice",
                     icon = Icons.Filled.School,
-                    onClick = {
-                        // Start a practice mode (implement or customize this later)
-                    }
+                    onClick = { /* TODO */ }
                 )
                 Spacer(modifier = Modifier.height(22.dp))
 
                 AnimatedMaterialIconButton(
                     text = "Library",
                     icon = Icons.Filled.LibraryBooks,
-                    onClick = {
-                        val intent = Intent(context, LibraryActivity::class.java)
-                        context.startActivity(intent)
-                    }
+                    onClick = { /* TODO */ }
                 )
-
                 Spacer(modifier = Modifier.height(22.dp))
 
-                // Button to open Text Recognition Screen
                 AnimatedMaterialIconButton(
                     text = "Text Recognition",
                     icon = Icons.Filled.TextFields,
                     onClick = {
-                        showTextRecognition = true // Switch to Text Recognition Screen
+
+                        showTextRecognition = true
+
                     }
                 )
             }

@@ -109,11 +109,10 @@ class ARCoreSessionLifecycleHelper(
     if (!CameraPermissionHelper.hasCameraPermission(activity)) {
       // Use toast instead of snackbar here since the activity will exit.
       Toast.makeText(
-          activity,
-          "Camera permission is needed to run this application",
-          Toast.LENGTH_LONG
-        )
-        .show()
+        activity,
+        "Camera permission is needed to run this application",
+        Toast.LENGTH_LONG
+      ).show()
       if (!CameraPermissionHelper.shouldShowRequestPermissionRationale(activity)) {
         // Permission denied with checking "Do not ask again".
         CameraPermissionHelper.launchPermissionSettings(activity)

@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.sp
 import com.example.augment_ed.ui.theme.AugmentEDTheme
 import com.example.textrecognition.RefinedTextRecognitionScreen
 import com.google.ar.core.examples.kotlin.helloar.HelloArActivity
+import com.google.ar.core.examples.kotlin.helloar.HelloArRenderer
 import com.google.ar.core.examples.kotlin.helloar.R
 import kotlinx.coroutines.delay
 import kotlin.random.Random
@@ -68,7 +69,8 @@ class MainActivity : ComponentActivity() {
                 MainScreen(
                     isArSupported = true,
                     sensorX = 0f,
-                    sensorY = 0f
+                    sensorY = 0f,
+                    activity = this // Pass the activity reference
                 )
             }
         }
@@ -85,10 +87,24 @@ fun MainScreen(
     modifier: Modifier = Modifier,
     isArSupported: Boolean,
     sensorX: Float,
-    sensorY: Float
+    sensorY: Float,
+    activity: MainActivity
 ) {
     val context = LocalContext.current
     var showTextRecognition by remember { mutableStateOf(false) } // State to toggle screens
+
+    // Initialize AR components only when text recognition is active
+    val arComponent = remember(showTextRecognition) {
+        if (showTextRecognition) {
+            object {
+                val intent = Intent(context, HelloArActivity::class.java)
+                fun launchAR() {
+                    context.startActivity(intent)
+                }
+            }
+        } else null
+    }
+
 
     // Background animation colors
     val infiniteTransition = rememberInfiniteTransition()
@@ -156,7 +172,10 @@ fun MainScreen(
             if (showTextRecognition) {
                 // Display the Text Recognition Screen
                 Box(modifier = Modifier.fillMaxSize()) {
-                    RefinedTextRecognitionScreen()
+                    // Launch AR Activity instead of trying to use renderer directly
+                    LaunchedEffect(Unit) {
+                        arComponent?.launchAR()
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(22.dp))

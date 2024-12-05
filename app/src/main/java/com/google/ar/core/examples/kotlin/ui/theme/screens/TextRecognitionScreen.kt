@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import com.google.ar.core.examples.kotlin.helloar.HelloArRenderer
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
@@ -27,7 +28,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 @Composable
-fun RefinedTextRecognitionScreen() {
+fun RefinedTextRecognitionScreen(renderer: HelloArRenderer) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val cameraExecutor = remember { Executors.newSingleThreadExecutor() }
@@ -49,8 +50,8 @@ fun RefinedTextRecognitionScreen() {
                 lifecycleOwner = lifecycleOwner,
                 cameraExecutor = cameraExecutor,
                 onKeywordsDetected = { detectedKeyword ->
-                    // Show a Toast notification for the keyword
-                    Toast.makeText(context, "Detected: $detectedKeyword", Toast.LENGTH_SHORT).show()
+                    // Trigger AR model rendering for the detected keyword
+                    renderer.renderModelForKeyword(detectedKeyword)
                 }
             )
         }
@@ -87,7 +88,7 @@ fun CameraPreview(
                     it.setSurfaceProvider(previewView.surfaceProvider)
                 }
 
-                // Set up high-resolution ImageAnalysis for small text and fonts
+                // Set up text analysis
                 val textAnalyzer = ImageAnalysis.Builder()
                     .setTargetResolution(Size(1920, 1080)) // High resolution for better recognition
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
@@ -96,7 +97,7 @@ fun CameraPreview(
                         it.setAnalyzer(
                             cameraExecutor,
                             KeywordTextAnalyzer(
-                                keywords = listOf("amphibians", "bacteria", "platypus", "digestive", "expose"),
+                                keywords = listOf("amphibian", "platypus", "bacteria", "digestive"),
                                 onKeywordDetected = onKeywordsDetected
                             )
                         )
@@ -104,16 +105,12 @@ fun CameraPreview(
 
                 val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
                 try {
-                    // Bind the preview and analysis use cases to the camera lifecycle
-                    val camera = cameraProvider.bindToLifecycle(
+                    cameraProvider.bindToLifecycle(
                         lifecycleOwner,
                         cameraSelector,
                         preview,
                         textAnalyzer
                     )
-
-                    // Enable tap-to-focus functionality
-                    enableTapToFocus(previewView, camera.cameraControl)
                 } catch (e: Exception) {
                     Log.e("CameraPreview", "Use case binding failed", e)
                 }

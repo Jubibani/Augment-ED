@@ -1,183 +1,96 @@
 package com.google.ar.core.examples.kotlin.helloar
-/*
- * Copyright 2021 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.ar.core.Config
-import com.google.ar.core.Config.InstantPlacementMode
-import com.google.ar.core.Session
-import com.google.ar.core.examples.java.common.helpers.CameraPermissionHelper
-import com.google.ar.core.examples.java.common.helpers.DepthSettings
-import com.google.ar.core.examples.java.common.helpers.FullScreenHelper
-import com.google.ar.core.examples.java.common.helpers.InstantPlacementSettings
-import com.google.ar.core.examples.java.common.samplerender.SampleRender
 import com.google.ar.core.examples.kotlin.common.helpers.ARCoreSessionLifecycleHelper
-import com.google.ar.core.exceptions.CameraNotAvailableException
-import com.google.ar.core.exceptions.UnavailableApkTooOldException
-import com.google.ar.core.exceptions.UnavailableDeviceNotCompatibleException
-import com.google.ar.core.exceptions.UnavailableSdkTooOldException
-import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 
-/**
- * This is a simple example that shows how to create an augmented reality (AR) application using the
- * ARCore API. The application will display any detected planes and will allow the user to tap on a
- * plane to place a 3D model.
- */
 class HelloArActivity : AppCompatActivity() {
+
   companion object {
     private const val TAG = "HelloArActivity"
   }
 
   lateinit var arCoreSessionHelper: ARCoreSessionLifecycleHelper
   lateinit var view: HelloArView
-  lateinit var renderer: HelloArRenderer
+  private lateinit var renderer: HelloArRenderer
 
-  val instantPlacementSettings = InstantPlacementSettings()
-  val depthSettings = DepthSettings()
+  private val textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+  private var currentKeyword: String? = null
+
+  private val keywordToModelMap = mapOf(
+    "amphibian" to "assets/librarymodel/model_6_-_marine_toad_on_leaf.glb",
+    "platypus" to "assets/librarymodel/platypus.glb",
+    "bacteria" to "assets/librarymodel/archaea.glb",
+    "digestive" to "assets/librarymodel/digestive-system.glb"
+  )
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    // Initialize the renderer and pass 'this' as the activity
-    renderer = HelloArRenderer(this)
-    // Setup ARCore session lifecycle helper and configuration.
     arCoreSessionHelper = ARCoreSessionLifecycleHelper(this)
-    // If Session creation or Session.resume() fails, display a message and log detailed
-    // information.
-    arCoreSessionHelper.exceptionCallback =
-      { exception ->
-        val message =
-          when (exception) {
-            is UnavailableUserDeclinedInstallationException ->
-              "Please install Google Play Services for AR"
-            is UnavailableApkTooOldException -> "Please update ARCore"
-            is UnavailableSdkTooOldException -> "Please update this app"
-            is UnavailableDeviceNotCompatibleException -> "This device does not support AR"
-            is CameraNotAvailableException -> "Camera not available. Try restarting the app."
-            else -> "Failed to create AR session: $exception"
-          }
-        Log.e(TAG, "ARCore threw an exception", exception)
-        view.snackbarHelper.showError(this, message)
-      }
-
-    // Configure session features, including: Lighting Estimation, Depth mode, Instant Placement.
-    arCoreSessionHelper.beforeSessionResume = ::configureSession
     lifecycle.addObserver(arCoreSessionHelper)
 
-    // Set up the Hello AR renderer.
     renderer = HelloArRenderer(this)
-    lifecycle.addObserver(renderer)
+    renderer.setKeywordToModelMap(keywordToModelMap)
 
-    // Set up Hello AR UI.
     view = HelloArView(this)
     lifecycle.addObserver(view)
     setContentView(view.root)
 
-    // Sets up an example renderer using our HelloARRenderer.
-    SampleRender(view.surfaceView, renderer, assets)
+    arCoreSessionHelper.beforeSessionResume = renderer::configureSession
+    lifecycle.addObserver(renderer)
 
-    depthSettings.onCreate(this)
-    instantPlacementSettings.onCreate(this)
-
-
+    startTextRecognition()
   }
 
-  //for Text Recognition
-  private fun handleRecognizeText(text: String) {
-    runOnUiThread{
-      Toast.makeText(this, "Recognized: $text", Toast.LENGTH_SHORT).show()
-    }
+  @SuppressLint("ClickableViewAccessibility")
+  private fun startTextRecognition() {
+    view.sceneView.setOnTouchListener { _, _ ->
+      val frame = renderer.currentFrame ?: return@setOnTouchListener false
+      try {
+        val image = frame.acquireCameraImage()
+        val rotationDegrees = renderer.getRotationDegrees()
+        val inputImage = InputImage.fromMediaImage(image, rotationDegrees)
 
-  }
-
-  /**
-   * Handle the recognized text and update the UI.
-   */
-  private var lastToastTime = 0L
-
-  fun handleRecognizedText(text: String) {
-    val currentTime = System.currentTimeMillis()
-    if (currentTime - lastToastTime > 2000) { // Debounce interval: 2 seconds
-      lastToastTime = currentTime
-      runOnUiThread {
-        val textView = findViewById<TextView>(R.id.recognizedTextView)
-        textView.text = text
-        textView.visibility = View.VISIBLE
-
-        // Hide the TextView after 2 seconds
-        textView.postDelayed({ textView.visibility = View.GONE }, 2000)
-      }
-    }
-  }
-
-  // Configure the session, using Lighting Estimation, and Depth mode.
-  fun configureSession(session: Session) {
-    session.configure(
-      session.config.apply {
-        lightEstimationMode = Config.LightEstimationMode.ENVIRONMENTAL_HDR
-
-        // Depth API is used if it is configured in Hello AR's settings.
-        depthMode =
-          if (session.isDepthModeSupported(Config.DepthMode.AUTOMATIC)) {
-            Config.DepthMode.AUTOMATIC
-          } else {
-            Config.DepthMode.DISABLED
+        textRecognizer.process(inputImage)
+          .addOnSuccessListener { visionText ->
+            val detectedText = visionText.text.lowercase()
+            handleRecognizedText(detectedText)
           }
-
-        // Instant Placement is used if it is configured in Hello AR's settings.
-        instantPlacementMode =
-          if (instantPlacementSettings.isInstantPlacementEnabled) {
-            InstantPlacementMode.LOCAL_Y_UP
-          } else {
-            InstantPlacementMode.DISABLED
+          .addOnFailureListener { e ->
+            Log.e(TAG, "Text recognition failed: ${e.message}")
           }
+          .addOnCompleteListener {
+            image.close()
+          }
+        true
+      } catch (e: Exception) {
+        Log.w(TAG, "Camera image not available yet.")
+        false
       }
-    )
-  }
-
-
-
-  override fun onRequestPermissionsResult(
-    requestCode: Int,
-    permissions: Array<String>,
-    results: IntArray
-  ) {
-    super.onRequestPermissionsResult(requestCode, permissions, results)
-    if (!CameraPermissionHelper.hasCameraPermission(this)) {
-      // Use toast instead of snackbar here since the activity will exit.
-      Toast.makeText(this, "Camera permission is needed to run this application", Toast.LENGTH_LONG)
-        .show()
-      if (!CameraPermissionHelper.shouldShowRequestPermissionRationale(this)) {
-        // Permission denied with checking "Do not ask again".
-        CameraPermissionHelper.launchPermissionSettings(this)
-      }
-      finish()
     }
   }
 
-  override fun onWindowFocusChanged(hasFocus: Boolean) {
-    super.onWindowFocusChanged(hasFocus)
-    FullScreenHelper.setFullScreenOnWindowFocusChanged(this, hasFocus)
+  private fun handleRecognizedText(text: String) {
+    val keyword = keywordToModelMap.keys.find { text.contains(it) }
+    if (keyword == currentKeyword) return
+
+    if (keyword != null) {
+      currentKeyword = keyword
+      renderer.renderModelForKeyword(keyword)
+    } else {
+      renderer.clearCurrentModel()
+      currentKeyword = null
+    }
   }
 
-
-
+  override fun onDestroy() {
+    super.onDestroy()
+    textRecognizer.close()
+  }
 }

@@ -5,33 +5,59 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.LibraryBooks
+import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.TextFields
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.Canvas
-import androidx.compose.runtime.*
-import androidx.compose.material3.*
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.augment_ed.ui.theme.AugmentEDTheme
+import com.example.textrecognition.RefinedTextRecognitionScreen
 import com.google.ar.core.examples.kotlin.helloar.HelloArActivity
 import com.google.ar.core.examples.kotlin.helloar.R
 import kotlinx.coroutines.delay
 import kotlin.random.Random
-import androidx.compose.ui.draw.scale
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,7 +88,9 @@ fun MainScreen(
     sensorY: Float
 ) {
     val context = LocalContext.current
+    var showTextRecognition by remember { mutableStateOf(false) } // State to toggle screens
 
+    // Background animation colors
     val infiniteTransition = rememberInfiniteTransition()
     val color1 by infiniteTransition.animateColor(
         initialValue = Color(0xFF0D1B2A), // Deep Space Blue
@@ -89,14 +117,13 @@ fun MainScreen(
         ), label = ""
     )
 
+    // Full-screen background with gradient
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(Brush.verticalGradient(listOf(color1, color2, color3)))
     ) {
-        ParticleBackground()
-
-        rememberInfiniteTransition(label = "")
+        ParticleBackground() // Your particle background effect
 
         Column(
             modifier = Modifier
@@ -105,6 +132,7 @@ fun MainScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            // App title animations
             AnimatedText(
                 text = "Augment-ED",
                 fontSize = 45,
@@ -124,41 +152,68 @@ fun MainScreen(
 
             Spacer(modifier = Modifier.height(25.dp))
 
-            if (isArSupported) {
+            // Toggle between AR and Text Recognition screens
+            if (showTextRecognition) {
+                // Display the Text Recognition Screen
+                Box(modifier = Modifier.fillMaxSize()) {
+                    RefinedTextRecognitionScreen()
+                }
+
+                Spacer(modifier = Modifier.height(22.dp))
+
+                // Back to Main AR Menu Button
                 AnimatedMaterialIconButton(
-                    text = "Scan",
-                    icon = Icons.Filled.QrCodeScanner,
+                    text = "Back to Main Menu",
+                    icon = Icons.Filled.ArrowBack,
+                    onClick = { showTextRecognition = false } // Switch back to the main menu
+                )
+            } else {
+                // Main menu with AR and Library buttons
+                if (isArSupported) {
+                    AnimatedMaterialIconButton(
+                        text = "Scan",
+                        icon = Icons.Filled.QrCodeScanner,
+                        onClick = {
+                            // Start HelloAR activity (AR scanning)
+                            val intent = Intent(context, HelloArActivity::class.java)
+                            context.startActivity(intent)
+                        }
+                    )
+                }
+                Spacer(modifier = Modifier.height(22.dp))
+
+                AnimatedMaterialIconButton(
+                    text = "Practice",
+                    icon = Icons.Filled.School,
                     onClick = {
-                        // Start HelloAR activity (AR scanning)
-                        val intent = Intent(context, HelloArActivity::class.java)
+                        // Start a practice mode (implement or customize this later)
+                    }
+                )
+                Spacer(modifier = Modifier.height(22.dp))
+
+                AnimatedMaterialIconButton(
+                    text = "Library",
+                    icon = Icons.Filled.LibraryBooks,
+                    onClick = {
+                        val intent = Intent(context, LibraryActivity::class.java)
                         context.startActivity(intent)
                     }
                 )
+
+                Spacer(modifier = Modifier.height(22.dp))
+
+                // Button to open Text Recognition Screen
+                AnimatedMaterialIconButton(
+                    text = "Text Recognition",
+                    icon = Icons.Filled.TextFields,
+                    onClick = {
+                        showTextRecognition = true // Switch to Text Recognition Screen
+                    }
+                )
             }
-            Spacer(modifier = Modifier.height(22.dp))
-
-            AnimatedMaterialIconButton(
-                text = "Practice",
-                icon = Icons.Filled.School,
-                onClick = {
-                    // Start a practice mode (implement or customize this later)
-                }
-            )
-            Spacer(modifier = Modifier.height(22.dp))
-
-            AnimatedMaterialIconButton(
-                text = "Library",
-                icon = Icons.Filled.LibraryBooks,
-                onClick = {
-                    val intent = Intent(context, LibraryActivity::class.java)
-                    context.startActivity(intent)
-                }
-            )
         }
-        }
-
-
     }
+}
 
 @Composable
 fun ParticleBackground() {

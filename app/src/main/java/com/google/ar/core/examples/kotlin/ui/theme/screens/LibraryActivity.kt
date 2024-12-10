@@ -32,7 +32,7 @@ class LibraryActivity : ComponentActivity() {
 fun LibraryScreen() {
     // List of 3D models mapped to their file paths
     val modelMap = listOf(
-        "Amphibian" to "librarymodel/model_6_-_marine_toad_on_leaf.glb",
+        "Bacteria" to "models/Bacteria.obj",
         "Heart" to "librarymodel/realistic_human_heart.glb"
     )
 

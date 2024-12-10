@@ -238,30 +238,30 @@ class HelloArRenderer(val activity: HelloArActivity) :
         Mesh(render, Mesh.PrimitiveMode.POINTS, /*indexBuffer=*/ null, pointCloudVertexBuffers)
 
       // Virtual object to render (ARCore pawn) --------------------------------
-//      virtualObjectAlbedoTexture =
-//        Texture.createFromAsset(
-//          render,
-//          "models/pawn_albedo.png",
-//          Texture.WrapMode.CLAMP_TO_EDGE,
-//          Texture.ColorFormat.SRGB
-//        )
-//
-//      virtualObjectAlbedoInstantPlacementTexture =
-//        Texture.createFromAsset(
-//          render,
-//          "models/pawn_albedo_instant_placement.png",
-//          Texture.WrapMode.CLAMP_TO_EDGE,
-//          Texture.ColorFormat.SRGB
-//        )
-//
-//      val virtualObjectPbrTexture =
-//        Texture.createFromAsset(
-//          render,
-//          "models/pawn_roughness_metallic_ao.png",
-//          Texture.WrapMode.CLAMP_TO_EDGE,
-//          Texture.ColorFormat.LINEAR
-//        )
-//      virtualObjectMesh = Mesh.createFromAsset(render, "models/pawn.obj")
+      virtualObjectAlbedoTexture =
+        Texture.createFromAsset(
+          render,
+          "models/pawn_albedo.png",
+          Texture.WrapMode.CLAMP_TO_EDGE,
+          Texture.ColorFormat.SRGB
+        )
+
+      virtualObjectAlbedoInstantPlacementTexture =
+        Texture.createFromAsset(
+          render,
+          "models/pawn_albedo_instant_placement.png",
+          Texture.WrapMode.CLAMP_TO_EDGE,
+          Texture.ColorFormat.SRGB
+        )
+
+      val virtualObjectPbrTexture =
+        Texture.createFromAsset(
+          render,
+          "models/pawn_roughness_metallic_ao.png",
+          Texture.WrapMode.CLAMP_TO_EDGE,
+          Texture.ColorFormat.LINEAR
+        )
+      virtualObjectMesh = Mesh.createFromAsset(render, "models/pawn.obj")
     //(1)
       bacteriaAlbedoTexture =
         Texture.createFromAsset(
@@ -272,13 +272,13 @@ class HelloArRenderer(val activity: HelloArActivity) :
         )
       bacteriaNormalTexture = Texture.createFromAsset(
         render,
-        "models/bacteria_normal.png",
+        "models/Bacteriatextures/normal_map.png",
         Texture.WrapMode.CLAMP_TO_EDGE,
         Texture.ColorFormat.LINEAR
       )
       bacteriaSpecularTexture = Texture.createFromAsset(
         render,
-        "models/bacteria_specular.png",
+        "models/Bacteriatextures/specular_map.png",
         Texture.WrapMode.CLAMP_TO_EDGE,
         Texture.ColorFormat.LINEAR
       )
@@ -303,17 +303,17 @@ class HelloArRenderer(val activity: HelloArActivity) :
 
       bacteriaMesh = Mesh.createFromAsset(render, "models/bacteria.obj")
 
-//      virtualObjectShader =
-//        Shader.createFromAssets(
-//          render,
-//          "shaders/environmental_hdr.vert",
-//          "shaders/environmental_hdr.frag",
-//          mapOf("NUMBER_OF_MIPMAP_LEVELS" to cubemapFilter.numberOfMipmapLevels.toString())
-//        )
-//          .setTexture("u_AlbedoTexture", virtualObjectAlbedoTexture)
-//          .setTexture("u_RoughnessMetallicAmbientOcclusionTexture", virtualObjectPbrTexture)
-//          .setTexture("u_Cubemap", cubemapFilter.filteredCubemapTexture)
-//          .setTexture("u_DfgTexture", dfgTexture)
+      virtualObjectShader =
+        Shader.createFromAssets(
+          render,
+          "shaders/environmental_hdr.vert",
+          "shaders/environmental_hdr.frag",
+          mapOf("NUMBER_OF_MIPMAP_LEVELS" to cubemapFilter.numberOfMipmapLevels.toString())
+        )
+          .setTexture("u_AlbedoTexture", virtualObjectAlbedoTexture)
+          .setTexture("u_RoughnessMetallicAmbientOcclusionTexture", virtualObjectPbrTexture)
+          .setTexture("u_Cubemap", cubemapFilter.filteredCubemapTexture)
+          .setTexture("u_DfgTexture", dfgTexture)
     } catch (e: IOException) {
       Log.e(TAG, "Failed to read a required asset file", e)
       showError("Failed to read a required asset file: $e")
@@ -322,8 +322,9 @@ class HelloArRenderer(val activity: HelloArActivity) :
 
 
   }
-
-  var frameCounter = 0
+  //letting text recognizer breathe
+  private var frameCounter = 0
+  private val FRAMES_TO_SKIP = 10
 
   override fun onSurfaceChanged(render: SampleRender, width: Int, height: Int) {
     displayRotationHelper.onSurfaceChanged(width, height)
@@ -333,13 +334,8 @@ class HelloArRenderer(val activity: HelloArActivity) :
   @RequiresApi(Build.VERSION_CODES.R)
   override fun onDrawFrame(render: SampleRender) {
 
-    frameCounter++
-    if (frameCounter < 10) {
-      // Skip the first 10 frames to let ARCore stabilize
-      return
-    }
 
-    val session = session ?: return
+    val session = activity.arCoreSessionHelper.session ?: return
 
     // Texture names should only be set once on a GL thread unless they change. This is done during
     // onDrawFrame rather than onSurfaceCreated since the session is not guaranteed to have been
@@ -363,53 +359,63 @@ class HelloArRenderer(val activity: HelloArActivity) :
         session.update()
       } catch (e: CameraNotAvailableException) {
         Log.e(TAG, "Camera not available during onDrawFrame", e)
-        showError("Camera not available. Try restarting the app.")
+        activity.view.snackbarHelper.showError(activity, "Camera not available. Try restarting the app.")
         return
       }
 
     val camera = frame.camera
+    // Log the state of frame and camera
+    Log.d(TAG, "Frame: ${"Not null"}, Camera: ${"Not null"}")
 
-
-    // Attempt to acquire the camera image
-    try {
-      val image = frame.acquireCameraImage()
-      image.use { // Ensure proper resource cleanup
-        val rotationDegrees = getRotationDegrees()
-        val inputImage = InputImage.fromMediaImage(it, rotationDegrees)
-
-        // Initialize ML Kit TextRecognizer
-        val textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-
-        textRecognizer.process(inputImage)
-          .addOnSuccessListener { visionText ->
-            // Display or log recognized text
-            val recognizedText = visionText.text
-            Log.d(TAG, "Recognized text: $recognizedText")
-            (activity as? HelloArActivity)?.handleRecognizedText(recognizedText)
-          }
-          .addOnFailureListener { e ->
-            Log.e(TAG, "Text recognition failed: ${e.localizedMessage}", e)
-            (activity as? HelloArActivity)?.handleRecognizedText("Recognition failed.")
-          }
-      }
-    } catch (e: NotYetAvailableException) {
-      Log.w(TAG, "Camera image not available yet, skipping frame")
-    } catch (e: Exception) {
-      Log.e(TAG, "Unexpected error: ${e.localizedMessage}", e)
-    }
-
-    // Update BackgroundRenderer state to match the depth settings.
-    try {
-      backgroundRenderer.setUseDepthVisualization(
-        render,
-        activity.depthSettings.depthColorVisualizationEnabled()
-      )
-      backgroundRenderer.setUseOcclusion(render, activity.depthSettings.useDepthForOcclusion())
-    } catch (e: IOException) {
-      Log.e(TAG, "Failed to read a required asset file", e)
-      showError("Failed to read a required asset file: $e")
+    // Check if either frame or camera is null
+    if (frame == null || camera == null) {
+      Log.e(TAG, "Frame or camera is null")
       return
     }
+
+    // Attempt to acquire the camera image
+    frameCounter++
+    if (frameCounter >= FRAMES_TO_SKIP) {
+      frameCounter = 0
+      try {
+        val image = frame.acquireCameraImage()
+        image.use { // Ensure proper resource cleanup
+          val rotationDegrees = getRotationDegrees()
+          val inputImage = InputImage.fromMediaImage(it, rotationDegrees)
+
+          // Initialize ML Kit TextRecognizer
+          val textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+
+          textRecognizer.process(inputImage)
+            .addOnSuccessListener { visionText ->
+              // Display or log recognized text
+              val recognizedText = visionText.text
+              Log.d(TAG, "Recognized text: $recognizedText")
+              (activity as? HelloArActivity)?.handleRecognizedText(recognizedText)
+            }
+            .addOnFailureListener { e ->
+              Log.e(TAG, "Text recognition failed: ${e.localizedMessage}", e)
+              (activity as? HelloArActivity)?.handleRecognizedText("Recognition failed.")
+            }
+        }
+      } catch (e: NotYetAvailableException) {
+        Log.w(TAG, "Camera image not available yet, skipping frame")
+      } catch (e: Exception) {
+        Log.e(TAG, "Unexpected error: ${e.localizedMessage}", e)
+      }
+    }
+      // Update BackgroundRenderer state to match the depth settings.
+      try {
+        backgroundRenderer.setUseDepthVisualization(
+          render,
+          activity.depthSettings.depthColorVisualizationEnabled()
+        )
+        backgroundRenderer.setUseOcclusion(render, activity.depthSettings.useDepthForOcclusion())
+      } catch (e: IOException) {
+        Log.e(TAG, "Failed to read a required asset file", e)
+        showError("Failed to read a required asset file: $e")
+        return
+      }
 
     // BackgroundRenderer.updateDisplayGeometry must be called every frame to update the coordinates
     // used to draw the background camera image.
@@ -516,30 +522,47 @@ class HelloArRenderer(val activity: HelloArActivity) :
 
     // Visualize anchors created by touch. ---------------------------------------
     render.clear(virtualSceneFramebuffer, 0f, 0f, 0f, 0f)
-//    for ((anchor, trackable) in
-//    wrappedAnchors.filter { it.anchor.trackingState == TrackingState.TRACKING }) {
-//      // Get the current pose of an Anchor in world space. The Anchor pose is updated
-//      // during calls to session.update() as ARCore refines its estimate of the world.
-//      anchor.pose.toMatrix(modelMatrix, 0)
-//
-//      // Calculate model/view/projection matrices
-//      Matrix.multiplyMM(modelViewMatrix, 0, viewMatrix, 0, modelMatrix, 0)
-//      Matrix.multiplyMM(modelViewProjectionMatrix, 0, projectionMatrix, 0, modelViewMatrix, 0)
-//
-//      // Update shader properties and draw
-//      virtualObjectShader.setMat4("u_ModelView", modelViewMatrix)
-//      virtualObjectShader.setMat4("u_ModelViewProjection", modelViewProjectionMatrix)
-//      val texture =
-//        if ((trackable as? InstantPlacementPoint)?.trackingMethod ==
-//          InstantPlacementPoint.TrackingMethod.SCREENSPACE_WITH_APPROXIMATE_DISTANCE
-//        ) {
-//          virtualObjectAlbedoInstantPlacementTexture
-//        } else {
-//          virtualObjectAlbedoTexture
-//        }
-//      virtualObjectShader.setTexture("u_AlbedoTexture", texture)
-//      render.draw(virtualObjectMesh, virtualObjectShader, virtualSceneFramebuffer)
-//    }
+    val trackingAnchors = wrappedAnchors.filter { it.anchor.trackingState == TrackingState.TRACKING }
+    for ((anchor, trackable) in trackingAnchors){
+
+
+      // Get the current pose of an Anchor in world space. The Anchor pose is updated
+      // during calls to session.update() as ARCore refines its estimate of the world.
+      anchor.pose.toMatrix(modelMatrix, 0)
+      Log.d(TAG, "Processing anchor: ${anchor.hashCode()}, Pose: ${anchor.pose}")
+
+
+      // Calculate model/view/projection matrices
+      Matrix.multiplyMM(modelViewMatrix, 0, viewMatrix, 0, modelMatrix, 0)
+      Matrix.multiplyMM(modelViewProjectionMatrix, 0, projectionMatrix, 0, modelViewMatrix, 0)
+
+
+      // Update shader properties and draw
+      try {
+        virtualObjectShader.setMat4("u_ModelView", modelViewMatrix)
+        virtualObjectShader.setMat4("u_ModelViewProjection", modelViewProjectionMatrix)
+
+        val texture = when (trackable) {
+          is InstantPlacementPoint -> {
+            if (trackable.trackingMethod == InstantPlacementPoint.TrackingMethod.SCREENSPACE_WITH_APPROXIMATE_DISTANCE) {
+              virtualObjectAlbedoInstantPlacementTexture
+            } else {
+              virtualObjectAlbedoTexture
+            }
+          }
+          else -> virtualObjectAlbedoTexture
+        }
+
+        Log.d(TAG, "Using texture: ${if (texture == virtualObjectAlbedoInstantPlacementTexture) "Instant" else "Normal"}")
+
+        virtualObjectShader.setTexture("u_AlbedoTexture", texture)
+        render.draw(virtualObjectMesh, virtualObjectShader, virtualSceneFramebuffer)
+
+        Log.d(TAG, "Successfully rendered anchor: ${anchor.hashCode()}")
+      } catch (e: Exception) {
+        Log.e(TAG, "Error rendering anchor ${anchor.hashCode()}: ${e.message}", e)
+      }
+    }
 
 
     // Check if the recognized word matches "bacteria"
@@ -706,6 +729,7 @@ class HelloArRenderer(val activity: HelloArActivity) :
         textRecognizer.process(inputImage)
           .addOnSuccessListener { visionText ->
             val recognizedText = visionText.text.lowercase(Locale.ROOT)
+            Log.d(TAG, "Recognized text: $recognizedText")
             val keywords = listOf("amphibian", "bacteria", "platypus", "digestive")
 
             // Check if "bacteria" is in the recognized text

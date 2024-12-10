@@ -58,6 +58,7 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import java.util.Locale
 
 /** Renders the HelloAR application using our example Renderer. */
 class HelloArRenderer(val activity: HelloArActivity) :
@@ -121,6 +122,16 @@ class HelloArRenderer(val activity: HelloArActivity) :
   lateinit var virtualObjectAlbedoTexture: Texture
   lateinit var virtualObjectAlbedoInstantPlacementTexture: Texture
 
+  //Virtual object (Bacteria)
+  private lateinit var bacteriaAlbedoTexture: Texture
+  private lateinit var bacteriaTexture : Texture
+  private lateinit var bacteriaNormalTexture : Texture
+  private lateinit var bacteriaSpecularTexture : Texture
+  private lateinit var bacteriaMesh: Mesh
+
+  //TextRecognition to render
+  private var recognizedWord: String? = null
+
   private val wrappedAnchors = mutableListOf<WrappedAnchor>()
 
   // Environmental HDR
@@ -139,6 +150,12 @@ class HelloArRenderer(val activity: HelloArActivity) :
   val viewInverseMatrix = FloatArray(16)
   val worldLightDirection = floatArrayOf(0.0f, 0.0f, 0.0f, 0.0f)
   val viewLightDirection = FloatArray(4) // view x world light direction
+
+
+  //text recognize x render
+  private var hasDetectedPlane = false
+  private var shouldRenderObject = false
+  private var recognizedKeyword: String? = null
 
   val session
     get() = activity.arCoreSessionHelper.session
@@ -220,31 +237,52 @@ class HelloArRenderer(val activity: HelloArActivity) :
       pointCloudMesh =
         Mesh(render, Mesh.PrimitiveMode.POINTS, /*indexBuffer=*/ null, pointCloudVertexBuffers)
 
-      // Virtual object to render (ARCore pawn)
-      virtualObjectAlbedoTexture =
+      // Virtual object to render (ARCore pawn) --------------------------------
+//      virtualObjectAlbedoTexture =
+//        Texture.createFromAsset(
+//          render,
+//          "models/pawn_albedo.png",
+//          Texture.WrapMode.CLAMP_TO_EDGE,
+//          Texture.ColorFormat.SRGB
+//        )
+//
+//      virtualObjectAlbedoInstantPlacementTexture =
+//        Texture.createFromAsset(
+//          render,
+//          "models/pawn_albedo_instant_placement.png",
+//          Texture.WrapMode.CLAMP_TO_EDGE,
+//          Texture.ColorFormat.SRGB
+//        )
+//
+//      val virtualObjectPbrTexture =
+//        Texture.createFromAsset(
+//          render,
+//          "models/pawn_roughness_metallic_ao.png",
+//          Texture.WrapMode.CLAMP_TO_EDGE,
+//          Texture.ColorFormat.LINEAR
+//        )
+//      virtualObjectMesh = Mesh.createFromAsset(render, "models/pawn.obj")
+    //(1)
+      bacteriaAlbedoTexture =
         Texture.createFromAsset(
           render,
-          "models/pawn_albedo.png",
+          "models/Bacteriatextures/diffuse_map.png",
           Texture.WrapMode.CLAMP_TO_EDGE,
           Texture.ColorFormat.SRGB
         )
+      bacteriaNormalTexture = Texture.createFromAsset(
+        render,
+        "models/bacteria_normal.png",
+        Texture.WrapMode.CLAMP_TO_EDGE,
+        Texture.ColorFormat.LINEAR
+      )
+      bacteriaSpecularTexture = Texture.createFromAsset(
+        render,
+        "models/bacteria_specular.png",
+        Texture.WrapMode.CLAMP_TO_EDGE,
+        Texture.ColorFormat.LINEAR
+      )
 
-      virtualObjectAlbedoInstantPlacementTexture =
-        Texture.createFromAsset(
-          render,
-          "models/pawn_albedo_instant_placement.png",
-          Texture.WrapMode.CLAMP_TO_EDGE,
-          Texture.ColorFormat.SRGB
-        )
-
-      val virtualObjectPbrTexture =
-        Texture.createFromAsset(
-          render,
-          "models/pawn_roughness_metallic_ao.png",
-          Texture.WrapMode.CLAMP_TO_EDGE,
-          Texture.ColorFormat.LINEAR
-        )
-      virtualObjectMesh = Mesh.createFromAsset(render, "models/pawn.obj")
       virtualObjectShader =
         Shader.createFromAssets(
           render,
@@ -252,14 +290,37 @@ class HelloArRenderer(val activity: HelloArActivity) :
           "shaders/environmental_hdr.frag",
           mapOf("NUMBER_OF_MIPMAP_LEVELS" to cubemapFilter.numberOfMipmapLevels.toString())
         )
-          .setTexture("u_AlbedoTexture", virtualObjectAlbedoTexture)
-          .setTexture("u_RoughnessMetallicAmbientOcclusionTexture", virtualObjectPbrTexture)
+          .setTexture("u_AlbedoTexture", bacteriaAlbedoTexture)
+          // If you have other textures, set them here
+          // .setTexture("u_NormalTexture", bacteriaNormalTexture)
+
+          .setTexture("u_AlbedoTexture", bacteriaAlbedoTexture)
+          .setTexture("u_NormalTexture", bacteriaNormalTexture)
+          .setTexture("u_SpecularTexture", bacteriaSpecularTexture)
+          //---default---//
           .setTexture("u_Cubemap", cubemapFilter.filteredCubemapTexture)
           .setTexture("u_DfgTexture", dfgTexture)
+
+      bacteriaMesh = Mesh.createFromAsset(render, "models/bacteria.obj")
+
+//      virtualObjectShader =
+//        Shader.createFromAssets(
+//          render,
+//          "shaders/environmental_hdr.vert",
+//          "shaders/environmental_hdr.frag",
+//          mapOf("NUMBER_OF_MIPMAP_LEVELS" to cubemapFilter.numberOfMipmapLevels.toString())
+//        )
+//          .setTexture("u_AlbedoTexture", virtualObjectAlbedoTexture)
+//          .setTexture("u_RoughnessMetallicAmbientOcclusionTexture", virtualObjectPbrTexture)
+//          .setTexture("u_Cubemap", cubemapFilter.filteredCubemapTexture)
+//          .setTexture("u_DfgTexture", dfgTexture)
     } catch (e: IOException) {
       Log.e(TAG, "Failed to read a required asset file", e)
       showError("Failed to read a required asset file: $e")
     }
+
+
+
   }
 
   var frameCounter = 0
@@ -430,37 +491,77 @@ class HelloArRenderer(val activity: HelloArActivity) :
       projectionMatrix
     )
 
+    // Check for plane detection
+    if (!hasDetectedPlane) {
+      for (plane in frame.getUpdatedTrackables(Plane::class.java)) {
+        if (plane.trackingState == TrackingState.TRACKING) {
+          hasDetectedPlane = true
+          Log.d(TAG, "Surface detected")
+          break
+        }
+      }
+    }
+
+    // Perform text recognition
+    performTextRecognition(frame)
+
+    // Render the AR scene
+    render3DObject(render, frame, camera)
+
+
     // -- Draw occluded virtual objects
 
     // Update lighting parameters in the shader
     updateLightEstimation(frame.lightEstimate, viewMatrix)
 
-    // Visualize anchors created by touch.
+    // Visualize anchors created by touch. ---------------------------------------
     render.clear(virtualSceneFramebuffer, 0f, 0f, 0f, 0f)
-    for ((anchor, trackable) in
-    wrappedAnchors.filter { it.anchor.trackingState == TrackingState.TRACKING }) {
-      // Get the current pose of an Anchor in world space. The Anchor pose is updated
-      // during calls to session.update() as ARCore refines its estimate of the world.
-      anchor.pose.toMatrix(modelMatrix, 0)
+//    for ((anchor, trackable) in
+//    wrappedAnchors.filter { it.anchor.trackingState == TrackingState.TRACKING }) {
+//      // Get the current pose of an Anchor in world space. The Anchor pose is updated
+//      // during calls to session.update() as ARCore refines its estimate of the world.
+//      anchor.pose.toMatrix(modelMatrix, 0)
+//
+//      // Calculate model/view/projection matrices
+//      Matrix.multiplyMM(modelViewMatrix, 0, viewMatrix, 0, modelMatrix, 0)
+//      Matrix.multiplyMM(modelViewProjectionMatrix, 0, projectionMatrix, 0, modelViewMatrix, 0)
+//
+//      // Update shader properties and draw
+//      virtualObjectShader.setMat4("u_ModelView", modelViewMatrix)
+//      virtualObjectShader.setMat4("u_ModelViewProjection", modelViewProjectionMatrix)
+//      val texture =
+//        if ((trackable as? InstantPlacementPoint)?.trackingMethod ==
+//          InstantPlacementPoint.TrackingMethod.SCREENSPACE_WITH_APPROXIMATE_DISTANCE
+//        ) {
+//          virtualObjectAlbedoInstantPlacementTexture
+//        } else {
+//          virtualObjectAlbedoTexture
+//        }
+//      virtualObjectShader.setTexture("u_AlbedoTexture", texture)
+//      render.draw(virtualObjectMesh, virtualObjectShader, virtualSceneFramebuffer)
+//    }
 
-      // Calculate model/view/projection matrices
+
+    // Check if the recognized word matches "bacteria"
+    if (recognizedWord?.lowercase(Locale.ROOT) == "bacteria") {
+      // Create an anchor at the center of the camera view
+      val pose = camera.pose
+      val anchor = session.createAnchor(pose)
+
+      // Render the bacteria model at the anchor position
+      anchor.pose.toMatrix(modelMatrix, 0)
       Matrix.multiplyMM(modelViewMatrix, 0, viewMatrix, 0, modelMatrix, 0)
       Matrix.multiplyMM(modelViewProjectionMatrix, 0, projectionMatrix, 0, modelViewMatrix, 0)
 
-      // Update shader properties and draw
       virtualObjectShader.setMat4("u_ModelView", modelViewMatrix)
       virtualObjectShader.setMat4("u_ModelViewProjection", modelViewProjectionMatrix)
-      val texture =
-        if ((trackable as? InstantPlacementPoint)?.trackingMethod ==
-          InstantPlacementPoint.TrackingMethod.SCREENSPACE_WITH_APPROXIMATE_DISTANCE
-        ) {
-          virtualObjectAlbedoInstantPlacementTexture
-        } else {
-          virtualObjectAlbedoTexture
-        }
-      virtualObjectShader.setTexture("u_AlbedoTexture", texture)
-      render.draw(virtualObjectMesh, virtualObjectShader, virtualSceneFramebuffer)
+      virtualObjectShader.setTexture("u_AlbedoTexture", bacteriaAlbedoTexture)
+      render.draw(bacteriaMesh, virtualObjectShader, virtualSceneFramebuffer)
+
+      // Reset the recognized word to avoid continuous rendering
+      recognizedWord = null
     }
+
 
     // Compose the virtual scene with the background.
     backgroundRenderer.drawVirtualScene(render, virtualSceneFramebuffer, Z_NEAR, Z_FAR)
@@ -591,6 +692,103 @@ class HelloArRenderer(val activity: HelloArActivity) :
       activity.runOnUiThread { activity.view.showOcclusionDialogIfNeeded() }
     }
   }
+
+
+  @RequiresApi(Build.VERSION_CODES.R)
+  private fun performTextRecognition(frame: Frame) {
+    try {
+      val image = frame.acquireCameraImage()
+      image.use {
+        val rotationDegrees = getRotationDegrees()
+        val inputImage = InputImage.fromMediaImage(it, rotationDegrees)
+        val textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+
+        textRecognizer.process(inputImage)
+          .addOnSuccessListener { visionText ->
+            val recognizedText = visionText.text.lowercase(Locale.ROOT)
+            val keywords = listOf("amphibian", "bacteria", "platypus", "digestive")
+
+            // Check if "bacteria" is in the recognized text
+            if (visionText.text.lowercase(Locale.ROOT).contains("bacteria")) {
+              recognizedWord = "bacteria"
+            }
+
+            for (keyword in keywords) {
+              if (recognizedText.contains(keyword)) {
+                recognizedKeyword = keyword
+                shouldRenderObject = true
+                Log.d(TAG, "Recognized keyword: $keyword")
+                break
+              }
+            }
+          }
+          .addOnFailureListener { e ->
+            Log.e(TAG, "Text recognition failed: ${e.localizedMessage}", e)
+          }
+      }
+    } catch (e: NotYetAvailableException) {
+      // Camera image not available yet, skip this frame
+    } catch (e: Exception) {
+      Log.e(TAG, "Error in text recognition: ${e.localizedMessage}")
+    }
+  }
+
+  private fun render3DObject(render: SampleRender, frame: Frame, camera: Camera) {
+    if (hasDetectedPlane && shouldRenderObject) {
+      // Render the 3D object
+      // You may want to adjust the rendering based on the recognizedKeyword
+      // For example, load different textures or models based on the keyword
+
+      // ... Your existing rendering code ...
+
+      // Example of conditional rendering:
+      when (recognizedKeyword) {
+//        "amphibian" -> renderAmphibianModel(render, frame, camera)
+        "bacteria" -> renderBacteriaModel(render, frame, camera)
+//        "platypus" -> renderPlatypusModel(render, frame, camera)
+//        "digestive" -> renderDigestiveModel(render, frame, camera)
+      }
+    } else {
+      // Render a message or indicator that we're waiting for surface detection or keyword recognition
+      renderWaitingMessage(render)
+    }
+  }
+
+  private fun renderBacteriaModel(render: SampleRender, frame: Frame, camera: Camera) {
+    // Create an anchor at the center of the camera view
+    val pose = camera.pose
+    val anchor = session?.createAnchor(pose)
+
+    if (anchor == null) {
+      Log.w(TAG, "Failed to create anchor for bacteria model")
+      // Use camera pose as fallback
+      pose.toMatrix(modelMatrix, 0)
+    } else {
+      anchor.pose?.toMatrix(modelMatrix, 0) ?: run {
+        Log.w(TAG, "Anchor pose is null, using camera pose as fallback")
+        pose.toMatrix(modelMatrix, 0)
+      }
+    }
+
+    Matrix.multiplyMM(modelViewMatrix, 0, viewMatrix, 0, modelMatrix, 0)
+    Matrix.multiplyMM(modelViewProjectionMatrix, 0, projectionMatrix, 0, modelViewMatrix, 0)
+
+    virtualObjectShader.setMat4("u_ModelView", modelViewMatrix)
+    virtualObjectShader.setMat4("u_ModelViewProjection", modelViewProjectionMatrix)
+    virtualObjectShader.setTexture("u_AlbedoTexture", bacteriaAlbedoTexture)
+    virtualObjectShader.setTexture("u_NormalTexture", bacteriaNormalTexture)
+    virtualObjectShader.setTexture("u_SpecularTexture", bacteriaSpecularTexture)
+
+    render.draw(bacteriaMesh, virtualObjectShader, virtualSceneFramebuffer)
+  }
+
+  // Implement similar methods for other models...
+
+  private fun renderWaitingMessage(render: SampleRender) {
+    // Implement a method to render a waiting message or indicator
+  }
+
+  // ... rest of your existing code ...
 
   private fun showError(errorMessage: String) =
     activity.view.snackbarHelper.showError(activity, errorMessage)

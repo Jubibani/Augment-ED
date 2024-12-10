@@ -53,6 +53,8 @@ class HelloArActivity : AppCompatActivity() {
   val instantPlacementSettings = InstantPlacementSettings()
   val depthSettings = DepthSettings()
 
+
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 

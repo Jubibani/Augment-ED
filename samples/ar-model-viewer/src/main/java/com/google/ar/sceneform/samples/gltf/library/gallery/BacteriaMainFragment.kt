@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.ar.core.HitResult
 import com.google.ar.core.Plane
 import com.google.ar.sceneform.AnchorNode
@@ -47,9 +48,14 @@ class BacteriaMainFragment : Fragment(R.layout.fragment_main) {
     //hiding
     private lateinit var infoButton: FloatingActionButton
     private var isInfoVisible = !isVisible
+    private lateinit var switchButton: SwitchMaterial
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
+        switchButton = requireActivity().findViewById(R.id.switchButton)
+        switchButton.visibility = View.GONE
 
         // Initialize MediaPlayer
         mediaPlayer = MediaPlayer.create(context, R.raw.popup)

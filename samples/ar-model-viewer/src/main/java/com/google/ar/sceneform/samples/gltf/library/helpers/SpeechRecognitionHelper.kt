@@ -6,8 +6,10 @@ import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import android.widget.Toast
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import java.util.Locale
 
 class SpeechRecognitionHelper(private val context: Context) {
 
@@ -60,6 +62,7 @@ class SpeechRecognitionHelper(private val context: Context) {
 
     fun startListening() {
         speechRecognizer.startListening(recognitionIntent)
+        Toast.makeText(context, "Listening...", Toast.LENGTH_SHORT).show()
     }
 
     fun stopListening() {
@@ -67,11 +70,11 @@ class SpeechRecognitionHelper(private val context: Context) {
     }
 
     fun setReferenceText(text: String) {
-        referenceText = text.toLowerCase()
+        referenceText = text.lowercase(Locale.ROOT)
     }
 
     private fun compareWithReferenceText(spokenText: String) {
-        val spokenWords = spokenText.toLowerCase().split(" ")
+        val spokenWords = spokenText.lowercase(Locale.ROOT).split(" ")
         val referenceWords = referenceText.split(" ")
 
         var spokenIndex = 0

@@ -279,7 +279,7 @@ class ReciteFragment : Fragment() {
         recognizedText?.let { text ->
             speechRecognitionHelper.setReferenceText(text.text)
             speechRecognitionHelper.startListening()
-            Toast.makeText(context, "Listening...", Toast.LENGTH_SHORT).show()
+
         }
     }
 

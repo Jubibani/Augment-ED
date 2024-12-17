@@ -4,7 +4,9 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.RectF
 import android.util.AttributeSet
+import android.view.MotionEvent
 import android.view.View
 import com.google.mlkit.vision.text.Text
 
@@ -13,34 +15,58 @@ class TextOverlay @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
-    private val paint = Paint().apply {
-        color = Color.RED
-        style = Paint.Style.STROKE
-        strokeWidth = 2f
-    }
 
     var recognizedText: Text? = null
-        set(value) {
-            field = value
-            invalidate()
-        }
+    var highlightedText: String? = null
+    private val wordRects = mutableListOf<Pair<String, RectF>>()
 
-    // If you still want to keep a separate function, rename it to avoid conflict
-    fun updateRecognizedText(text: Text) {
-        recognizedText = text
-        // No need to call invalidate() here as it's called in the setter
+    private val textPaint = Paint().apply {
+        color = Color.RED
+        textSize = 36f
     }
+
+    private val highlightPaint = Paint().apply {
+        color = Color.YELLOW
+        style = Paint.Style.FILL
+    }
+
+    var onWordTapped: ((String) -> Unit)? = null
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        recognizedText?.let { text ->
-            for (block in text.textBlocks) {
+        wordRects.clear()
+        recognizedText?.let { visionText ->
+            for (block in visionText.textBlocks) {
                 for (line in block.lines) {
-                    line.boundingBox?.let { rect ->
-                        canvas.drawRect(rect, paint)
+                    for (element in line.elements) {
+                        val boundingBox = element.boundingBox
+                        if (boundingBox != null) {
+                            val rect = RectF(boundingBox)
+                            wordRects.add(Pair(element.text, rect))
+                            if (element.text == highlightedText) {
+                                canvas.drawRect(rect, highlightPaint)
+                            }
+                            canvas.drawText(element.text, rect.left, rect.bottom, textPaint)
+                        }
                     }
                 }
             }
         }
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        if (event.action == MotionEvent.ACTION_UP) {
+            val x = event.x
+            val y = event.y
+            for ((word, rect) in wordRects) {
+                if (rect.contains(x, y)) {
+                    highlightedText = word
+                    onWordTapped?.invoke(word)
+                    invalidate()
+                    return true
+                }
+            }
+        }
+        return super.onTouchEvent(event)
     }
 }

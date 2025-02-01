@@ -41,36 +41,18 @@
             android:name="com.google.ar.core"
             android:value="required" />
 
-
-<!--        &lt;!&ndash;Splash Activity&ndash;&gt;-->
-<!--        <activity-->
-<!--            android:name=".library.screens.SplashActivity"-->
-<!--            android:configChanges="orientation|screenSize"-->
-<!--            android:exported="true"-->
-<!--            android:screenOrientation="locked">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-<!--        </activity>-->
-
-
-<!--&lt;!&ndash;        Main Activity&ndash;&gt;-->
-<!--        <activity-->
-<!--            android:name=".library.screens.MainActivity"-->
-<!--            android:configChanges="orientation|screenSize"-->
-<!--            android:exported="true"-->
-<!--            android:screenOrientation="locked">-->
-<!--&lt;!&ndash;            <intent-filter>&ndash;&gt;-->
-<!--&lt;!&ndash;                <action android:name="android.intent.action.MAIN" />&ndash;&gt;-->
-<!--&lt;!&ndash;                <category android:name="android.intent.category.LAUNCHER" />&ndash;&gt;-->
-<!--&lt;!&ndash;            </intent-filter>&ndash;&gt;-->
-<!--        </activity>-->
-
-
-        <!--Activity-->
+        <!--Splash Activity-->
         <activity
-            android:name=".library.Activity"
+            android:name=".library.screens.SplashActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="true"
+            android:screenOrientation="locked">
+
+        </activity>
+
+        <!--Main Activity-->
+        <activity
+            android:name=".library.screens.MainActivity"
             android:configChanges="orientation|screenSize"
             android:exported="true"
             android:screenOrientation="locked">
@@ -80,26 +62,29 @@
             </intent-filter>
         </activity>
 
-        <!--component: SpeechRecognition-->
-<!--        <activity-->
-<!--            android:name=".library.components.SpeechRecognitionActivity"-->
-<!--            android:configChanges="orientation|screenSize"-->
-<!--&lt;!&ndash;            android:exported="true">&ndash;&gt;-->
-<!--&lt;!&ndash;            <intent-filter>&ndash;&gt;-->
-<!--&lt;!&ndash;                <action android:name="android.intent.action.MAIN" />&ndash;&gt;-->
-<!--&lt;!&ndash;                <category android:name="android.intent.category.LAUNCHER" />&ndash;&gt;-->
-<!--&lt;!&ndash;            </intent-filter>&ndash;&gt;-->
-<!--&lt;!&ndash;        </activity>&ndash;&gt;-->
+        <!--Activity-->
+        <activity
+            android:name=".library.Activity"
+            android:configChanges="orientation|screenSize"
+            android:exported="true"
+            android:screenOrientation="locked">
 
-<!--        &lt;!&ndash;component: SpeechRecognition (2)&ndash;&gt;-->
-<!--        <activity-->
-<!--            android:name=".library.components.CameraSpeechActivity"-->
-<!--            android:exported="true">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-<!--        </activity>-->
+        </activity>
+
+        <!--component: SpeechRecognition-->
+        <activity
+            android:name=".library.components.SpeechRecognitionActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="true">
+
+        </activity>
+
+        <!--component: SpeechRecognition (2)-->
+        <activity
+            android:name=".library.components.CameraSpeechActivity"
+            android:exported="true">
+
+        </activity>
 
         <!--Library Activity-->
         <activity
@@ -113,12 +98,8 @@
             android:name=".library.screens.PracticeActivity"
             android:configChanges="orientation|screenSize"
             android:exported="true">
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-        </activity>
 
+        </activity>
 
         <!--Models-->
         <activity
@@ -146,7 +127,6 @@
             android:exported="false"
             android:label="Bacteria Activity">
         </activity>
-
 
     </application>
 </manifest>

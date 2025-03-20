@@ -3,6 +3,7 @@ package com.google.ar.sceneform.samples.gltf.library.helpers
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
+import androidx.activity.result.IntentSenderRequest
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -14,7 +15,10 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import com.google.ar.sceneform.samples.gltf.library.Activity
 import com.google.ar.sceneform.samples.gltf.library.components.TextRecognitionAnalyzer
+import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
+import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
 import com.google.mlkit.vision.text.Text
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -91,6 +95,25 @@ class CameraHelper(private val context: Context) {
                 }
             }
         )
+    }
+
+    fun startDocumentScan(activity: Activity, onDocumentScanned: (IntentSenderRequest) -> Unit) {
+        val options = GmsDocumentScannerOptions.Builder()
+            .setGalleryImportAllowed(false)
+            .setPageLimit(2)
+            .setResultFormats(GmsDocumentScannerOptions.RESULT_FORMAT_JPEG, GmsDocumentScannerOptions.RESULT_FORMAT_PDF)
+            .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL)
+            .build()
+
+        val scanner = GmsDocumentScanning.getClient(options)
+        scanner.getStartScanIntent(activity)
+            .addOnSuccessListener { intentSender ->
+                val intentSenderRequest = IntentSenderRequest.Builder(intentSender).build()
+                onDocumentScanned(intentSenderRequest)
+            }
+            .addOnFailureListener { e ->
+                Log.e("CameraHelper", "Document scan failed: ${e.message}", e)
+            }
     }
 
     private fun ImageProxy.toBitmap(): Bitmap {

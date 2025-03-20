@@ -37,14 +37,13 @@ import com.airbnb.lottie.LottieAnimationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.ar.sceneform.samples.gltf.R
-import com.google.ar.sceneform.samples.gltf.library.components.CustomUCropActivity
 import com.google.ar.sceneform.samples.gltf.library.helpers.CameraHelper
 import com.google.ar.sceneform.samples.gltf.library.helpers.VoskSpeechRecognitionHelper
 import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-import com.yalantis.ucrop.UCrop
 import java.io.File
 import java.io.FileOutputStream
 
@@ -174,6 +173,55 @@ class ReciteFragment : Fragment() {
         }
     }
 
+    private val documentScanLauncher = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val scanningResult = GmsDocumentScanningResult.fromActivityResultIntent(result.data)
+            scanningResult?.let { result ->
+                // Handle the document scanning result
+                result.getPages()?.let { pages ->
+                    for (page in pages) {
+                        val imageUri = page.imageUri
+                        // Process the image URI
+                        val inputStream = requireContext().contentResolver.openInputStream(imageUri)
+                        val bitmap = BitmapFactory.decodeStream(inputStream)
+                        inputStream?.close()
+
+                        // Handle image orientation
+                        val rotatedBitmap = rotateBitmapByExifData(imageUri, bitmap)
+
+                        // Recycle previous bitmap if exists
+                        capturedBitmap?.recycle()
+                        capturedBitmap = rotatedBitmap
+
+                        // Adjust ImageView scaleType
+                        imageView.scaleType = ImageView.ScaleType.FIT_CENTER
+                        imageView.setImageBitmap(capturedBitmap)
+                        imageView.visibility = View.VISIBLE
+                        previewView.visibility = View.GONE
+
+                        // Hide all buttons except close button
+                        captureButton.visibility = View.GONE
+                        switchButton.visibility = View.GONE
+                        showCloseButton()
+
+                        performOCROnCapturedImage()
+                    }
+                }
+                result.getPdf()?.let { pdf ->
+                    val pdfUri = pdf.uri
+                    val pageCount = pdf.pageCount
+                    // Process the PDF URI
+                }
+            }
+        }
+    }
+
+    private fun startDocumentScan() {
+        cameraHelper.startDocumentScan(requireActivity() as Activity) { intentSenderRequest ->
+            documentScanLauncher.launch(intentSenderRequest)
+        }
+    }
+
     private fun compareAndDisplayResults() {
         val recognizedText = recognizedText?.text ?: return
         val spokenText = voskSpeechRecognitionHelper.spokenText.value ?: return
@@ -294,8 +342,23 @@ class ReciteFragment : Fragment() {
     private fun takePhoto() {
         cameraHelper.takePhoto { bitmap ->
             val rotatedBitmap = rotateBitmapByFixedAngle(bitmap)
-            val uri = saveBitmapToCache(rotatedBitmap)
-            startCropActivity(uri)
+
+            // Recycle previous bitmap if exists
+            capturedBitmap?.recycle()
+            capturedBitmap = rotatedBitmap
+
+            // Adjust ImageView scaleType
+            imageView.scaleType = ImageView.ScaleType.FIT_CENTER
+            imageView.setImageBitmap(capturedBitmap)
+            imageView.visibility = View.VISIBLE
+            previewView.visibility = View.GONE
+
+            // Hide all buttons except close button
+            captureButton.visibility = View.GONE
+            switchButton.visibility = View.GONE
+            showCloseButton()
+
+            performOCROnCapturedImage()
         }
     }
 
@@ -304,61 +367,6 @@ class ReciteFragment : Fragment() {
             postRotate(90f) // Always rotate by 90 degrees
         }
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-    }
-
-    private fun startCropActivity(uri: Uri) {
-        val destinationUri = Uri.fromFile(File(requireContext().cacheDir, "croppedImage.jpg"))
-        val options = UCrop.Options().apply {
-            setCompressionFormat(Bitmap.CompressFormat.JPEG)
-            setCompressionQuality(100)
-            setFreeStyleCropEnabled(true) // Enable free style cropping
-
-            // Set the colors
-            setToolbarColor(Color.parseColor("#451f7a")) // Dark Purple
-            setStatusBarColor(Color.parseColor("#451f7a")) // Dark Purple
-            setActiveControlsWidgetColor(Color.parseColor("#edb705")) // Gold
-            setToolbarWidgetColor(Color.parseColor("#FFFFFF")) // White
-            setRootViewBackgroundColor(Color.parseColor("#070308")) // Dark Grey
-        }
-        val intent = UCrop.of(uri, destinationUri)
-            .withOptions(options)
-            .getIntent(requireContext())
-            .setClass(requireContext(), CustomUCropActivity::class.java)
-        cropActivityResultLauncher.launch(intent)
-    }
-
-    private val cropActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK) {
-            val resultUri = UCrop.getOutput(result.data!!)
-            resultUri?.let {
-                val inputStream = requireContext().contentResolver.openInputStream(it)
-                val bitmap = BitmapFactory.decodeStream(inputStream)
-                inputStream?.close()
-
-                // Handle image orientation
-                val rotatedBitmap = rotateBitmapByExifData(it, bitmap)
-
-                // Recycle previous bitmap if exists
-                capturedBitmap?.recycle()
-                capturedBitmap = rotatedBitmap
-
-                // Adjust ImageView scaleType
-                imageView.scaleType = ImageView.ScaleType.FIT_CENTER
-                imageView.setImageBitmap(capturedBitmap)
-                imageView.visibility = View.VISIBLE
-                previewView.visibility = View.GONE
-
-                // Hide all buttons except close button
-                captureButton.visibility = View.GONE
-                switchButton.visibility = View.GONE
-                showCloseButton()
-
-                performOCROnCapturedImage()
-            }
-        } else if (result.resultCode == UCrop.RESULT_ERROR) {
-            val cropError = UCrop.getError(result.data!!)
-            Toast.makeText(context, "Crop error: ${cropError?.message}", Toast.LENGTH_SHORT).show()
-        }
     }
 
     private fun rotateBitmapByExifData(uri: Uri, bitmap: Bitmap): Bitmap {
@@ -471,6 +479,10 @@ class ReciteFragment : Fragment() {
         ContextCompat.checkSelfPermission(requireContext(), it) == PackageManager.PERMISSION_GRANTED
     }
 
+    override fun onResume() {
+        super.onResume()
+        startDocumentScan()
+    }
     override fun onPause() {
         super.onPause()
         voskSpeechRecognitionHelper.stopListening() // Stop listening when fragment is paused

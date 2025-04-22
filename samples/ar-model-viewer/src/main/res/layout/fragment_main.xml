@@ -94,4 +94,25 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/transparent" />
+
+    <!-- the video description -->
+    <ImageButton
+        android:id="@+id/watchButton"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_gravity="bottom|center"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/premium_button_background"
+        android:src="@drawable/play"
+        android:scaleType="centerInside"
+        android:padding="8dp"
+        app:tint="@android:color/white"
+        android:visibility="gone" />
+
+
+
+
+
+    <include layout="@layout/view_video_overlay" />
+
 </FrameLayout>

@@ -1,11 +1,13 @@
 package com.google.ar.sceneform.samples.gltf.library.data.viewmodel
 
-//Forewarning! Many Debug Logs and Comments! The developer is learning slow.
-
 import android.app.Application
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import androidx.core.content.FileProvider
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.ar.sceneform.samples.gltf.R
@@ -14,63 +16,41 @@ import com.google.ar.sceneform.samples.gltf.library.data.local.dao.PointsDao
 import com.google.ar.sceneform.samples.gltf.library.data.local.database.AppDatabase
 import com.google.ar.sceneform.samples.gltf.library.data.local.entities.MiniGameEntity
 import com.google.ar.sceneform.samples.gltf.library.screens.RewardItemData
-import com.unity3d.player.UnityPlayerGameActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.io.File
+import java.io.FileOutputStream
 
 class RewardsViewModel(application: Application) : AndroidViewModel(application) {
     private val db = AppDatabase.getDatabase(application, viewModelScope)
     private val miniGameDao: MiniGameDao = db.miniGameDao()
     private val pointsDao: PointsDao = db.brainPointsDao()
 
-    //  StateFlow for unlocked mini-games (Auto-updates UI)
     private val _rewardItems = MutableStateFlow<List<RewardItemData>>(emptyList())
     val rewardItems: StateFlow<List<RewardItemData>> = _rewardItems.asStateFlow()
 
     init {
-        refreshRewards() // Load rewards on start
+        refreshRewards()
     }
-
-    //  Refresh rewards from DB
-/*    private fun refreshRewards() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val miniGames = miniGameDao.getAllMiniGames()
-            Log.d("DatabaseDebug", "Fetched from DB: $miniGames") //  CHECK IF DATA EXISTS
-
-            _rewardItems.value = miniGames.map { game ->
-                RewardItemData(
-                    id = game.gameId,
-                    name = game.name,
-                    description = "Unlock to play ${game.name}",
-                    imageResId = R.drawable.question_icon,
-                    cost = if (game.gameId == "11") 50 else 75,
-                    isUnlocked = game.isUnlocked,
-                    onClickAction = {}
-                )
-            }
-            Log.d("DatabaseDebug", "Mapped reward items: ${_rewardItems.value}")
-        }
-    }*/
 
     private fun refreshRewards() {
         viewModelScope.launch(Dispatchers.IO) {
             val miniGames = miniGameDao.getAllMiniGames()
-            Log.d("DatabaseDebug", "Fetched from DB: $miniGames") // DEBUG CHECK
+            Log.d("DatabaseDebug", "Fetched from DB: $miniGames")
 
             _rewardItems.value = miniGames.map { game ->
                 when (game.gameId) {
-                    "1", "2", "3", "4" -> {
-                        // Placeholder rewards that show a Toast when unlocked
+                    "1", "2", "3" -> {
                         RewardItemData(
                             id = game.gameId,
                             name = game.name,
                             description = "Unlock to receive a surprise!",
                             imageResId = R.drawable.question_icon,
-                            cost = 50, // Example cost
+                            cost = 50,
                             isUnlocked = game.isUnlocked,
                             onClickAction = {
                                 if (game.isUnlocked) {
@@ -83,40 +63,36 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
                             }
                         )
                     }
-                    "5" -> {
-                        // The imported Unity mini-game reward
+                    "blueGuy" -> {
                         RewardItemData(
                             id = game.gameId,
-                            name = "Break Baller",
-                            description = "Break Baller is where you control a paddle and break bricks to win!",
-                            imageResId = R.drawable.question_icon, // Replace with actual icon
-                            cost = 75, // Adjust as needed
+                            name = game.name,
+                            description = "Unlock to play ${game.name}",
+                            imageResId = R.drawable.question_icon,
+                            cost = 75,
                             isUnlocked = game.isUnlocked,
                             onClickAction = {
                                 if (game.isUnlocked) {
-                                    Log.d("MiniGameDebug", "Launching Unity mini-game")
-                                    val intent = Intent(getApplication(), UnityPlayerGameActivity::class.java)
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                    getApplication<Application>().startActivity(intent)
+                                    handleMiniGameLaunch(game)
+                                } else {
+                                    Log.d("MiniGameDebug", "Not enough points to unlock")
                                 }
                             }
                         )
                     }
                     else -> {
-                        // Future Unity mini-games (keeps flexibility for upcoming imports)
                         RewardItemData(
                             id = game.gameId,
                             name = game.name,
                             description = "Unlock to play ${game.name}",
-                            imageResId = R.drawable.question_icon, // Placeholder until assigned
-                            cost = 75, // Default cost for future games
+                            imageResId = R.drawable.question_icon,
+                            cost = 75,
                             isUnlocked = game.isUnlocked,
                             onClickAction = {
                                 if (game.isUnlocked) {
-                                    Log.d("MiniGameDebug", "Launching ${game.name}")
-                                    val intent = Intent(getApplication(), UnityPlayerGameActivity::class.java)
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                    getApplication<Application>().startActivity(intent)
+                                    handleMiniGameLaunch(game)
+                                } else {
+                                    Log.d("MiniGameDebug", "Not enough points to unlock")
                                 }
                             }
                         )
@@ -127,9 +103,68 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    private fun handleMiniGameLaunch(game: MiniGameEntity) {
+        val context = getApplication<Application>()
+        val packageName = "com.DefaultCompany.${game.gameId}" // Adjust package name logic as needed
 
+        if (isGameInstalled(context, packageName)) {
+            // If the game is installed, launch it
+            launchGame(context, packageName)
+        } else {
+            // If the game is not installed, prompt the user to install it
+            Toast.makeText(context, "Game not installed. Installing now...", Toast.LENGTH_SHORT).show()
+            val apkFileName = "${game.gameId}.apk" // e.g., "blueGuy.apk"
+            val apkFile = copyApkFromAssets(context, apkFileName)
+            installApk(context, apkFile)
+        }
+    }
 
-    //  Unlock and refresh data
+    private fun isGameInstalled(context: Context, packageName: String): Boolean {
+        return try {
+            context.packageManager.getPackageInfo(packageName, 0)
+            true
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
+        }
+    }
+
+    private fun launchGame(context: Context, packageName: String) {
+        val launchIntent = context.packageManager.getLaunchIntentForPackage(packageName)
+        if (launchIntent != null) {
+            context.startActivity(launchIntent)
+        } else {
+            Log.e("MiniGameDebug", "Failed to launch game: $packageName")
+        }
+    }
+
+    private fun copyApkFromAssets(context: Context, apkName: String): File {
+        val assetManager = context.assets
+        val outputFile = File(context.filesDir, apkName)
+
+        assetManager.open("minigames/$apkName").use { inputStream ->
+            FileOutputStream(outputFile).use { outputStream ->
+                inputStream.copyTo(outputStream)
+            }
+        }
+
+        return outputFile
+    }
+
+    private fun installApk(context: Context, apkFile: File) {
+        val apkUri: Uri = FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.fileprovider",
+            apkFile
+        )
+
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(apkUri, "application/vnd.android.package-archive")
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+        }
+
+        context.startActivity(intent)
+    }
+
     fun unlockMiniGameAndDeductPoints(gameId: String, cost: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             val currentPoints = pointsDao.getPoints()
@@ -141,20 +176,17 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
                     miniGameDao.insertGame(MiniGameEntity(gameId, "Unknown Game", true))
                 }
 
-                refreshRewards() // 🔥 Automatically update UI
+                refreshRewards()
             }
         }
     }
 
-
-    //  Fetch all mini-games (now non-suspend)
     fun getAllMiniGames(): List<MiniGameEntity> {
         return runBlocking(Dispatchers.IO) {
             miniGameDao.getAllMiniGames()
         }
     }
 
-    //  Fetch mini-game rewards safely
     fun getMiniGameRewards(): List<RewardItemData> {
         val miniGames = getAllMiniGames()
         return miniGames.map { game ->
@@ -167,10 +199,7 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
                 isUnlocked = game.isUnlocked,
             ) {
                 if (game.isUnlocked) {
-                    Log.d("MiniGameDebug", "Launching ${game.name}")
-                    val intent = Intent(getApplication(), UnityPlayerGameActivity::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    getApplication<Application>().startActivity(intent)
+                    handleMiniGameLaunch(game)
                 } else {
                     Log.d("MiniGameDebug", "Not enough points to unlock")
                 }

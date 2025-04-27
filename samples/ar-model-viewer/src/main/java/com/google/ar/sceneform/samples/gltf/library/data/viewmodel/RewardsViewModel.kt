@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 
@@ -37,82 +38,62 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
         refreshRewards()
     }
 
+
     private fun refreshRewards() {
         viewModelScope.launch(Dispatchers.IO) {
-            val miniGames = miniGameDao.getAllMiniGames()
-            Log.d("DatabaseDebug", "Fetched from DB: $miniGames")
+            try {
+                // Fetch all mini-games from the database
+                val miniGames = miniGameDao.getAllMiniGames()
+                Log.d("DatabaseDebug", "Fetched from DB: $miniGames")
 
-            _rewardItems.value = miniGames.map { game ->
-                when (game.gameId) {
-                    "1", "2", "3" -> {
-                        RewardItemData(
-                            id = game.gameId,
-                            name = game.name,
-                            description = "Unlock to receive a surprise!",
-                            imageResId = R.drawable.question_icon,
-                            cost = 50,
-                            isUnlocked = game.isUnlocked,
-                            isInstalled = game.isInstalled,
-                            onClickAction = {
-                                when {
-                                    game.isInstalled -> handleMiniGameLaunch(game)
-                                    game.isUnlocked -> Toast.makeText(
+                // Map mini-games to RewardItemData
+                val rewardItems = miniGames.map { game ->
+                    RewardItemData(
+                        id = game.gameId,
+                        name = game.name,
+                        description = when (game.gameId) {
+                            "1", "2", "3" -> "Unlock to receive a surprise!"
+                            else -> "Unlock to play ${game.name}"
+                        },
+                        imageResId = R.drawable.question_icon,
+                        cost = if (game.gameId in listOf("1", "2", "3")) 50 else 75,
+                        isUnlocked = game.isUnlocked,
+                        isInstalled = game.isInstalled,
+                        onClickAction = {
+                            when {
+                                game.isInstalled -> handleMiniGameLaunch(game)
+                                game.isUnlocked -> {
+                                    Log.d("MiniGameDebug", "Installing game: ${game.name}")
+                                    Toast.makeText(
                                         getApplication(),
-                                        "You've unlocked ${game.name}!",
+                                        "Installing ${game.name}...",
                                         Toast.LENGTH_SHORT
                                     ).show()
-                                    else -> Log.d("MiniGameDebug", "Not enough points to unlock")
+                                    val apkFileName = "${game.gameId}.apk"
+                                    val apkFile = copyApkFromAssets(getApplication(), apkFileName)
+                                    installApk(getApplication(), apkFile)
                                 }
-                            }
-                        )
-                    }
-                    "blueGuy", "breakBaller" -> {
-                        RewardItemData(
-                            id = game.gameId,
-                            name = game.name,
-                            description = "Unlock to play ${game.name}",
-                            imageResId = R.drawable.question_icon,
-                            cost = 75,
-                            isUnlocked = game.isUnlocked,
-                            isInstalled = game.isInstalled,
-                            onClickAction = {
-                                when {
-                                    game.isInstalled -> handleMiniGameLaunch(game)
-                                    game.isUnlocked -> Toast.makeText(
+                                else -> {
+                                    Log.d("MiniGameDebug", "Not enough points to unlock ${game.name}")
+                                    Toast.makeText(
                                         getApplication(),
-                                        "You've unlocked ${game.name}!",
+                                        "Not enough points to unlock ${game.name}",
                                         Toast.LENGTH_SHORT
                                     ).show()
-                                    else -> Log.d("MiniGameDebug", "Not enough points to unlock")
                                 }
                             }
-                        )
-                    }
-                    else -> {
-                        RewardItemData(
-                            id = game.gameId,
-                            name = game.name,
-                            description = "Unlock to play ${game.name}",
-                            imageResId = R.drawable.question_icon,
-                            cost = 75, // Default cost
-                            isUnlocked = game.isUnlocked,
-                            isInstalled = game.isInstalled,
-                            onClickAction = {
-                                when {
-                                    game.isInstalled -> handleMiniGameLaunch(game)
-                                    game.isUnlocked -> Toast.makeText(
-                                        getApplication(),
-                                        "You've unlocked ${game.name}!",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    else -> Log.d("MiniGameDebug", "Not enough points to unlock")
-                                }
-                            }
-                        )
-                    }
+                        }
+                    )
                 }
+
+                // Update the StateFlow on the main thread
+                withContext(Dispatchers.Main) {
+                    _rewardItems.value = rewardItems
+                    Log.d("DatabaseDebug", "Updated reward items: $rewardItems")
+                }
+            } catch (e: Exception) {
+                Log.e("DatabaseDebug", "Error refreshing rewards: ${e.message}")
             }
-            Log.d("DatabaseDebug", "Mapped reward items: ${_rewardItems.value}")
         }
     }
 
@@ -136,13 +117,11 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
 
     private fun isGameInstalled(context: Context, packageName: String): Boolean {
         return try {
-            val packageManager = context.packageManager
-            val installedPackages = packageManager.getInstalledPackages(0) // Refresh cache
-            installedPackages.any { it.packageName == packageName }.also {
-                Log.d("MiniGameDebug", "Game installed status for $packageName: $it")
-            }
-        } catch (e: Exception) {
-            Log.d("MiniGameDebug", "Error checking game installation: ${e.message}")
+            context.packageManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES)
+            Log.d("MiniGameDebug", "Game installed status for $packageName: true (using getPackageInfo)")
+            true
+        } catch (e: PackageManager.NameNotFoundException) {
+            Log.d("MiniGameDebug", "Game installed status for $packageName: false (using getPackageInfo)")
             false
         }
     }

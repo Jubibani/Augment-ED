@@ -8,6 +8,14 @@
 
     <!--Asks permission for the mini-games-->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <!-- Specify the packages  app needs to query -->
+    <queries>
+        <!-- Query specific package by name -->
+        <package android:name="com.DefaultCompany.breakBaller" />
+        <package android:name="com.DefaultCompany.blueGuy" />
+    </queries>
+
     <!-- Needed to load gltf from network. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -133,7 +141,7 @@
         </activity>
 
 
-        <!--Modules-->
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.google.ar.sceneform.samples.gltf.fileprovider"

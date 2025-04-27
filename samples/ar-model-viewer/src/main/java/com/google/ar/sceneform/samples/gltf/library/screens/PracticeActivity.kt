@@ -500,52 +500,8 @@ fun PracticeItemCard(item: PracticeItemData) {
     }
 }
 
-@Composable
-fun RewardItemCard(item: RewardItemData, onClick: (RewardItemData) -> Unit) {
-    Card(
-        modifier = Modifier
-            .padding(8.dp)
-            .size(100.dp)
-            .clickable { onClick(item) }
-            .border(
-                width = 2.dp,
-                color = when {
-                    item.isInstalled -> Color.Blue // Blue for installed
-                    item.isUnlocked -> Color.Green // Green for unlocked
-                    else -> Color.Gray // Gray for locked
-                },
-                shape = RoundedCornerShape(10.dp)
-            )
-            .alpha(if (item.isUnlocked || item.isInstalled) 1f else 0.5f), // Dim locked items
-        shape = RoundedCornerShape(10.dp),
-    ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(
-                    imageVector = when {
-                        item.isInstalled -> Icons.Default.Check // Check icon for installed
-                        item.isUnlocked -> Icons.Default.VideogameAsset // 🎮 for unlocked
-                        else -> Icons.Default.Lock // Lock icon for locked
-                    },
-                    contentDescription = null,
-                    tint = when {
-                        item.isInstalled -> Color.Blue
-                        item.isUnlocked -> Color.Green
-                        else -> Color.Gray
-                    },
-                    modifier = Modifier.size(32.dp)
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(text = item.name, fontSize = 14.sp, textAlign = TextAlign.Center)
-            }
-        }
-    }
-}
 
-/*@Composable
+@Composable
 fun RewardItemCard(item: RewardItemData, onClick: (RewardItemData) -> Unit) {
     Card(
         modifier = Modifier
@@ -576,7 +532,7 @@ fun RewardItemCard(item: RewardItemData, onClick: (RewardItemData) -> Unit) {
             }
         }
     }
-}*/
+}
 
 
 

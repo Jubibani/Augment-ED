@@ -23,5 +23,6 @@ data class BrainPointsEntity(
 data class MiniGameEntity(
     @PrimaryKey val gameId: String,  // Unique ID for each mini-game
     val name: String,                // Name of the mini-game
-    val isUnlocked: Boolean          // Unlock status (true if purchased)
+    val isUnlocked: Boolean,          // Unlock status (true if purchased)
+    val isInstalled: Boolean
 )

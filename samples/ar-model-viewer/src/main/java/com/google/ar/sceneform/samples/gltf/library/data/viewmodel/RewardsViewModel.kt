@@ -52,18 +52,21 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
                             imageResId = R.drawable.question_icon,
                             cost = 50,
                             isUnlocked = game.isUnlocked,
+                            isInstalled = game.isInstalled,
                             onClickAction = {
-                                if (game.isUnlocked) {
-                                    Toast.makeText(
+                                when {
+                                    game.isInstalled -> handleMiniGameLaunch(game)
+                                    game.isUnlocked -> Toast.makeText(
                                         getApplication(),
                                         "You've unlocked ${game.name}!",
                                         Toast.LENGTH_SHORT
                                     ).show()
+                                    else -> Log.d("MiniGameDebug", "Not enough points to unlock")
                                 }
                             }
                         )
                     }
-                    "blueGuy" -> {
+                    "blueGuy", "breakBaller" -> {
                         RewardItemData(
                             id = game.gameId,
                             name = game.name,
@@ -71,11 +74,16 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
                             imageResId = R.drawable.question_icon,
                             cost = 75,
                             isUnlocked = game.isUnlocked,
+                            isInstalled = game.isInstalled,
                             onClickAction = {
-                                if (game.isUnlocked) {
-                                    handleMiniGameLaunch(game)
-                                } else {
-                                    Log.d("MiniGameDebug", "Not enough points to unlock")
+                                when {
+                                    game.isInstalled -> handleMiniGameLaunch(game)
+                                    game.isUnlocked -> Toast.makeText(
+                                        getApplication(),
+                                        "You've unlocked ${game.name}!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    else -> Log.d("MiniGameDebug", "Not enough points to unlock")
                                 }
                             }
                         )
@@ -86,13 +94,18 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
                             name = game.name,
                             description = "Unlock to play ${game.name}",
                             imageResId = R.drawable.question_icon,
-                            cost = 75,
+                            cost = 75, // Default cost
                             isUnlocked = game.isUnlocked,
+                            isInstalled = game.isInstalled,
                             onClickAction = {
-                                if (game.isUnlocked) {
-                                    handleMiniGameLaunch(game)
-                                } else {
-                                    Log.d("MiniGameDebug", "Not enough points to unlock")
+                                when {
+                                    game.isInstalled -> handleMiniGameLaunch(game)
+                                    game.isUnlocked -> Toast.makeText(
+                                        getApplication(),
+                                        "You've unlocked ${game.name}!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    else -> Log.d("MiniGameDebug", "Not enough points to unlock")
                                 }
                             }
                         )
@@ -105,15 +118,17 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
 
     private fun handleMiniGameLaunch(game: MiniGameEntity) {
         val context = getApplication<Application>()
-        val packageName = "com.DefaultCompany.${game.gameId}" // Adjust package name logic as needed
+        val packageName = "com.DefaultCompany.${game.gameId}"
 
-        if (isGameInstalled(context, packageName)) {
-            // If the game is installed, launch it
+        Log.d("MiniGameDebug", "Constructed package name: $packageName")
+
+        if (game.isInstalled && isGameInstalled(context, packageName)) {
+            Log.d("MiniGameDebug", "Launching game: $packageName")
             launchGame(context, packageName)
         } else {
-            // If the game is not installed, prompt the user to install it
+            Log.d("MiniGameDebug", "Game not installed. Installing: $packageName")
             Toast.makeText(context, "Game not installed. Installing now...", Toast.LENGTH_SHORT).show()
-            val apkFileName = "${game.gameId}.apk" // e.g., "blueGuy.apk"
+            val apkFileName = "${game.gameId}.apk"
             val apkFile = copyApkFromAssets(context, apkFileName)
             installApk(context, apkFile)
         }
@@ -121,9 +136,13 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
 
     private fun isGameInstalled(context: Context, packageName: String): Boolean {
         return try {
-            context.packageManager.getPackageInfo(packageName, 0)
-            true
-        } catch (e: PackageManager.NameNotFoundException) {
+            val packageManager = context.packageManager
+            val installedPackages = packageManager.getInstalledPackages(0) // Refresh cache
+            installedPackages.any { it.packageName == packageName }.also {
+                Log.d("MiniGameDebug", "Game installed status for $packageName: $it")
+            }
+        } catch (e: Exception) {
+            Log.d("MiniGameDebug", "Error checking game installation: ${e.message}")
             false
         }
     }
@@ -163,6 +182,16 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
         }
 
         context.startActivity(intent)
+
+        // Update the database to mark the game as installed
+        viewModelScope.launch(Dispatchers.IO) {
+            val gameId = apkFile.nameWithoutExtension
+            val miniGame = miniGameDao.getMiniGameById(gameId)
+            if (miniGame != null) {
+                miniGameDao.insertGame(miniGame.copy(isInstalled = true))
+                Log.d("MiniGameDebug", "Updated game state in DB: $gameId isInstalled=true")
+            }
+        }
     }
 
     fun unlockMiniGameAndDeductPoints(gameId: String, cost: Int) {
@@ -172,8 +201,12 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
                 pointsDao.updatePoints(currentPoints - cost)
                 val miniGame = miniGameDao.getMiniGameById(gameId)
 
-                if (miniGame == null || !miniGame.isUnlocked) {
-                    miniGameDao.insertGame(MiniGameEntity(gameId, "Unknown Game", true))
+                if (miniGame != null) {
+                    // Update the existing mini-game to mark it as unlocked
+                    miniGameDao.insertGame(miniGame.copy(isUnlocked = true))
+                } else {
+                    // Insert a new mini-game only if it doesn't exist
+                    miniGameDao.insertGame(MiniGameEntity(gameId, name = "Unknown Game", isUnlocked = true, isInstalled = false))
                 }
 
                 refreshRewards()
@@ -181,29 +214,5 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    fun getAllMiniGames(): List<MiniGameEntity> {
-        return runBlocking(Dispatchers.IO) {
-            miniGameDao.getAllMiniGames()
-        }
-    }
 
-    fun getMiniGameRewards(): List<RewardItemData> {
-        val miniGames = getAllMiniGames()
-        return miniGames.map { game ->
-            RewardItemData(
-                id = game.gameId,
-                name = game.name,
-                description = "Unlock to play ${game.name}",
-                imageResId = R.drawable.question_icon,
-                cost = if (game.gameId == "11") 50 else 75,
-                isUnlocked = game.isUnlocked,
-            ) {
-                if (game.isUnlocked) {
-                    handleMiniGameLaunch(game)
-                } else {
-                    Log.d("MiniGameDebug", "Not enough points to unlock")
-                }
-            }
-        }
-    }
 }

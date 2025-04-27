@@ -29,6 +29,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.VideogameAsset
 import androidx.compose.material3.Button
@@ -297,6 +298,7 @@ data class RewardItemData(
     val imageResId: Int,
     val cost: Int,
     val isUnlocked: Boolean,
+    val isInstalled: Boolean,
     val onClickAction: (RewardItemData) -> Unit
 )
 
@@ -507,6 +509,51 @@ fun RewardItemCard(item: RewardItemData, onClick: (RewardItemData) -> Unit) {
             .clickable { onClick(item) }
             .border(
                 width = 2.dp,
+                color = when {
+                    item.isInstalled -> Color.Blue // Blue for installed
+                    item.isUnlocked -> Color.Green // Green for unlocked
+                    else -> Color.Gray // Gray for locked
+                },
+                shape = RoundedCornerShape(10.dp)
+            )
+            .alpha(if (item.isUnlocked || item.isInstalled) 1f else 0.5f), // Dim locked items
+        shape = RoundedCornerShape(10.dp),
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(
+                    imageVector = when {
+                        item.isInstalled -> Icons.Default.Check // Check icon for installed
+                        item.isUnlocked -> Icons.Default.VideogameAsset // 🎮 for unlocked
+                        else -> Icons.Default.Lock // Lock icon for locked
+                    },
+                    contentDescription = null,
+                    tint = when {
+                        item.isInstalled -> Color.Blue
+                        item.isUnlocked -> Color.Green
+                        else -> Color.Gray
+                    },
+                    modifier = Modifier.size(32.dp)
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(text = item.name, fontSize = 14.sp, textAlign = TextAlign.Center)
+            }
+        }
+    }
+}
+
+/*@Composable
+fun RewardItemCard(item: RewardItemData, onClick: (RewardItemData) -> Unit) {
+    Card(
+        modifier = Modifier
+            .padding(8.dp)
+            .size(100.dp)
+            .clickable { onClick(item) }
+            .border(
+                width = 2.dp,
                 color = if (item.isUnlocked) Color.Green else Color.Gray, //  Green if unlocked, Gray if locked
                 shape = RoundedCornerShape(10.dp)
             )
@@ -529,7 +576,7 @@ fun RewardItemCard(item: RewardItemData, onClick: (RewardItemData) -> Unit) {
             }
         }
     }
-}
+}*/
 
 
 

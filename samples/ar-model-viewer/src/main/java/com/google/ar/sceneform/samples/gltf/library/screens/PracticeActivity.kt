@@ -186,6 +186,10 @@ fun PracticeScreen(
     val points = pointsFlow.value?.points ?: 0 //  Get current points from Flow
 
 
+    val showInfoDialog by rewardsViewModel.showInfoDialog.collectAsState()
+    val infoDialogMessage by rewardsViewModel.infoDialogMessage.collectAsState()
+
+
     PointsDisplay(points)
 
 
@@ -280,6 +284,13 @@ fun PracticeScreen(
                 1 -> RewardsContent(points, onRedeem, playSwitchSound, playPurchaseSound, rewardsViewModel)
             }
         }
+    }
+    // Show the InfoDialog if the flag is true
+    if (showInfoDialog) {
+        InfoDialog(
+            message = infoDialogMessage,
+            onDismiss = { rewardsViewModel.showInfoDialog.value = false }
+        )
     }
 }
 
@@ -601,4 +612,38 @@ fun ConfirmPurchaseDialog(
     }
 
     SnackbarHost(hostState = snackbarHostState) // Show Snackbar at the bottom
+}
+
+@Composable
+fun InfoDialog(
+    message: String,
+    onDismiss: () -> Unit
+) {
+    Dialog(onDismissRequest = { onDismiss() }) {
+        Card(
+            modifier = Modifier.padding(16.dp),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Game Installed!",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = message,
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(onClick = { onDismiss() }) {
+                    Text("OK")
+                }
+            }
+        }
+    }
 }

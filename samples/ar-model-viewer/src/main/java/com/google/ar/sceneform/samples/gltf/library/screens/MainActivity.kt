@@ -34,6 +34,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -53,6 +54,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.ar.sceneform.samples.gltf.R
+import com.google.ar.sceneform.samples.gltf.library.data.viewmodel.RewardsViewModel
 import com.google.ar.sceneform.samples.gltf.library.theme.AugmentEDTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -62,11 +64,8 @@ import kotlin.random.Random
 
 class MainActivity : ComponentActivity() {
 
-
     //sounds
     private lateinit var mediaPlayer: MediaPlayer
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,6 +73,8 @@ class MainActivity : ComponentActivity() {
         // Initialize MediaPlayer
         mediaPlayer = MediaPlayer.create(this, R.raw.ui)
 
+        // Initialize RewardsViewModel
+        val rewardsViewModel = RewardsViewModel(application)
 
         setContent {
             AugmentEDTheme {
@@ -81,13 +82,13 @@ class MainActivity : ComponentActivity() {
                     isArSupported = true,
                     sensorX = 0f,
                     sensorY = 0f,
-
-                    //sound
                     playButtonSound = { playButtonSound() }  // Pass this function to MainScreen
                 )
+
+                // Add the global dialog
+                GlobalInfoDialog(rewardsViewModel)
             }
         }
-
     }
 
     //sound
@@ -98,6 +99,19 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         mediaPlayer.release()
+    }
+}
+
+@Composable
+fun GlobalInfoDialog(rewardsViewModel: RewardsViewModel) {
+    val showInfoDialog by rewardsViewModel.showInfoDialog.collectAsState()
+    val infoDialogMessage by rewardsViewModel.infoDialogMessage.collectAsState()
+
+    if (showInfoDialog) {
+        InfoDialog(
+            message = infoDialogMessage,
+            onDismiss = { rewardsViewModel.dismissInfoDialog() }
+        )
     }
 }
 

@@ -8,6 +8,22 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.core.content.FileProvider
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -31,6 +47,10 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
     private val db = AppDatabase.getDatabase(application, viewModelScope)
     private val miniGameDao: MiniGameDao = db.miniGameDao()
     private val pointsDao: PointsDao = db.brainPointsDao()
+
+    //flags
+    val showInfoDialog = MutableStateFlow(false)
+    val infoDialogMessage = MutableStateFlow("")
 
     private val _rewardItems = MutableStateFlow<List<RewardItemData>>(emptyList())
     val rewardItems: StateFlow<List<RewardItemData>> = _rewardItems.asStateFlow()
@@ -195,7 +215,27 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
         return outputFile
     }
 
-    private fun installApk(context: Context, apkFile: File) {
+    fun unlockMiniGameAndDeductPoints(gameId: String, cost: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val currentPoints = pointsDao.getPoints()
+            if (currentPoints >= cost) {
+                pointsDao.updatePoints(currentPoints - cost)
+                val miniGame = miniGameDao.getMiniGameById(gameId)
+
+                if (miniGame != null) {
+                    // Update the existing mini-game to mark it as unlocked
+                    miniGameDao.insertGame(miniGame.copy(isUnlocked = true))
+                } else {
+                    // Insert a new mini-game only if it doesn't exist
+                    miniGameDao.insertGame(MiniGameEntity(gameId, name = "Unknown Game", isUnlocked = true, isInstalled = false))
+                }
+
+                refreshRewards()
+            }
+        }
+    }
+
+/*    private fun installApk(context: Context, apkFile: File) {
         val apkUri: Uri = FileProvider.getUriForFile(
             context,
             "${context.packageName}.fileprovider",
@@ -218,27 +258,45 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
                 Log.d("MiniGameDebug", "Updated game state in DB: $gameId isInstalled=true")
             }
         }
-    }
+    }*/
 
-    fun unlockMiniGameAndDeductPoints(gameId: String, cost: Int) {
+    private fun installApk(context: Context, apkFile: File) {
+        val apkUri: Uri = FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.fileprovider",
+            apkFile
+        )
+
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(apkUri, "application/vnd.android.package-archive")
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+        }
+
+        context.startActivity(intent)
+
+        // Update the database to mark the game as installed
         viewModelScope.launch(Dispatchers.IO) {
-            val currentPoints = pointsDao.getPoints()
-            if (currentPoints >= cost) {
-                pointsDao.updatePoints(currentPoints - cost)
-                val miniGame = miniGameDao.getMiniGameById(gameId)
+            val gameId = apkFile.nameWithoutExtension
+            val miniGame = miniGameDao.getMiniGameById(gameId)
+            if (miniGame != null) {
+                miniGameDao.insertGame(miniGame.copy(isInstalled = true))
+                Log.d("MiniGameDebug", "Updated game state in DB: $gameId isInstalled=true")
 
-                if (miniGame != null) {
-                    // Update the existing mini-game to mark it as unlocked
-                    miniGameDao.insertGame(miniGame.copy(isUnlocked = true))
-                } else {
-                    // Insert a new mini-game only if it doesn't exist
-                    miniGameDao.insertGame(MiniGameEntity(gameId, name = "Unknown Game", isUnlocked = true, isInstalled = false))
+                // Show the info dialog on the main thread
+                withContext(Dispatchers.Main) {
+                    showInfoDialog.value = true // Correctly update the StateFlow
+                    infoDialogMessage.value = "You can now play your game in the rewards collection!"
                 }
-
-                refreshRewards()
             }
         }
     }
 
+    fun showGameInstalledInfo(message: String) {
+        showInfoDialog.value = true
+        infoDialogMessage.value = message
+    }
 
+    fun dismissInfoDialog() {
+        showInfoDialog.value = false
+    }
 }

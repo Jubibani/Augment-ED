@@ -1,6 +1,7 @@
 package com.google.ar.sceneform.samples.gltf.library.data.viewmodel
 
 import android.app.Application
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -126,12 +127,58 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    private fun launchGame(context: Context, packageName: String) {
-        val launchIntent = context.packageManager.getLaunchIntentForPackage(packageName)
-        if (launchIntent != null) {
+
+/*    private fun launchGame(context: Context, packageName: String) {
+        val activityClassName = "com.unity3d.player.UnityPlayerGameActivity" // Changed to the enabled Activity
+        val componentName = ComponentName(packageName, activityClassName)
+        val launchIntent = Intent().setComponent(componentName)
+        launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        try {
+            Log.d("MiniGameDebug", "Attempting to start activity: $componentName")
             context.startActivity(launchIntent)
-        } else {
-            Log.e("MiniGameDebug", "Failed to launch game: $packageName")
+            Log.d("MiniGameDebug", "Successfully launched game: $packageName")
+        } catch (e: Exception) {
+            Log.e("MiniGameDebug", "Failed to launch game $packageName with explicit intent: Unable to find activity: ${e.message}")
+        }
+    }*/
+
+    private fun launchGame(context: Context, packageName: String) {
+        val activityClassNameGame = "com.unity3d.player.UnityPlayerGameActivity"
+        val activityClassName = "com.unity3d.player.UnityPlayerActivity"
+        var launchIntent: Intent? = null
+
+        // Try to launch UnityPlayerGameActivity first
+        try {
+            val componentNameGame = ComponentName(packageName, activityClassNameGame)
+            launchIntent = Intent().setComponent(componentNameGame)
+            launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            Log.d("MiniGameDebug", "Attempting to start activity: $componentNameGame")
+            context.startActivity(launchIntent)
+            Log.d("MiniGameDebug", "Successfully launched game (GameActivity): $packageName")
+            return // Exit the function if successful
+        } catch (e: android.content.ActivityNotFoundException) {
+            Log.w("MiniGameDebug", "UnityPlayerGameActivity not found. Trying UnityPlayerActivity...")
+            launchIntent = null // Reset launchIntent for the next attempt
+        } catch (e: Exception) {
+            Log.e("MiniGameDebug", "Error attempting to launch UnityPlayerGameActivity: ${e.message}")
+            launchIntent = null
+        }
+
+        // If UnityPlayerGameActivity failed, try to launch UnityPlayerActivity
+        if (launchIntent == null) {
+            try {
+                val componentName = ComponentName(packageName, activityClassName)
+                launchIntent = Intent().setComponent(componentName)
+                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                Log.d("MiniGameDebug", "Attempting to start activity: $componentName")
+                context.startActivity(launchIntent)
+                Log.d("MiniGameDebug", "Successfully launched game (Activity): $packageName")
+            } catch (e: android.content.ActivityNotFoundException) {
+                Log.e("MiniGameDebug", "Both UnityPlayerGameActivity and UnityPlayerActivity not found for package: $packageName")
+            } catch (e: Exception) {
+                Log.e("MiniGameDebug", "Error attempting to launch UnityPlayerActivity: ${e.message}")
+            }
         }
     }
 

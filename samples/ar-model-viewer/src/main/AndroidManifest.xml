@@ -6,6 +6,16 @@
     <!-- Always needed for AR. -->
     <uses-permission android:name="android.permission.CAMERA" />
 
+    <!--Asks permission for the mini-games-->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <!-- Specify the packages  app needs to query -->
+    <queries>
+        <!-- Query specific package by name -->
+        <package android:name="com.DefaultCompany.breakBaller" />
+        <package android:name="com.DefaultCompany.blueGuy" />
+    </queries>
+
     <!-- Needed to load gltf from network. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -131,18 +141,16 @@
         </activity>
 
 
-        <!--Modules-->
-        <activity
-            android:name="com.unity3d.player.UnityPlayerGameActivity"
-            android:configChanges="orientation|screenSize"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-            android:exported="true"
-            android:launchMode="singleTask"
-            android:noHistory="true"
-            tools:replace="android:configChanges, android:theme"
-            tools:targetApi="tiramisu">
 
-        </activity>
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.google.ar.sceneform.samples.gltf.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
     </application>
 </manifest>

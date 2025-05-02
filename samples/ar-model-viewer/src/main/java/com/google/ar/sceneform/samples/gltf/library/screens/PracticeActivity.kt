@@ -1,5 +1,6 @@
 package com.google.ar.sceneform.samples.gltf.library.screens
 
+import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
@@ -29,7 +30,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.VideogameAsset
 import androidx.compose.material3.Button
@@ -74,6 +74,7 @@ import com.google.ar.sceneform.samples.gltf.R
 import com.google.ar.sceneform.samples.gltf.library.data.local.database.AppDatabase
 import com.google.ar.sceneform.samples.gltf.library.data.repository.PointsRepository
 import com.google.ar.sceneform.samples.gltf.library.data.viewmodel.RewardsViewModel
+import com.google.ar.sceneform.samples.gltf.library.practices.quizzes.organism_quiz.OrganismQuizQuestion
 import com.google.ar.sceneform.samples.gltf.library.theme.AugmentEDTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -332,6 +333,9 @@ fun LearnAndEarnContent(
             },
             PracticeItemData("Flashcards", "Review key concepts", R.drawable.flashcard_icon) {
                 playSwitchSound()
+
+                val intent = Intent(context, OrganismQuizQuestion::class.java)
+                context.startActivity(intent)
 
             },
             PracticeItemData("AR Practice", "Learn with augmented reality", R.drawable.quiz_icon) {

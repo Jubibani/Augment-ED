@@ -140,6 +140,22 @@
             android:exported="true">
         </activity>
 
+        <!--Quizzes-->
+
+
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.OrganismQuizResult"
+            android:exported="false" />
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.OrganismQuizQuestion"
+            android:exported="false" />
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.OrganismQuizActivity"
+            android:exported="true"
+            android:screenOrientation="portrait">
+
+        </activity>
+
 
 
         <provider

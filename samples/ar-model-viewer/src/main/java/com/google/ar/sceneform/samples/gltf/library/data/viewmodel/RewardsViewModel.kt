@@ -60,7 +60,7 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
     }
 
 
-    private fun refreshRewards() {
+/*    private fun refreshRewards() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 // Fetch all mini-games from the database
@@ -78,6 +78,67 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
                         },
                         imageResId = R.drawable.question_icon,
                         cost = if (game.gameId in listOf("1", "2", "3")) 50 else 75,
+                        isUnlocked = game.isUnlocked,
+                        isInstalled = game.isInstalled,
+                        onClickAction = {
+                            when {
+                                game.isInstalled -> handleMiniGameLaunch(game)
+                                game.isUnlocked -> {
+                                    Log.d("MiniGameDebug", "Installing game: ${game.name}")
+                                    Toast.makeText(
+                                        getApplication(),
+                                        "Installing ${game.name}...",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    val apkFileName = "${game.gameId}.apk"
+                                    val apkFile = copyApkFromAssets(getApplication(), apkFileName)
+                                    installApk(getApplication(), apkFile)
+                                }
+                                else -> {
+                                    Log.d("MiniGameDebug", "Not enough points to unlock ${game.name}")
+                                    Toast.makeText(
+                                        getApplication(),
+                                        "Not enough points to unlock ${game.name}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        }
+                    )
+                }
+
+                // Update the StateFlow on the main thread
+                withContext(Dispatchers.Main) {
+                    _rewardItems.value = rewardItems
+                    Log.d("DatabaseDebug", "Updated reward items: $rewardItems")
+                }
+            } catch (e: Exception) {
+                Log.e("DatabaseDebug", "Error refreshing rewards: ${e.message}")
+            }
+        }
+    }*/
+
+    private fun refreshRewards() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // Define a mapping of game IDs to their respective costs
+                val gameCosts = mapOf(
+                    "breakBaller" to 100, // Cost for breakBaller
+                    "blueGuy" to 150     // Cost for blueGuy
+                )
+
+                // Fetch all mini-games from the database
+                val miniGames = miniGameDao.getAllMiniGames()
+                Log.d("DatabaseDebug", "Fetched from DB: $miniGames")
+
+                // Map mini-games to RewardItemData
+                val rewardItems = miniGames.map { game ->
+                    RewardItemData(
+                        id = game.gameId,
+                        name = game.name,
+                        description = "Unlock to play ${game.name}",
+                        imageResId = R.drawable.question_icon,
+                        cost = gameCosts[game.gameId] ?: 75, // Default cost if not in the map
                         isUnlocked = game.isUnlocked,
                         isInstalled = game.isInstalled,
                         onClickAction = {

@@ -125,9 +125,6 @@ abstract class AppDatabase : RoomDatabase() {
             brainPointsDao.updatePoints(0)
 
             // Populate the database with contents ready to be unlocked and interacted as rewards
-            miniGameDao.insertGame(MiniGameEntity(gameId = "1", name = "Reward Item 1", isUnlocked = false, isInstalled = false))
-            miniGameDao.insertGame(MiniGameEntity(gameId = "2", name = "Reward Item 2", isUnlocked = false, isInstalled = false))
-            miniGameDao.insertGame(MiniGameEntity(gameId = "3", name = "Reward Item 3", isUnlocked = false, isInstalled = false))
             miniGameDao.insertGame(MiniGameEntity(gameId = "blueGuy", name = "Blue Guy", isUnlocked = false, isInstalled = false))
             miniGameDao.insertGame(MiniGameEntity(gameId = "breakBaller", name = "Break Baller", isUnlocked = false, isInstalled = false))
             Log.d("DatabaseDebug", "Inserted initial rewards")

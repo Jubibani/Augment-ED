@@ -144,13 +144,13 @@
 
 
         <activity
-            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.OrganismQuizResult"
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.organism_quiz.OrganismQuizResult"
             android:exported="false" />
         <activity
-            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.OrganismQuizQuestion"
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.organism_quiz.OrganismQuizQuestion"
             android:exported="false" />
         <activity
-            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.OrganismQuizActivity"
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.organism_quiz.OrganismQuizActivity"
             android:exported="true"
             android:screenOrientation="portrait">
 

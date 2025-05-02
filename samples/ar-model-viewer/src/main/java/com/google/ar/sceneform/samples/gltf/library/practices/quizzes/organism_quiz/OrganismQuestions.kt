@@ -1,4 +1,4 @@
-package com.google.ar.sceneform.samples.gltf.library.practices.quizzes
+package com.google.ar.sceneform.samples.gltf.library.practices.quizzes.organism_quiz
 
 data class OrganismQuestions(
     val id: Int,

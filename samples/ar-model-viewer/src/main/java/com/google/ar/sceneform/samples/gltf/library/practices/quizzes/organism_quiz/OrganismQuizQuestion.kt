@@ -1,10 +1,11 @@
-package com.google.ar.sceneform.samples.gltf.library.practices.quizzes
+package com.google.ar.sceneform.samples.gltf.library.practices.quizzes.organism_quiz
 
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -12,6 +13,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.ar.sceneform.samples.gltf.R
+import com.google.ar.sceneform.samples.gltf.library.screens.PracticeActivity
 
 class OrganismQuizQuestion : AppCompatActivity() {
     private var userName: String? = null
@@ -49,6 +51,14 @@ class OrganismQuizQuestion : AppCompatActivity() {
         )
 
         updateQuestion()
+
+        // Close button functionality
+        val closeButton: ImageButton = findViewById(R.id.closeButton)
+        closeButton.setOnClickListener {
+            val intent = Intent(this, PracticeActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
 
         btnSubmit?.setOnClickListener {
             if (!isAnswerChecked) {

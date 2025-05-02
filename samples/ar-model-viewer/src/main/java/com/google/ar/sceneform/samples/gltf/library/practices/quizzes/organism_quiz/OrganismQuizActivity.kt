@@ -1,4 +1,4 @@
-package com.google.ar.sceneform.samples.gltf.library.practices.quizzes
+package com.google.ar.sceneform.samples.gltf.library.practices.quizzes.organism_quiz
 
 import android.content.Intent
 import android.os.Bundle

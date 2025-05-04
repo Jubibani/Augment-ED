@@ -19,26 +19,6 @@
             android:paddingVertical="32dp"
             android:paddingHorizontal="16dp">
 
-            <TextView
-                android:id="@+id/tvQuestion"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                tools:text="What does country this flag belongs to?"
-                android:textSize="28sp"
-                android:paddingHorizontal="20dp"
-                android:textColor="#FFFF"
-                android:layout_marginBottom="30dp" />
-
-            <ImageView
-                android:id="@+id/ivImage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                tools:src="@drawable/ic_flag_of_argentina"
-                android:layout_marginBottom="16dp"
-                android:contentDescription="Quiz Image" />
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -55,6 +35,7 @@
                     android:minHeight="50dp"
                     android:progress="1"
                     android:indeterminate="false"
+                    android:layout_marginTop="50dp"
                     android:layout_marginRight="16dp"
                     android:progressTint="@color/purple_700"
                     android:progressBackgroundTint="@color/purple_200"
@@ -66,6 +47,26 @@
                     android:layout_height="wrap_content"
                     android:text="1/10" />
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvQuestion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                tools:text="What does country this flag belongs to?"
+                android:textSize="28sp"
+                android:paddingHorizontal="20dp"
+                android:textColor="#000000"
+                android:layout_marginBottom="30dp" />
+
+            <ImageView
+                android:id="@+id/ivImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                tools:src="@drawable/ic_flag_of_argentina"
+                android:layout_marginBottom="16dp"
+                android:contentDescription="Quiz Image" />
 
             <TextView
                 android:id="@+id/optionOne"

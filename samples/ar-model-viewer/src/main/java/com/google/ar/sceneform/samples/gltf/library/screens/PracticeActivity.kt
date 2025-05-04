@@ -463,7 +463,7 @@ fun LearnAndEarnContent(
 
                 addPoints(10)
             },
-            PracticeItemData("Flashcards", "Review key concepts", R.drawable.flashcard_icon) {
+            PracticeItemData("Module 1 Quiz", "Review key concepts", R.drawable.flashcard_icon) {
                 playSwitchSound()
 
                 val intent = Intent(context, OrganismQuizQuestion::class.java)

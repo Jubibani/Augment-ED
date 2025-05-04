@@ -74,6 +74,7 @@ import com.google.ar.sceneform.samples.gltf.R
 import com.google.ar.sceneform.samples.gltf.library.data.local.database.AppDatabase
 import com.google.ar.sceneform.samples.gltf.library.data.repository.PointsRepository
 import com.google.ar.sceneform.samples.gltf.library.data.viewmodel.RewardsViewModel
+import com.google.ar.sceneform.samples.gltf.library.practices.quizzes.interaction_quiz.InteractionQuizQuestion
 import com.google.ar.sceneform.samples.gltf.library.practices.quizzes.organism_quiz.OrganismQuizQuestion
 import com.google.ar.sceneform.samples.gltf.library.theme.AugmentEDTheme
 import kotlinx.coroutines.CoroutineScope
@@ -470,10 +471,17 @@ fun LearnAndEarnContent(
                 context.startActivity(intent)
 
             },
-            PracticeItemData("AR Practice", "Learn with augmented reality", R.drawable.quiz_icon) {
+            PracticeItemData("Module 2 Quiz", "How well do you know ?", R.drawable.flashcard_icon) {
                 playSwitchSound()
 
-            }
+                val intent = Intent(context, InteractionQuizQuestion::class.java)
+                context.startActivity(intent)
+
+            },
+/*            PracticeItemData("AR Practice", "Learn with augmented reality", R.drawable.quiz_icon) {
+                playSwitchSound()
+
+            }*/
         )
     }
 

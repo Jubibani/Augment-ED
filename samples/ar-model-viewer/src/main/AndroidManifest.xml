@@ -142,7 +142,7 @@
 
         <!--Quizzes-->
 
-
+        <!--Module-1-->
         <activity
             android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.organism_quiz.OrganismQuizResult"
             android:exported="false" />
@@ -153,10 +153,20 @@
             android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.organism_quiz.OrganismQuizActivity"
             android:exported="true"
             android:screenOrientation="portrait">
-
         </activity>
 
-
+        <!--Module-2-->
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.interaction_quiz.InteractionQuizResult"
+            android:exported="false" />
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.interaction_quiz.InteractionQuizQuestion"
+            android:exported="false" />
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.interaction_quiz.InteractionQuizActivity"
+            android:exported="true"
+            android:screenOrientation="portrait">
+        </activity>
 
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -168,6 +168,18 @@
             android:screenOrientation="portrait">
         </activity>
 
+        <!--Module-3: Digestive Quiz-->
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.digestive_quiz.DigestiveQuizResult"
+            android:exported="false" />
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.digestive_quiz.DigestiveQuizQuestion"
+            android:exported="false" />
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.digestive_quiz.DigestiveQuizActivity"
+            android:exported="true"
+            android:screenOrientation="portrait" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.google.ar.sceneform.samples.gltf.fileprovider"

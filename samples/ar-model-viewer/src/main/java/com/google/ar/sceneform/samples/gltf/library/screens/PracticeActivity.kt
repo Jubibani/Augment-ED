@@ -172,7 +172,7 @@ class PracticeActivity : FragmentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+/*@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PracticeScreen(
     finish: () -> Unit,
@@ -293,6 +293,137 @@ fun PracticeScreen(
             onDismiss = { rewardsViewModel.showInfoDialog.value = false }
         )
     }
+}*/
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PracticeScreen(
+    finish: () -> Unit,
+    repository: PointsRepository,
+    playPurchaseSound: () -> Unit,
+    playBackSound: () -> Unit,
+    playSwitchSound: () -> Unit,
+    rewardsViewModel: RewardsViewModel
+) {
+    val scope = rememberCoroutineScope()
+    val pointsFlow = repository.pointsFlow.collectAsState(initial = null)
+    val points = pointsFlow.value?.points ?: 0 // Get current points from Flow
+
+    val showInfoDialog by rewardsViewModel.showInfoDialog.collectAsState()
+    val infoDialogMessage by rewardsViewModel.infoDialogMessage.collectAsState()
+
+    PointsDisplay(points)
+
+    // Function to add points dynamically
+    val addPoints: (Int) -> Unit = { earnedPoints ->
+        scope.launch {
+            val currentPoints = repository.getPoints() // Get current points
+            val newPoints = currentPoints + earnedPoints
+            repository.updatePoints(newPoints) // Update points
+            Log.d("PointsDebug", "Updated Points: $newPoints") // Debugging log
+        }
+    }
+
+    // Function to handle points earned from quiz results
+    val handleQuizResult: (Int) -> Unit = { score ->
+        val earnedPoints = score * 10 // 10 points per correct answer
+        addPoints(earnedPoints)
+        Log.d("QuizResultDebug", "Earned Points from Quiz: $earnedPoints")
+    }
+
+    Column {
+        PointsDisplay(points = points) // Show updated points
+        Button(onClick = { addPoints(10) }) { // Example button to add points
+            Text("Earn 10 Points")
+        }
+    }
+
+    val onRedeem: (Int) -> Unit = { cost ->
+        if (points >= cost) {
+            CoroutineScope(Dispatchers.IO).launch {
+                repository.updatePoints(points - cost) // Deduct points
+            }
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Practice", style = MaterialTheme.typography.headlineMedium) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                ),
+                navigationIcon = {
+                    IconButton(onClick = {
+                        playBackSound()
+                        finish()
+                    }) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = "Back to Main"
+                        )
+                    }
+                },
+                actions = {
+                    PointsDisplay(points)
+                }
+            )
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            var selectedTabIndex by remember { mutableStateOf(0) }
+
+            TabRow(
+                selectedTabIndex = selectedTabIndex,
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                indicator = { tabPositions ->
+                    TabRowDefaults.Indicator(
+                        Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+                        color = Color(0xFFFFD700) // Gold color for the indicator
+                    )
+                }
+            ) {
+                listOf("Learn and Earn", "Rewards").forEachIndexed { index, title ->
+                    Tab(
+                        selected = selectedTabIndex == index,
+                        onClick = {
+                            selectedTabIndex = index
+                            playSwitchSound()
+                        },
+                        text = {
+                            Text(
+                                text = title,
+                                color = if (selectedTabIndex == index) Color(0xFFFFD700) else MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    )
+                }
+            }
+
+            when (selectedTabIndex) {
+                0 -> LearnAndEarnContent(
+                    playSwitchSound = playSwitchSound,
+                    addPoints = addPoints,
+                    onRedeem = onRedeem,
+                    handleQuizResult = handleQuizResult // Pass the quiz result handler
+                )
+                1 -> RewardsContent(points, onRedeem, playSwitchSound, playPurchaseSound, rewardsViewModel)
+            }
+        }
+    }
+
+    // Show the InfoDialog if the flag is true
+    if (showInfoDialog) {
+        InfoDialog(
+            message = infoDialogMessage,
+            onDismiss = { rewardsViewModel.showInfoDialog.value = false }
+        )
+    }
 }
 
 
@@ -319,7 +450,8 @@ data class RewardItemData(
 fun LearnAndEarnContent(
     playSwitchSound: () -> Unit,
     addPoints: (Int) -> Unit,
-    onRedeem: (Int) -> Unit
+    onRedeem: (Int) -> Unit,
+    handleQuizResult: (Int) -> Unit
 ) {
     val context = LocalContext.current
 

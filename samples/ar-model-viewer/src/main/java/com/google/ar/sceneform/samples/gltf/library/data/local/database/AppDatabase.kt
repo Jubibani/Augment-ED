@@ -90,7 +90,7 @@ abstract class AppDatabase : RoomDatabase() {
             modelDao.insertModel(ModelEntity("Plant", "models/plant.glb", R.layout.plant_info, "Tap to see the plants in action!", R.raw.popup))
             modelDao.insertModel(ModelEntity("Biotic", "models/biotic.glb", R.layout.biotic_infos, "Tap to see the biotic in action!", R.raw.bacteriasound))
             modelDao.insertModel(ModelEntity("Cell", "models/cell.glb", R.layout.cell_info, "Tap to see the cell in action!", R.raw.bacteriasound))
-            modelDao.insertModel(ModelEntity("Biodiversity", "models/biodiversity.glb", R.layout.biodiversity_info, "Tap to see the biodiversity in action!", R.raw.animals_sound))
+            modelDao.insertModel(ModelEntity("Biodiversity", "models/biodiversity.glb", R.layout.biodiversity_info, "Tap to see the biodiversity in action!", R.raw.animals_sound, R.raw.biodiversity))
             modelDao.insertModel(ModelEntity("Organism", "models/organism.glb", R.layout.organism_info, "Tap to see the organism in action!", R.raw.bacteriasound))
             modelDao.insertModel(ModelEntity("Ecosystem", "models/ecosystem.glb", R.layout.ecosystem_info, "Tap to see the ecosystem in action!", R.raw.animals_sound))
             modelDao.insertModel(ModelEntity("Agriculture", "models/agriculture.glb", R.layout.agriculture_info, "Tap to see the agriculture in action!", R.raw.popup))
@@ -116,8 +116,10 @@ abstract class AppDatabase : RoomDatabase() {
             //page 226 (num_4)
             modelDao.insertModel(ModelEntity("Scientist", "models/scientist.glb", R.layout.scientist_info, "Tap to explore scientist structures!", R.raw.popup))
             modelDao.insertModel(ModelEntity("Classification", "models/classification.glb", R.layout.classification_info, "Tap to explore classification structures!", R.raw.popup, R.raw.classification))
-
-
+            modelDao.insertModel(ModelEntity("Phyla", "models/classification.glb", R.layout.classification_info, "Tap to explore Phyla structures!", R.raw.popup, R.raw.classification))
+            modelDao.insertModel(ModelEntity("Fertile", "models/fertile.glb", R.layout.fertile_offspring, "Tap to explore fertile_offspring structures!", R.raw.popup, R.raw.fertileoffspring))
+ /*           modelDao.insertModel(ModelEntity("Domain", "models/domain.glb", R.layout.three_domains_of_life, "Tap to explore three domain structures!", R.raw.popup, R.raw.threedomainsoflife))
+*/
 
 
 
@@ -125,11 +127,11 @@ abstract class AppDatabase : RoomDatabase() {
             brainPointsDao.updatePoints(0)
 
             // Populate the database with contents ready to be unlocked and interacted as rewards
-            miniGameDao.insertGame(MiniGameEntity(gameId = "1", name = "Reward Item 1", isUnlocked = false, isInstalled = false))
-            miniGameDao.insertGame(MiniGameEntity(gameId = "2", name = "Reward Item 2", isUnlocked = false, isInstalled = false))
-            miniGameDao.insertGame(MiniGameEntity(gameId = "3", name = "Reward Item 3", isUnlocked = false, isInstalled = false))
             miniGameDao.insertGame(MiniGameEntity(gameId = "blueGuy", name = "Blue Guy", isUnlocked = false, isInstalled = false))
             miniGameDao.insertGame(MiniGameEntity(gameId = "breakBaller", name = "Break Baller", isUnlocked = false, isInstalled = false))
+  /*          miniGameDao.insertGame(MiniGameEntity(gameId = "sportyka", name = "sportyka", isUnlocked = false, isInstalled = false))
+*/
+
             Log.d("DatabaseDebug", "Inserted initial rewards")
 
 

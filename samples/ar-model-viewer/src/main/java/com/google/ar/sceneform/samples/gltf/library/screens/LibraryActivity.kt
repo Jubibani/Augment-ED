@@ -4,16 +4,12 @@ import LibraryFragment
 import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.view.View.GONE
-import android.widget.ImageButton
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -333,6 +329,10 @@ fun getModelItems(): List<ModelItemData> {
         //page 226 (num_4)
         ModelItemData("Scientist", "models/scientist.glb", R.drawable.scientist),
         ModelItemData("Classification", "models/classification.glb", R.drawable.classification),
+        ModelItemData("Fertile", "models/fertile.glb", R.drawable.fertile_offspring),
+/*
+        ModelItemData("Domain", "models/domain.glb", R.drawable.three_domains_of_life),
+*/
 
 
         // Add more items as needed
@@ -437,7 +437,15 @@ fun VideoItem(
 }
 fun getVideoItems(): List<VideoItemData> {
     return listOf(
-        VideoItemData("Classification of Living Things", R.raw.classification, R.drawable.classification)
+        VideoItemData("Classification of Living Things", R.raw.classification, R.drawable.classification),
+        VideoItemData("Phyla and It's major Animals", R.raw.phyla, R.drawable.classification),
+        VideoItemData("Infertile and Fertile Offsprings", R.raw.fertileoffspring, R.drawable.fertile_offspring),
+        VideoItemData("The Three Domain System", R.raw.threedomainsoflife, R.drawable.three_domains_of_life),
+        VideoItemData("What is Biodiversity?", R.raw.biodiversity, R.drawable.biodiversity),
+
+
+
+
         // Add more videos as needed, using R.raw.<your_video_file_name>
     )
 }

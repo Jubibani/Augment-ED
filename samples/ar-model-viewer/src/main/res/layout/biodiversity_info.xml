@@ -18,3 +18,5 @@
         android:text="@string/biodiversity_is_all_the_different_kinds_of_life_plants_animals_and_everything_else_living_together_and_connected_in_their_environments"
         android:textColor="@android:color/white" />
 </LinearLayout>
+
+

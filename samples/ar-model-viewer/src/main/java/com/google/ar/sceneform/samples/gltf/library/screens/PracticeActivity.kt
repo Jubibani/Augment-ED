@@ -459,11 +459,11 @@ fun LearnAndEarnContent(
 
     val learnItems = remember {
         listOf(
-            PracticeItemData("Quiz Challenge", "Test your knowledge", R.drawable.quiz_icon) {
+/*            PracticeItemData("Quiz Challenge", "Test your knowledge", R.drawable.quiz_icon) {
                 playSwitchSound()
 
                 addPoints(10)
-            },
+            },*/
             PracticeItemData("Module 1 Quiz", "Review key concepts", R.drawable.flashcard_icon) {
                 playSwitchSound()
 

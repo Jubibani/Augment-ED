@@ -442,6 +442,16 @@ fun getVideoItems(): List<VideoItemData> {
         VideoItemData("Infertile and Fertile Offsprings", R.raw.fertileoffspring, R.drawable.fertile_offspring),
         VideoItemData("The Three Domain System", R.raw.threedomainsoflife, R.drawable.three_domains_of_life),
         VideoItemData("What is Biodiversity?", R.raw.biodiversity, R.drawable.biodiversity),
+        VideoItemData("Explain Animal Kingdom?", R.raw.animalkingdom, R.drawable.biodiversity),
+        VideoItemData("Explain Plant Kingdom?", R.raw.plantkingdom, R.drawable.biodiversity),
+        VideoItemData("Enzymes affects digestion", R.raw.enzymes, R.drawable.biodiversity),
+        VideoItemData("Human Impact on Ecosystem", R.raw.humanimpact, R.drawable.biodiversity),
+        VideoItemData("Am I eating properly?", R.raw.foodpyramid, R.drawable.biodiversity),
+        VideoItemData("The Cell Cycle Process", R.raw.cellcycle, R.drawable.biodiversity),
+        VideoItemData("What is the Cell Division?", R.raw.celldivision, R.drawable.biodiversity),
+        VideoItemData("Non-Mendelian Patterns", R.raw.megagenetics, R.drawable.biodiversity),
+
+
 
 
 

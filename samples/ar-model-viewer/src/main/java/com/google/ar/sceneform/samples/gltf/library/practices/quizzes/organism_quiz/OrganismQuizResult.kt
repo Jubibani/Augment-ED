@@ -186,7 +186,7 @@ fun InfoDialog(earnedPoints: Int, onDismiss: () -> Unit, claimSound: MediaPlayer
                     colors = ButtonDefaults.buttonColors(containerColor = Color.White)
                 ) {
                     Text(
-                        text = "OK",
+                        text = "Claim",
                         color = Color(0xFFFFA500),
                         fontWeight = FontWeight.Bold
                     )

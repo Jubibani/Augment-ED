@@ -123,8 +123,8 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
             try {
                 // Define a mapping of game IDs to their respective costs
                 val gameCosts = mapOf(
-                    "breakBaller" to 100, // Cost for breakBaller
-                    "blueGuy" to 150     // Cost for blueGuy
+                    "breakBaller" to 75, // Cost for breakBaller
+                    "blueGuy" to 100,
                 )
 
                 // Fetch all mini-games from the database

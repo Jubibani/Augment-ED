@@ -461,7 +461,7 @@ fun LearnAndEarnContent(
             PracticeItemData("Quiz Challenge", "Test your knowledge", R.drawable.quiz_icon) {
                 playSwitchSound()
 
-               /* addPoints(10)*/
+                addPoints(10)
             },
             PracticeItemData("Flashcards", "Review key concepts", R.drawable.flashcard_icon) {
                 playSwitchSound()

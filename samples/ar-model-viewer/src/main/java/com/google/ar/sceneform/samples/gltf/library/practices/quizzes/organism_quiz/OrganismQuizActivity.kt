@@ -16,7 +16,8 @@ class OrganismQuizActivity : AppCompatActivity() {
         val etName = findViewById<EditText>(R.id.etName)
         val btnStart = findViewById<Button>(R.id.btnStart)
 
-        btnStart.setOnClickListener {
+/*   [Old code with name]
+btnStart.setOnClickListener {
             if (etName.text.isEmpty()) {
                 Toast.makeText(this, "Please, enter your name", Toast.LENGTH_LONG).show()
             } else {
@@ -25,6 +26,12 @@ class OrganismQuizActivity : AppCompatActivity() {
                 startActivity(intent)
 //                finish()
             }
+        }*/
+
+        btnStart.setOnClickListener {
+            // Directly start the quiz without requiring a name
+            val intent = Intent(this, OrganismQuizQuestion::class.java)
+            startActivity(intent)
         }
     }
 }

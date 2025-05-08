@@ -75,7 +75,9 @@ import com.google.ar.sceneform.samples.gltf.library.data.local.database.AppDatab
 import com.google.ar.sceneform.samples.gltf.library.data.repository.PointsRepository
 import com.google.ar.sceneform.samples.gltf.library.data.viewmodel.RewardsViewModel
 import com.google.ar.sceneform.samples.gltf.library.practices.quizzes.digestive_quiz.DigestiveQuizQuestion
+import com.google.ar.sceneform.samples.gltf.library.practices.quizzes.genetic_quiz.GeneticQuizQuestion
 import com.google.ar.sceneform.samples.gltf.library.practices.quizzes.interaction_quiz.InteractionQuizQuestion
+import com.google.ar.sceneform.samples.gltf.library.practices.quizzes.nutrition_quiz.NutritionQuizQuestion
 import com.google.ar.sceneform.samples.gltf.library.practices.quizzes.organism_quiz.OrganismQuizQuestion
 import com.google.ar.sceneform.samples.gltf.library.theme.AugmentEDTheme
 import kotlinx.coroutines.CoroutineScope
@@ -483,6 +485,20 @@ fun LearnAndEarnContent(
                 playSwitchSound()
 
                 val intent = Intent(context, DigestiveQuizQuestion::class.java)
+                context.startActivity(intent)
+
+            },
+            PracticeItemData("Module 4 Quiz", "How nourished are you?", R.drawable.flashcard_icon) {
+                playSwitchSound()
+
+                val intent = Intent(context, NutritionQuizQuestion::class.java)
+                context.startActivity(intent)
+
+            },
+            PracticeItemData("Module 5 Quiz", "Do you know about Genetics?", R.drawable.flashcard_icon) {
+                playSwitchSound()
+
+                val intent = Intent(context, GeneticQuizQuestion::class.java)
                 context.startActivity(intent)
 
             },

@@ -97,7 +97,7 @@ object Constants {
             9,
             "In bread mold Rhizopus, where are spores produced during asexual reproduction?",
             R.drawable.sporangium,
-            arrayListOf("n the sporangium ", "In the hyphae", "In the basidium", "In the ascus"),
+            arrayListOf("In the sporangium ", "In the hyphae", "In the basidium", "In the ascus"),
             0
         )
         questionsList.add(questionNine)

@@ -6,10 +6,20 @@
     <!-- Always needed for AR. -->
     <uses-permission android:name="android.permission.CAMERA" />
 
+    <!--Asks permission for the mini-games-->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <!-- Specify the packages  app needs to query -->
+    <queries>
+        <!-- Query specific package by name -->
+        <package android:name="com.DefaultCompany.breakBaller" />
+        <package android:name="com.DefaultCompany.blueGuy" />
+    </queries>
+
     <!-- Needed to load gltf from network. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <!--Speech Recog-->
+    <!--Speech Recognition-->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <!--Haptic Feedback-->
@@ -26,6 +36,7 @@
     <uses-feature
         android:name="android.hardware.camera.ar"
         android:required="true" />
+
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
@@ -130,19 +141,79 @@
             android:exported="true">
         </activity>
 
+        <!--Quizzes-->
 
-        <!--Modules-->
+        <!--Module-1-->
         <activity
-            android:name="com.unity3d.player.UnityPlayerGameActivity"
-            android:configChanges="orientation|screenSize"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.organism_quiz.OrganismQuizResult"
+            android:exported="false" />
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.organism_quiz.OrganismQuizQuestion"
+            android:exported="false" />
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.organism_quiz.OrganismQuizActivity"
             android:exported="true"
-            android:launchMode="singleTask"
-            android:noHistory="true"
-            tools:replace="android:configChanges, android:theme"
-            tools:targetApi="tiramisu">
-
+            android:screenOrientation="portrait">
         </activity>
+
+        <!--Module-2-->
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.interaction_quiz.InteractionQuizResult"
+            android:exported="false" />
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.interaction_quiz.InteractionQuizQuestion"
+            android:exported="false" />
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.interaction_quiz.InteractionQuizActivity"
+            android:exported="true"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <!--Module-3: Digestive Quiz-->
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.digestive_quiz.DigestiveQuizResult"
+            android:exported="false" />
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.digestive_quiz.DigestiveQuizQuestion"
+            android:exported="false" />
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.digestive_quiz.DigestiveQuizActivity"
+            android:exported="true"
+            android:screenOrientation="portrait" />
+
+        <!--Module-4: Nutrition Quiz-->
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.nutrition_quiz.NutritionQuizResult"
+            android:exported="false" />
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.nutrition_quiz.NutritionQuizQuestion"
+            android:exported="false" />
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.nutrition_quiz.NutritionQuizActivity"
+            android:exported="true"
+            android:screenOrientation="portrait" />
+
+        <!--Module-5: Genetic Quiz-->
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.genetic_quiz.GeneticQuizResult"
+            android:exported="false" />
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.genetic_quiz.GeneticQuizQuestion"
+            android:exported="false" />
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.genetic_quiz.GeneticQuizActivity"
+            android:exported="true"
+            android:screenOrientation="portrait" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.google.ar.sceneform.samples.gltf.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
     </application>
 </manifest>

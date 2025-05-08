@@ -67,7 +67,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:theme="@style/Theme.MaterialComponents.Light"
         app:thumbTint="@android:color/white"
-        app:trackTint="@color/switch_track_color"/>
+        app:trackTint="@color/switch_track_color"
+        android:visibility="gone"
+        />
 
     <TextView
         android:id="@+id/modeTextView"

@@ -1,5 +1,6 @@
 package com.google.ar.sceneform.samples.gltf.library.screens
 
+import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
@@ -73,6 +74,11 @@ import com.google.ar.sceneform.samples.gltf.R
 import com.google.ar.sceneform.samples.gltf.library.data.local.database.AppDatabase
 import com.google.ar.sceneform.samples.gltf.library.data.repository.PointsRepository
 import com.google.ar.sceneform.samples.gltf.library.data.viewmodel.RewardsViewModel
+import com.google.ar.sceneform.samples.gltf.library.practices.quizzes.digestive_quiz.DigestiveQuizQuestion
+import com.google.ar.sceneform.samples.gltf.library.practices.quizzes.genetic_quiz.GeneticQuizQuestion
+import com.google.ar.sceneform.samples.gltf.library.practices.quizzes.interaction_quiz.InteractionQuizQuestion
+import com.google.ar.sceneform.samples.gltf.library.practices.quizzes.nutrition_quiz.NutritionQuizQuestion
+import com.google.ar.sceneform.samples.gltf.library.practices.quizzes.organism_quiz.OrganismQuizQuestion
 import com.google.ar.sceneform.samples.gltf.library.theme.AugmentEDTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -170,7 +176,7 @@ class PracticeActivity : FragmentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+/*@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PracticeScreen(
     finish: () -> Unit,
@@ -183,6 +189,10 @@ fun PracticeScreen(
     val scope = rememberCoroutineScope()
     val pointsFlow = repository.pointsFlow.collectAsState(initial = null)
     val points = pointsFlow.value?.points ?: 0 //  Get current points from Flow
+
+
+    val showInfoDialog by rewardsViewModel.showInfoDialog.collectAsState()
+    val infoDialogMessage by rewardsViewModel.infoDialogMessage.collectAsState()
 
 
     PointsDisplay(points)
@@ -280,6 +290,144 @@ fun PracticeScreen(
             }
         }
     }
+    // Show the InfoDialog if the flag is true
+    if (showInfoDialog) {
+        InfoDialog(
+            message = infoDialogMessage,
+            onDismiss = { rewardsViewModel.showInfoDialog.value = false }
+        )
+    }
+}*/
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PracticeScreen(
+    finish: () -> Unit,
+    repository: PointsRepository,
+    playPurchaseSound: () -> Unit,
+    playBackSound: () -> Unit,
+    playSwitchSound: () -> Unit,
+    rewardsViewModel: RewardsViewModel
+) {
+    val scope = rememberCoroutineScope()
+    val pointsFlow = repository.pointsFlow.collectAsState(initial = null)
+    val points = pointsFlow.value?.points ?: 0 // Get current points from Flow
+
+    val showInfoDialog by rewardsViewModel.showInfoDialog.collectAsState()
+    val infoDialogMessage by rewardsViewModel.infoDialogMessage.collectAsState()
+
+    PointsDisplay(points)
+
+    // Function to add points dynamically
+    val addPoints: (Int) -> Unit = { earnedPoints ->
+        scope.launch {
+            val currentPoints = repository.getPoints() // Get current points
+            val newPoints = currentPoints + earnedPoints
+            repository.updatePoints(newPoints) // Update points
+            Log.d("PointsDebug", "Updated Points: $newPoints") // Debugging log
+        }
+    }
+
+    // Function to handle points earned from quiz results
+    val handleQuizResult: (Int) -> Unit = { score ->
+        val earnedPoints = score * 10 // 10 points per correct answer
+        addPoints(earnedPoints)
+        Log.d("QuizResultDebug", "Earned Points from Quiz: $earnedPoints")
+    }
+
+    Column {
+        PointsDisplay(points = points) // Show updated points
+        Button(onClick = { addPoints(10) }) { // Example button to add points
+            Text("Earn 10 Points")
+        }
+    }
+
+    val onRedeem: (Int) -> Unit = { cost ->
+        if (points >= cost) {
+            CoroutineScope(Dispatchers.IO).launch {
+                repository.updatePoints(points - cost) // Deduct points
+            }
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Practice", style = MaterialTheme.typography.headlineMedium) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                ),
+                navigationIcon = {
+                    IconButton(onClick = {
+                        playBackSound()
+                        finish()
+                    }) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = "Back to Main"
+                        )
+                    }
+                },
+                actions = {
+                    PointsDisplay(points)
+                }
+            )
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            var selectedTabIndex by remember { mutableStateOf(0) }
+
+            TabRow(
+                selectedTabIndex = selectedTabIndex,
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                indicator = { tabPositions ->
+                    TabRowDefaults.Indicator(
+                        Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+                        color = Color(0xFFFFD700) // Gold color for the indicator
+                    )
+                }
+            ) {
+                listOf("Learn and Earn", "Rewards").forEachIndexed { index, title ->
+                    Tab(
+                        selected = selectedTabIndex == index,
+                        onClick = {
+                            selectedTabIndex = index
+                            playSwitchSound()
+                        },
+                        text = {
+                            Text(
+                                text = title,
+                                color = if (selectedTabIndex == index) Color(0xFFFFD700) else MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    )
+                }
+            }
+
+            when (selectedTabIndex) {
+                0 -> LearnAndEarnContent(
+                    playSwitchSound = playSwitchSound,
+                    addPoints = addPoints,
+                    onRedeem = onRedeem,
+                    handleQuizResult = handleQuizResult // Pass the quiz result handler
+                )
+                1 -> RewardsContent(points, onRedeem, playSwitchSound, playPurchaseSound, rewardsViewModel)
+            }
+        }
+    }
+
+    // Show the InfoDialog if the flag is true
+    if (showInfoDialog) {
+        InfoDialog(
+            message = infoDialogMessage,
+            onDismiss = { rewardsViewModel.showInfoDialog.value = false }
+        )
+    }
 }
 
 
@@ -297,6 +445,7 @@ data class RewardItemData(
     val imageResId: Int,
     val cost: Int,
     val isUnlocked: Boolean,
+    val isInstalled: Boolean,
     val onClickAction: (RewardItemData) -> Unit
 )
 
@@ -305,26 +454,58 @@ data class RewardItemData(
 fun LearnAndEarnContent(
     playSwitchSound: () -> Unit,
     addPoints: (Int) -> Unit,
-    onRedeem: (Int) -> Unit
+    onRedeem: (Int) -> Unit,
+    handleQuizResult: (Int) -> Unit
 ) {
     val context = LocalContext.current
 
 
     val learnItems = remember {
         listOf(
-            PracticeItemData("Quiz Challenge", "Test your knowledge", R.drawable.quiz_icon) {
+/*            PracticeItemData("Quiz Challenge", "Test your knowledge", R.drawable.quiz_icon) {
                 playSwitchSound()
 
                 addPoints(10)
-            },
-            PracticeItemData("Flashcards", "Review key concepts", R.drawable.flashcard_icon) {
+            },*/
+            PracticeItemData("Module 1 Quiz", "Review key concepts", R.drawable.flashcard_icon) {
                 playSwitchSound()
 
+                val intent = Intent(context, OrganismQuizQuestion::class.java)
+                context.startActivity(intent)
+
             },
-            PracticeItemData("AR Practice", "Learn with augmented reality", R.drawable.quiz_icon) {
+            PracticeItemData("Module 2 Quiz", "How well do you know ?", R.drawable.flashcard_icon) {
                 playSwitchSound()
 
-            }
+                val intent = Intent(context, InteractionQuizQuestion::class.java)
+                context.startActivity(intent)
+
+            },
+            PracticeItemData("Module 3 Quiz", "Digest these questions!", R.drawable.flashcard_icon) {
+                playSwitchSound()
+
+                val intent = Intent(context, DigestiveQuizQuestion::class.java)
+                context.startActivity(intent)
+
+            },
+            PracticeItemData("Module 4 Quiz", "How nourished are you?", R.drawable.flashcard_icon) {
+                playSwitchSound()
+
+                val intent = Intent(context, NutritionQuizQuestion::class.java)
+                context.startActivity(intent)
+
+            },
+            PracticeItemData("Module 5 Quiz", "Do you know about Genetics?", R.drawable.flashcard_icon) {
+                playSwitchSound()
+
+                val intent = Intent(context, GeneticQuizQuestion::class.java)
+                context.startActivity(intent)
+
+            },
+/*            PracticeItemData("AR Practice", "Learn with augmented reality", R.drawable.quiz_icon) {
+                playSwitchSound()
+
+            }*/
         )
     }
 
@@ -498,6 +679,7 @@ fun PracticeItemCard(item: PracticeItemData) {
     }
 }
 
+
 @Composable
 fun RewardItemCard(item: RewardItemData, onClick: (RewardItemData) -> Unit) {
     Card(
@@ -598,4 +780,38 @@ fun ConfirmPurchaseDialog(
     }
 
     SnackbarHost(hostState = snackbarHostState) // Show Snackbar at the bottom
+}
+
+@Composable
+fun InfoDialog(
+    message: String,
+    onDismiss: () -> Unit
+) {
+    Dialog(onDismissRequest = { onDismiss() }) {
+        Card(
+            modifier = Modifier.padding(16.dp),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Game Installed!",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = message,
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(onClick = { onDismiss() }) {
+                    Text("OK")
+                }
+            }
+        }
+    }
 }

@@ -172,7 +172,4 @@ dependencies {
     implementation 'androidx.games:games-activity:4.0.0'
     runtimeOnly 'androidx.games:games-activity:4.0.0'
 
-    // Modules
-    implementation(name: 'breakBaller-release', ext: 'aar')
-
 }

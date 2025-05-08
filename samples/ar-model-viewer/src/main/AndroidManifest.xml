@@ -180,6 +180,30 @@
             android:exported="true"
             android:screenOrientation="portrait" />
 
+        <!--Module-4: Nutrition Quiz-->
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.nutrition_quiz.NutritionQuizResult"
+            android:exported="false" />
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.nutrition_quiz.NutritionQuizQuestion"
+            android:exported="false" />
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.nutrition_quiz.NutritionQuizActivity"
+            android:exported="true"
+            android:screenOrientation="portrait" />
+
+        <!--Module-5: Genetic Quiz-->
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.genetic_quiz.GeneticQuizResult"
+            android:exported="false" />
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.genetic_quiz.GeneticQuizQuestion"
+            android:exported="false" />
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.genetic_quiz.GeneticQuizActivity"
+            android:exported="true"
+            android:screenOrientation="portrait" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.google.ar.sceneform.samples.gltf.fileprovider"

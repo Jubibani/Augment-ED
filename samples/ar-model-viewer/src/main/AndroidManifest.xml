@@ -19,7 +19,7 @@
     <!-- Needed to load gltf from network. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <!--Speech Recog-->
+    <!--Speech Recognition-->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <!--Haptic Feedback-->
@@ -36,6 +36,7 @@
     <uses-feature
         android:name="android.hardware.camera.ar"
         android:required="true" />
+
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />

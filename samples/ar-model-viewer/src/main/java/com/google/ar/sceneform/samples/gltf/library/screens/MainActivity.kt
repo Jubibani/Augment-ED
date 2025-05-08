@@ -221,11 +221,6 @@ fun MainScreen(
                             val intent = Intent(context, com.google.ar.sceneform.samples.gltf.library.Activity::class.java)
                             context.startActivity(intent)
 
-                            // [For Development]
-                           /* val intent = Intent(context, com.unity3d.player.UnityPlayerGameActivity::class.java)
-                            context.startActivity(intent)*/
-
-
                         }
                     )
                 }

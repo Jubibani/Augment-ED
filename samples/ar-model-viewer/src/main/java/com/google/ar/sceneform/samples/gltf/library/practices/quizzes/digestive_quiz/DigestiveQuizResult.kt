@@ -59,7 +59,7 @@ class DigestiveQuizResult : AppCompatActivity() {
 
         val congratulationsTv: TextView = findViewById(R.id.congratulationsTv)
         val scoreTv: TextView = findViewById(R.id.scoreTv)
-        val btnRestart: Button = findViewById(R.id.btnRestart)
+   /*     val btnRestart: Button = findViewById(R.id.btnRestart)*/
         val btnExit: Button = findViewById(R.id.btnExit)
 
         congratulationsTv.text = "Congratulations"
@@ -106,11 +106,11 @@ class DigestiveQuizResult : AppCompatActivity() {
         )
 
         // Restart button logic: Redirect to the quiz activity
-        btnRestart.setOnClickListener {
+/*        btnRestart.setOnClickListener {
             val intent = Intent(this, DigestiveQuizQuestion::class.java)
             startActivity(intent)
             finish()
-        }
+        }*/
 
         // Exit button logic: Redirect to PracticeActivity
         btnExit.setOnClickListener {

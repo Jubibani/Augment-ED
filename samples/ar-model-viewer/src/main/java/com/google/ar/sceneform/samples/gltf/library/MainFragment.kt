@@ -167,7 +167,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         modelDao = database.modelDao()
 
         arFragment = childFragmentManager.findFragmentById(R.id.arFragment) as ArFragment
-
+/*      [old code]
         modelLiveData.observe(viewLifecycleOwner) { modelsList ->
             if (modelsList.isEmpty()) {
                 Log.e("MainFragment", "Database is empty! Models were not inserted.")
@@ -181,6 +181,19 @@ class MainFragment : Fragment(R.layout.fragment_main) {
             recognizableModelNames.addAll(modelsList.map { it.name })
 
             preloadModels()
+        }*/
+
+        modelLiveData.observe(viewLifecycleOwner) { modelsList ->
+            if (modelsList.isEmpty()) {
+                Log.e("MainFragment", "Database is empty! Models were not inserted.")
+            } else {
+                Log.d("MainFragment", "Loaded models: ${modelsList.map { it.name }}")
+            }
+            modelInfoMap.clear()
+            modelsList.forEach { modelInfoMap[it.name] = it }
+
+            recognizableModelNames.clear()
+            recognizableModelNames.addAll(modelsList.map { it.name })
         }
 
         // Initialize MediaPlayer
@@ -633,7 +646,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         return Pair(inputImage, circularBitmap)
     }
 
-
+/*  [Old Code]
     private fun renderModelOnSurface(modelName: String) {
         val modelEntity = modelInfoMap[modelName] ?: return // Get model from DB
 
@@ -669,7 +682,71 @@ class MainFragment : Fragment(R.layout.fragment_main) {
                 }
             }
         }
+    }*/
+private fun renderModelOnSurface(modelName: String) {
+    val modelEntity = modelInfoMap[modelName] ?: return // Get model from DB
+
+    // Check if the model is already loaded
+    if (models[modelName] == null || modelViews[modelName] == null) {
+        vibrate()
+        pingSound()
+        Toast.makeText(context, "Loading model...", Toast.LENGTH_SHORT).show()
+
+        // Dynamically load the model
+        lifecycleScope.launch(Dispatchers.Main) { // Ensure this runs on the Main thread
+            try {
+                val model = ModelRenderable.builder()
+                    .setSource(context, Uri.parse(modelEntity.modelPath))
+                    .setIsFilamentGltf(true)
+                    .await()
+
+                val modelView = ViewRenderable.builder()
+                    .setView(context, modelEntity.layoutResId)
+                    .await()
+
+                models[modelName] = model
+                modelViews[modelName] = modelView
+
+                // Retry rendering after loading
+                renderModelOnSurface(modelName)
+            } catch (e: Exception) {
+                Log.e("ModelLoading", "Failed to load model: $modelName", e)
+            }
+        }
+        return
     }
+
+    // Render the model on a detected surface
+    arFragment.arSceneView.scene.addOnUpdateListener { frameTime ->
+        val frame = arFragment.arSceneView.arFrame ?: return@addOnUpdateListener
+        val planes = frame.getUpdatedTrackables(Plane::class.java)
+
+        for (plane in planes) {
+            if (plane.trackingState == TrackingState.TRACKING && !isModelPlaced) {
+                val pose = plane.centerPose
+                val anchor = plane.createAnchor(pose)
+                placeModel(anchor, modelEntity)
+                isModelPlaced = true
+
+                // Ensure button visibility is updated on the main thread
+                activity?.runOnUiThread {
+                    if (modelEntity.interactionVideoResId != null) { // Check if a video resource ID exists
+                        watchButton.visibility = View.VISIBLE
+                        watchButton.bringToFront() // Bring to front if needed
+                    } else {
+                        watchButton.visibility = View.GONE // Hide the button if no video is available
+                    }
+                }
+
+                // Set up the watch button once the model is placed
+                setupWatchButton(modelEntity)
+                setupCloseButton()
+
+                break
+            }
+        }
+    }
+}
 
     private fun setupWatchButton(modelEntity: ModelEntity) {
         watchButton.setOnClickListener {

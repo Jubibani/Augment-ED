@@ -331,7 +331,9 @@ fun getModelItems(): List<ModelItemData> {
         ModelItemData("Classification", "models/classification.glb", R.drawable.classification),
         ModelItemData("Fertile", "models/fertile.glb", R.drawable.fertile_offspring),
         ModelItemData("Domain", "models/domain.glb", R.drawable.three_domains_of_life),
-        ModelItemData("Eukaryote", "models/eukaryote.glb", R.drawable.eukaryote),
+        ModelItemData("Yote", "models/yote.glb", R.drawable.eukaryote),
+        ModelItemData("Nucleus", "models/nucleus.glb", R.drawable.nucleus),
+
 
 
         // Add more items as needed
@@ -447,6 +449,7 @@ fun getVideoItems(): List<VideoItemData> {
         VideoItemData("Human Impact on Ecosystem", R.raw.humanimpact, R.drawable.biodiversity),
         VideoItemData("Am I eating properly?", R.raw.foodpyramid, R.drawable.biodiversity),
         VideoItemData("The Cell Cycle Process", R.raw.cellcycle, R.drawable.biodiversity),
+        VideoItemData("What is Nucleus?", R.raw.nucleusmeaning, R.drawable.biodiversity),
         VideoItemData("What is the Cell Division?", R.raw.celldivision, R.drawable.biodiversity),
         VideoItemData("Non-Mendelian Patterns", R.raw.megagenetics, R.drawable.biodiversity),
 

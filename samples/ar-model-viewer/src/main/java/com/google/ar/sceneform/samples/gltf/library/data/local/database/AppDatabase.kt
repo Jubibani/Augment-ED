@@ -118,9 +118,8 @@ abstract class AppDatabase : RoomDatabase() {
             modelDao.insertModel(ModelEntity("Classification", "models/classification.glb", R.layout.classification_info, "Tap to explore classification structures!", R.raw.popup, R.raw.classification))
             modelDao.insertModel(ModelEntity("Phyla", "models/classification.glb", R.layout.classification_info, "Tap to explore Phyla structures!", R.raw.popup, R.raw.classification))
             modelDao.insertModel(ModelEntity("Fertile", "models/fertile.glb", R.layout.fertile_offspring, "Tap to explore fertile_offspring structures!", R.raw.popup, R.raw.fertileoffspring))
- /*           modelDao.insertModel(ModelEntity("Domain", "models/domain.glb", R.layout.three_domains_of_life, "Tap to explore three domain structures!", R.raw.popup, R.raw.threedomainsoflife))
-*/
-
+            modelDao.insertModel(ModelEntity("Domain", "models/domain.glb", R.layout.three_domains_of_life, "Tap to explore three domain structures!", R.raw.popup))
+            modelDao.insertModel(ModelEntity("Eukaryote", "models/eukaryote.glb", R.layout.eukaryote_info, "Tap to explore eukaryote structures!", R.raw.popup))
 
 
             // Ensure Initial Brain Points Exist

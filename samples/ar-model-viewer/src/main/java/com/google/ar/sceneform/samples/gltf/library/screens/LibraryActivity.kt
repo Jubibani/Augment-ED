@@ -330,9 +330,8 @@ fun getModelItems(): List<ModelItemData> {
         ModelItemData("Scientist", "models/scientist.glb", R.drawable.scientist),
         ModelItemData("Classification", "models/classification.glb", R.drawable.classification),
         ModelItemData("Fertile", "models/fertile.glb", R.drawable.fertile_offspring),
-/*
         ModelItemData("Domain", "models/domain.glb", R.drawable.three_domains_of_life),
-*/
+        ModelItemData("Eukaryote", "models/eukaryote.glb", R.drawable.eukaryote),
 
 
         // Add more items as needed

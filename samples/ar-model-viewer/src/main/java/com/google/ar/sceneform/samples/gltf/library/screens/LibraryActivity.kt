@@ -333,6 +333,12 @@ fun getModelItems(): List<ModelItemData> {
         ModelItemData("Domain", "models/domain.glb", R.drawable.three_domains_of_life),
         ModelItemData("Yote", "models/yote.glb", R.drawable.eukaryote),
         ModelItemData("Nucleus", "models/nucleus.glb", R.drawable.nucleus),
+        ModelItemData("Chromosome", "models/chromosome.glb", R.drawable.chromosome),
+        ModelItemData("Dna", "models/dna.glb", R.drawable.dna),
+        ModelItemData("Heredity", "models/heredity.glb", R.drawable.heredity),
+        ModelItemData("Membrane", "models/membrane.glb", R.drawable.membrane),
+        ModelItemData("Cellular", "models/cellular.glb", R.drawable.cellular),
+        ModelItemData("Microorganism", "models/microorganism.glb", R.drawable.microorganism),
 
 
 

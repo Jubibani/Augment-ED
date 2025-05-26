@@ -128,6 +128,21 @@ abstract class AppDatabase : RoomDatabase() {
             modelDao.insertModel(ModelEntity("Cellular", "models/cellular.glb", R.layout.cellular_info, "Tap to explore cellular structures!", R.raw.bacteriasound))
             modelDao.insertModel(ModelEntity("Microorganism", "models/microorganism.glb", R.layout.microorganism_info, "Tap to explore microorganism structures!", R.raw.bacteriasound))
 
+            //page 228 (num_6)
+            modelDao.insertModel(ModelEntity("Methane", "models/methane.glb", R.layout.methane_info, "Tap to explore methane structures!", R.raw.fart))
+
+            //page 229 (num_7)
+            modelDao.insertModel(ModelEntity("Hydrogen", "models/hydrogen.glb", R.layout.hydrogen_info, "Tap to explore hydrogen structures!", R.raw.popup))
+            modelDao.insertModel(ModelEntity("Salinarum", "models/salinarum.glb", R.layout.salinarum_info, "Tap to salinarum hydrogen structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Halococcus", "models/halococcus.glb", R.layout.halococcus_info, "Tap to halococcus hydrogen structures!", R.raw.bacteriasound))
+
+
+
+
+
+
+
+
 
             // Ensure Initial Brain Points Exist
             brainPointsDao.updatePoints(0)

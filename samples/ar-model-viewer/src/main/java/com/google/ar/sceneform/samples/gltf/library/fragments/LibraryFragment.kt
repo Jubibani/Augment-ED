@@ -205,25 +205,27 @@ class LibraryFragment : Fragment() {
         currentModel?.let { model ->
             Log.d("LibraryFragment", "Creating info node for ${model.name}")
 
-            ViewRenderable.builder()
-                .setView(context, model.layoutResId)
-                .build()
-                .thenAccept { viewRenderable: ViewRenderable ->
-                    infoNode?.setParent(null)
-                    infoNode = Node().apply {
-                        setParent(anchorNode)
-                        localPosition = Vector3(0.0f, 1f, 0.0f)
-                        localScale = Vector3(0.7f, 0.7f, 0.7f)
-                        renderable = viewRenderable
-                        isEnabled = false
+            model.layoutResId?.let {
+                ViewRenderable.builder()
+                    .setView(context, it)
+                    .build()
+                    .thenAccept { viewRenderable: ViewRenderable ->
+                        infoNode?.setParent(null)
+                        infoNode = Node().apply {
+                            setParent(anchorNode)
+                            localPosition = Vector3(0.0f, 1f, 0.0f)
+                            localScale = Vector3(0.7f, 0.7f, 0.7f)
+                            renderable = viewRenderable
+                            isEnabled = false
+                        }
+                        Log.d("LibraryFragment", "Info node created successfully")
+                        Log.d("LibraryFragment", "Retrieved Info from DB: $anchorNode")
                     }
-                    Log.d("LibraryFragment", "Info node created successfully")
-                    Log.d("LibraryFragment", "Retrieved Info from DB: $anchorNode")
-                }
-                .exceptionally { throwable ->
-                    Log.e("LibraryFragment", "Error creating info view: ", throwable)
-                    null
-                }
+                    .exceptionally { throwable ->
+                        Log.e("LibraryFragment", "Error creating info view: ", throwable)
+                        null
+                    }
+            }
         } ?: Log.e("LibraryFragment", "currentModel is null, cannot create info node")
     }
 

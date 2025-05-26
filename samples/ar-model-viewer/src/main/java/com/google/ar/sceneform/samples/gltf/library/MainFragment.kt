@@ -387,9 +387,11 @@ class MainFragment : Fragment(R.layout.fragment_main) {
                     .setIsFilamentGltf(true)
                     .await()
 
-                modelViews[modelEntity.name] = ViewRenderable.builder()
-                    .setView(context, modelEntity.layoutResId)
-                    .await()
+                modelViews[modelEntity.name] = modelEntity.layoutResId?.let {
+                    ViewRenderable.builder()
+                        .setView(context, it)
+                        .await()
+                }
             }
         }
     }
@@ -700,9 +702,11 @@ private fun renderModelOnSurface(modelName: String) {
                     .setIsFilamentGltf(true)
                     .await()
 
-                val modelView = ViewRenderable.builder()
-                    .setView(context, modelEntity.layoutResId)
-                    .await()
+                val modelView = modelEntity.layoutResId?.let {
+                    ViewRenderable.builder()
+                        .setView(context, it)
+                        .await()
+                }
 
                 models[modelName] = model
                 modelViews[modelName] = modelView

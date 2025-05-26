@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 data class ModelEntity(
     @PrimaryKey val name: String,
     val modelPath: String,  // Path to .glb file ("models/heart.glb")
-    val layoutResId: Int,   // Corresponding UI layout (R.layout.heart_info)
+    val layoutResId: Int? = null,   // Corresponding UI layout (R.layout.heart_info)
     val interactionPrompt: String,
     val interactionSoundResId: Int,
     val interactionVideoResId: Int? = null // Optional video reference

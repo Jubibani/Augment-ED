@@ -333,7 +333,20 @@ fun getModelItems(): List<ModelItemData> {
         ModelItemData("Domain", "models/domain.glb", R.drawable.three_domains_of_life),
         ModelItemData("Yote", "models/yote.glb", R.drawable.eukaryote),
         ModelItemData("Nucleus", "models/nucleus.glb", R.drawable.nucleus),
+        ModelItemData("Chromosome", "models/chromosome.glb", R.drawable.chromosome),
+        ModelItemData("Dna", "models/dna.glb", R.drawable.dna),
+        ModelItemData("Heredity", "models/heredity.glb", R.drawable.heredity),
+        ModelItemData("Membrane", "models/membrane.glb", R.drawable.membrane),
+        ModelItemData("Cellular", "models/cellular.glb", R.drawable.cellular),
+        ModelItemData("Microorganism", "models/microorganism.glb", R.drawable.microorganism),
 
+        //page 228 (num_6)
+        ModelItemData("Methane", "models/methane.glb", R.drawable.methane),
+
+        //page 229 (num_7)
+        ModelItemData("Hydrogen", "models/hydrogen.glb", R.drawable.hydrogen),
+        ModelItemData("Salinarum", "models/salinarum.glb", R.drawable.salinarum),
+        ModelItemData("Halococcus", "models/halococcus.glb", R.drawable.halococcus),
 
 
         // Add more items as needed
@@ -359,7 +372,7 @@ fun ModelsContent(
 data class VideoItemData(
     val title: String,
     val videoResId: Int,
-    val previewImageResId: Int
+ /*   val previewImageResId: Int? = null [Temporary Commented]*/
 )
 @Composable
 fun VideosContent(
@@ -438,22 +451,23 @@ fun VideoItem(
 }
 fun getVideoItems(): List<VideoItemData> {
     return listOf(
-        VideoItemData("Classification of Living Things", R.raw.classification, R.drawable.classification),
-        VideoItemData("Phyla and It's major Animals", R.raw.phyla, R.drawable.classification),
-        VideoItemData("Infertile and Fertile Offsprings", R.raw.fertileoffspring, R.drawable.fertile_offspring),
-        VideoItemData("The Three Domain System", R.raw.threedomainsoflife, R.drawable.three_domains_of_life),
-        VideoItemData("What is Biodiversity?", R.raw.biodiversity, R.drawable.biodiversity),
-        VideoItemData("Explain Animal Kingdom?", R.raw.animalkingdom, R.drawable.biodiversity),
-        VideoItemData("Explain Plant Kingdom?", R.raw.plantkingdom, R.drawable.biodiversity),
-        VideoItemData("Enzymes affects digestion", R.raw.enzymes, R.drawable.biodiversity),
-        VideoItemData("Human Impact on Ecosystem", R.raw.humanimpact, R.drawable.biodiversity),
-        VideoItemData("Am I eating properly?", R.raw.foodpyramid, R.drawable.biodiversity),
-        VideoItemData("The Cell Cycle Process", R.raw.cellcycle, R.drawable.biodiversity),
-        VideoItemData("What is Nucleus?", R.raw.nucleusmeaning, R.drawable.biodiversity),
-        VideoItemData("What is the Cell Division?", R.raw.celldivision, R.drawable.biodiversity),
-        VideoItemData("Non-Mendelian Patterns", R.raw.megagenetics, R.drawable.biodiversity),
-
-
+        VideoItemData("Classification of Living Things", R.raw.classification),
+        VideoItemData("Phyla and It's major Animals", R.raw.phyla),
+        VideoItemData("Infertile and Fertile Offsprings", R.raw.fertileoffspring),
+        VideoItemData("The Three Domain System", R.raw.threedomainsoflife),
+        VideoItemData("What is Biodiversity?", R.raw.biodiversity),
+        VideoItemData("Explain Animal Kingdom?", R.raw.animalkingdom),
+        VideoItemData("Explain Plant Kingdom?", R.raw.plantkingdom),
+        VideoItemData("Enzymes affects digestion", R.raw.enzymes),
+        VideoItemData("Human Impact on Ecosystem", R.raw.humanimpact),
+        VideoItemData("Am I eating properly?", R.raw.foodpyramid),
+        VideoItemData("The Cell Cycle Process", R.raw.cellcycle),
+        VideoItemData("What is Nucleus?", R.raw.nucleusmeaning),
+        VideoItemData("What is the Cell Division?", R.raw.celldivision),
+        VideoItemData("Non-Mendelian Patterns", R.raw.megagenetics),
+        VideoItemData("Six Kingdom Classifications", R.raw.sixkingdomsofclassifications),
+        VideoItemData("Kingdom of Archaea Bacteria", R.raw.archaekingdom),
+        VideoItemData("What is Hydrogen Sulfide?", R.raw.whatishydrogensulfide),
 
 
 

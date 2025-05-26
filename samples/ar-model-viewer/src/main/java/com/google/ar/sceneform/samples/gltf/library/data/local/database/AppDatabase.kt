@@ -121,6 +121,27 @@ abstract class AppDatabase : RoomDatabase() {
             modelDao.insertModel(ModelEntity("Domain", "models/domain.glb", R.layout.three_domains_of_life, "Tap to explore three domain structures!", R.raw.popup, R.raw.threedomainsoflife))
             modelDao.insertModel(ModelEntity("Yote", "models/yote.glb", R.layout.yote_info, "Tap to explore yote structures!", R.raw.popup))
             modelDao.insertModel(ModelEntity("Nucleus", "models/nucleus.glb", R.layout.nucleus_info, "Tap to explore nucleus structures!", R.raw.popup, R.raw.nucleusmeaning))
+            modelDao.insertModel(ModelEntity("Chromosome", "models/chromosome.glb", R.layout.chromosome_info, "Tap to explore chromosome structures!", R.raw.popup))
+            modelDao.insertModel(ModelEntity("Dna", "models/dna.glb", R.layout.dna_info, "Tap to explore dna structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Heredity", "models/heredity.glb", R.layout.heredity_info, "Tap to explore heredity structures!", R.raw.popup))
+            modelDao.insertModel(ModelEntity("Membrane", "models/membrane.glb", R.layout.membrane_info, "Tap to explore membrane structures!", R.raw.popup))
+            modelDao.insertModel(ModelEntity("Cellular", "models/cellular.glb", R.layout.cellular_info, "Tap to explore cellular structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Microorganism", "models/microorganism.glb", R.layout.microorganism_info, "Tap to explore microorganism structures!", R.raw.bacteriasound))
+
+            //page 228 (num_6)
+            modelDao.insertModel(ModelEntity("Methane", "models/methane.glb", R.layout.methane_info, "Tap to explore methane structures!", R.raw.fart))
+
+            //page 229 (num_7)
+            modelDao.insertModel(ModelEntity("Hydrogen", "models/hydrogen.glb", R.layout.hydrogen_info, "Tap to explore hydrogen structures!", R.raw.popup))
+            modelDao.insertModel(ModelEntity("Salinarum", "models/salinarum.glb", R.layout.salinarum_info, "Tap to salinarum hydrogen structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Halococcus", "models/halococcus.glb", R.layout.halococcus_info, "Tap to halococcus hydrogen structures!", R.raw.bacteriasound))
+
+
+
+
+
+
+
 
 
             // Ensure Initial Brain Points Exist

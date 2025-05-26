@@ -20,6 +20,7 @@ buildscript {
         fuel_version = '2.3.1'
 
         material_version = '1.6.0'
+
     }
     repositories {
 
@@ -44,6 +45,9 @@ allprojects {
         mavenLocal()
         mavenCentral()
         maven { url 'https://jitpack.io' }
+        flatDir {
+            dirs 'libs'
+        }
     }
 }
 

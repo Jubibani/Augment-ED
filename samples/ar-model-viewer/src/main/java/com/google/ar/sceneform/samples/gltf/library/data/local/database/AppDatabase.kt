@@ -181,16 +181,16 @@ abstract class AppDatabase : RoomDatabase() {
 
             //10 Pages [243- 262]
             // Page 244 (1)
-            modelDao.insertModel(ModelEntity("Sperms", "models/sperms.glb", R.layout.sperms_info, "Tap to protist sperm structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Sperms", "models/sperms.glb", R.layout.sperms_info, "Tap to protist sperm structures!", R.raw.bacteriasound, R.raw.angioandgymno))
 
             // Page 246 (2)
-            modelDao.insertModel(ModelEntity("Cot", "models/cot.glb", R.layout.cot_info, "Tap to cot structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Cot", "models/cot.glb", R.layout.cot_info, "Tap to cot structures!", R.raw.bacteriasound, R.raw.monocotanddicot))
             modelDao.insertModel(ModelEntity("Leaf venation", "models/leaf venation.glb", R.layout.leafvenation_info, "Tap to leaf venation structures!", R.raw.bacteriasound))
             modelDao.insertModel(ModelEntity("Stem", "models/stem.glb", R.layout.stem_info, "Tap to stem structures!", R.raw.bacteriasound))
             modelDao.insertModel(ModelEntity("Flower plan", "models/flower plan.glb", R.layout.flower_plan_info, "Tap to flower plan structures!", R.raw.bacteriasound))
 
             // Page 247 (3)
-            modelDao.insertModel(ModelEntity("Harmful plant", "models/harmful plant.glb", R.layout.harmful_plant_info, "Tap to harmful plant structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Harmful plant", "models/harmful plant.glb", R.layout.harmful_plant_info, "Tap to harmful plant structures!", R.raw.bacteriasound, R.raw.harmfulplants))
 
             // Page 249 (4)
             modelDao.insertModel(ModelEntity("Sponge", "models/sponge.glb", R.layout.sponge_info, "Tap to sponge structures!", R.raw.bacteriasound))
@@ -243,8 +243,27 @@ abstract class AppDatabase : RoomDatabase() {
             // Page 300 (9)
             modelDao.insertModel(ModelEntity("Bromelain", "models/bromelain.glb", R.layout.bromelain_info, "Tap to bromelain structures!", R.raw.bacteriasound))
 
+            //10 Pages [303- 322]
+            // Page 303 (1)
+            modelDao.insertModel(ModelEntity("Carbohydrate", "models/carbohydrate.glb", R.layout.carbohydrate_info, "Tap to carbohydrate structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Lipid", "models/lipid.glb", R.layout.lipid_info, "Tap to lipid structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Protein", "models/protein.glb", R.layout.protein_info, "Tap to protein structures!", R.raw.bacteriasound))
 
+            // Page 303 (5)
+            modelDao.insertModel(ModelEntity("Fiber", "models/fiber.glb", R.layout.fiber_info, "Tap to fiber structures!", R.raw.bacteriasound))
 
+            //10 Pages [323- 342]
+            // Page 327 (3)
+            modelDao.insertModel(ModelEntity("Spermato", "models/spermato.glb", R.layout.spermato_info, "Tap to spermato structures!", R.raw.bacteriasound))
+
+            // Page 328 (3)
+            modelDao.insertModel(ModelEntity("Down syndrome", "models/down syndrome.glb", R.layout.down_syndrome_info, "Tap to down syndrome structures!", R.raw.bacteriasound))
+
+            // Page 329 (4)
+            modelDao.insertModel(ModelEntity("Cri du chat", "models/cri du chat.glb", R.layout.cri_du_chat_info, "Tap to Cri du chat structures!", R.raw.bacteriasound))
+
+            // Page 327 (4)
+            modelDao.insertModel(ModelEntity("First filial generation", "models/first filial generation.glb", R.layout.firstfilialgeneration_info, "Tap to first filial generationstructures!", R.raw.bacteriasound, R.raw.monocotanddicot))
 
 
             // Ensure Initial Brain Points Exist

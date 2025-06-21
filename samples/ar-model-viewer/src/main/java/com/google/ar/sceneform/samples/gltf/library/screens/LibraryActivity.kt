@@ -452,7 +452,29 @@ fun getModelItems(): List<ModelItemData> {
         ModelItemData("Digestion", "models/digestion.glb", R.drawable.digestion),
 
         // Page 300 (9)
-        ModelItemData("Bromelain", "models/bromelain.glb", R.drawable.bromelain),
+           ModelItemData("Bromelain", "models/bromelain.glb", R.drawable.bromelain),
+
+        //10 Pages [303- 322]
+        // Page 303 (1)
+        ModelItemData("Carbohydrate", "models/carbohydrate.glb", R.drawable.carbohydrate),
+        ModelItemData("Lipid", "models/lipid.glb", R.drawable.lipid),
+        ModelItemData("Protein", "models/protein.glb", R.drawable.protein),
+
+        // Page 303 (5)
+        ModelItemData("Fiber", "models/fiber.glb", R.drawable.fiber),
+
+        //10 Pages [323- 342]
+        // Page 327 (3)
+        ModelItemData("Spermato", "models/spermato.glb", R.drawable.spermato),
+
+        // Page 328 (3)
+        ModelItemData("Down syndrome", "models/down syndrome.glb", R.drawable.down_syndrome),
+
+        // Page 329 (4)
+        ModelItemData("Cri du chat", "models/cri du chat.glb", R.drawable.cri_du_chat),
+
+        // Page 327 (4)
+        ModelItemData("First filial generation", "models/first filial generation.glb", R.drawable.first_filial_generation),
 
 
 
@@ -579,6 +601,7 @@ fun getVideoItems(): List<VideoItemData> {
         VideoItemData("Monocot and Dicot Difference", R.raw.monocotanddicot),
         VideoItemData("What Harmful plants do to us?", R.raw.harmfulplants),
         VideoItemData("Learn about Aedes Aegypti", R.raw.aedesaegypti),
+        VideoItemData("Learn about F1 Generation", R.raw.mendelgeneration),
 
 
 

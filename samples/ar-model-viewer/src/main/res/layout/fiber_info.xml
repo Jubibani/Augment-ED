@@ -1,0 +1,19 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="250dp"
+    android:layout_height="wrap_content"
+    android:background="#14000000"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitXY"
+        android:src="@drawable/fiber_info" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="In nutrition, it refers to the indigestible components of plant-derived food, primarily non-starch polysaccharides and lignin, that resist breakdown by human digestive enzymes but play crucial roles in digestive health, blood sugar regulation, and cholesterol management."
+        android:textColor="@android:color/white" />
+</LinearLayout>

@@ -1,0 +1,19 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="250dp"
+    android:layout_height="wrap_content"
+    android:background="#14000000"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitXY"
+        android:src="@drawable/pede_info" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Millipedes and Centipedes: Both are classes within the subphylum Myriapoda, distinguished by their segmented bodies and numerous legs; millipedes typically have cylindrical bodies with two pairs of legs per segment, while centipedes possess flattened bodies with a single pair of legs per segment."
+        android:textColor="@android:color/white" />
+</LinearLayout>

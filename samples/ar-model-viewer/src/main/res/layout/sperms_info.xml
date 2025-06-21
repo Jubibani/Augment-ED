@@ -1,0 +1,19 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="250dp"
+    android:layout_height="wrap_content"
+    android:background="#14000000"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitXY"
+        android:src="@drawable/sperms_info" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Gymnosperms and Angiosperms, Both are groups of seed-producing vascular plants; however, gymnosperms bear naked seeds typically on cones and lack flowers or fruits, whereas angiosperms produce seeds enclosed within an ovary (which develops into a fruit) and feature flowers for reproduction."
+        android:textColor="@android:color/white" />
+</LinearLayout>

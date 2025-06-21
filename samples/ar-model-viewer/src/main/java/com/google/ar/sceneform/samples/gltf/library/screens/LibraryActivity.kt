@@ -390,6 +390,52 @@ fun getModelItems(): List<ModelItemData> {
         // Page 242 (10)
         ModelItemData("Peat", "models/peat.glb", R.drawable.peat),
 
+        //10 Pages [243- 262]
+        // Page 244 (1)
+        ModelItemData("Cot", "models/cot.glb", R.drawable.cot),
+        ModelItemData("Sperms", "models/sperms.glb", R.drawable.sperms),
+
+        // Page 244 (2)
+        ModelItemData("Leaf venation", "models/leaf venation.glb", R.drawable.leafvenation),
+        ModelItemData("Stem", "models/stem.glb", R.drawable.stem),
+        ModelItemData("Flower plan", "models/flower plan.glb", R.drawable.flower_plan),
+
+        // Page 247 (3)
+        ModelItemData("Harmful plant", "models/harmful plant.glb", R.drawable.harmful_plant),
+
+        // Page 249 (4)
+        ModelItemData("Sponge", "models/sponge.glb", R.drawable.sponge),
+        ModelItemData("Spiculis", "models/spiculis.glb", R.drawable.spiculis),
+        ModelItemData("Osculum", "models/osculum.glb", R.drawable.osculum),
+        ModelItemData("Cnidarian", "models/cnidarian.glb", R.drawable.cnidarian),
+        ModelItemData("Nematocyst", "models/nematocyst.glb", R.drawable.nematocyst),
+
+        // Page 250 (4)
+        ModelItemData("Flatworm", "models/flatworm.glb", R.drawable.flatworm),
+
+        // Page 251 (5)
+        ModelItemData("Roundworm", "models/roundworm.glb", R.drawable.roundworm),
+
+        // Page 252 (5)
+        ModelItemData("Segmentedworm", "models/segmentedworm.glb", R.drawable.segmentedworm),
+
+        // Page 254 (6)
+        ModelItemData("Echinoderm", "models/echinoderm.glb", R.drawable.echinoderm),
+
+        // Page 255 (7)
+        ModelItemData("Arthropod", "models/arthropod.glb", R.drawable.arthropod),
+        ModelItemData("Exoskeleton", "models/exoskeleton.glb", R.drawable.exoskeleton),
+        ModelItemData("Crustacean", "models/crustacean.glb", R.drawable.crustacean),
+        ModelItemData("Arachnid", "models/arachnid.glb", R.drawable.arachnid),
+
+        // Page 256 (7)
+        ModelItemData("Pede", "models/pede.glb", R.drawable.pede),
+
+        // Page 258 (8)
+        ModelItemData("Chordate", "models/chordate.glb", R.drawable.chordate),
+        ModelItemData("Turnicate", "models/turnicate.glb", R.drawable.turnicate),
+        ModelItemData("Vertebrate", "models/vertebrate.glb", R.drawable.vertebrate),
+
 
         )
 }
@@ -510,6 +556,10 @@ fun getVideoItems(): List<VideoItemData> {
         VideoItemData("Kingdom of Archaea Bacteria", R.raw.archaekingdom),
         VideoItemData("What is Hydrogen Sulfide?", R.raw.whatishydrogensulfide),
         VideoItemData("What is Cyanobacteria", R.raw.cyanobacteria),
+        VideoItemData("What are Angiosperms and Gymnosperms", R.raw.angioandgymno),
+        VideoItemData("Monocot and Dicot Difference", R.raw.monocotanddicot),
+        VideoItemData("What Harmful plants do to us?", R.raw.harmfulplants),
+        VideoItemData("Learn about Aedes Aegypti", R.raw.aedesaegypti),
 
 
 

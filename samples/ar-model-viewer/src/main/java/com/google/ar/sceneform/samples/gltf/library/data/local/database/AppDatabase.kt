@@ -179,6 +179,57 @@ abstract class AppDatabase : RoomDatabase() {
             // Page 242 (10)
             modelDao.insertModel(ModelEntity("Peat", "models/peat.glb", R.layout.peat_info, "Tap to protist peat structures!", R.raw.bacteriasound))
 
+            //10 Pages [243- 262]
+            // Page 244 (1)
+            modelDao.insertModel(ModelEntity("Sperms", "models/sperms.glb", R.layout.sperms_info, "Tap to protist sperm structures!", R.raw.bacteriasound))
+
+            // Page 246 (2)
+            modelDao.insertModel(ModelEntity("Cot", "models/cot.glb", R.layout.cot_info, "Tap to cot structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Leaf venation", "models/leaf venation.glb", R.layout.leafvenation_info, "Tap to leaf venation structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Stem", "models/stem.glb", R.layout.stem_info, "Tap to stem structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Flower plan", "models/flower plan.glb", R.layout.flower_plan_info, "Tap to flower plan structures!", R.raw.bacteriasound))
+
+            // Page 247 (3)
+            modelDao.insertModel(ModelEntity("Harmful plant", "models/harmful plant.glb", R.layout.harmful_plant_info, "Tap to harmful plant structures!", R.raw.bacteriasound))
+
+            // Page 249 (4)
+            modelDao.insertModel(ModelEntity("Sponge", "models/sponge.glb", R.layout.sponge_info, "Tap to sponge structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Spiculis", "models/spiculis.glb", R.layout.spiculis_info, "Tap to spiculis structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Osculum", "models/osculum.glb", R.layout.osculum_info, "Tap to osculum structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Cnidarian", "models/cnidarian.glb", R.layout.cdinarian_info, "Tap to cnidarian structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Nematocyst", "models/nematocyst.glb", R.layout.nematocyst_info, "Tap to nematocyst structures!", R.raw.bacteriasound))
+
+            // Page 250 (4)
+            modelDao.insertModel(ModelEntity("Flatworm", "models/flatworm.glb", R.layout.flatworm_info, "Tap to flatworm structures!", R.raw.bacteriasound))
+
+            // Page 251 (5)
+            modelDao.insertModel(ModelEntity("Roundworm", "models/roundworm.glb", R.layout.roundworm_info, "Tap to roundworm structures!", R.raw.bacteriasound))
+
+            // Page 252 (5)
+            modelDao.insertModel(ModelEntity("Segmentedworm", "models/segmentedworm.glb", R.layout.segmentedworm_info, "Tap to segmentedworm structures!", R.raw.bacteriasound))
+
+            // Page 254 (6)
+            modelDao.insertModel(ModelEntity("Echinoderm", "models/echinoderm.glb", R.layout.echinoderm_info, "Tap to Echinoderm structures!", R.raw.bacteriasound))
+
+            // Page 255 (7)
+            modelDao.insertModel(ModelEntity("Arthropod", "models/arthropod.glb", R.layout.arthropod_info, "Tap to arthropod structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Exoskeleton", "models/exoskeleton.glb", R.layout.exoskeleton_info, "Tap to exoskeleton structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Crustacean", "models/crustacean.glb", R.layout.crustacean_info, "Tap to crustacean structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Arachnid", "models/arachnid.glb", R.layout.arachnid_info, "Tap to arachnid structures!", R.raw.bacteriasound))
+
+            // Page 256 (7)
+            modelDao.insertModel(ModelEntity("Pede", "models/pede.glb", R.layout.pede_info, "Tap to pede structures!", R.raw.bacteriasound))
+
+            // Page 258 (8)
+            modelDao.insertModel(ModelEntity("Chordate", "models/chordate.glb", R.layout.chordate_info, "Tap to chordate structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Turnicate", "models/turnicate.glb", R.layout.turnicate_info, "Tap to turnicate structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Vertebrate", "models/vertebrate.glb", R.layout.vertebrate_info, "Tap to vertebrate structures!", R.raw.bacteriasound))
+
+
+
+
+
+
 
             // Ensure Initial Brain Points Exist
             brainPointsDao.updatePoints(0)

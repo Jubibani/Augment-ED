@@ -436,6 +436,16 @@ fun getModelItems(): List<ModelItemData> {
         ModelItemData("Turnicate", "models/turnicate.glb", R.drawable.turnicate),
         ModelItemData("Vertebrate", "models/vertebrate.glb", R.drawable.vertebrate),
 
+        //10 Pages [263- 282]
+        // Page 254 (1)
+        ModelItemData("Eutherians", "models/eutherians.glb", R.drawable.eutherians),
+        ModelItemData("Mammal", "models/mammal.glb", R.drawable.mammal),
+        ModelItemData("Marsupials", "models/marsupials.glb", R.drawable.marsupials),
+        ModelItemData("Monotremes", "models/monotremes.glb", R.drawable.monotremes),
+
+
+
+
 
         )
 }

@@ -1,0 +1,19 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="250dp"
+    android:layout_height="wrap_content"
+    android:background="#14000000"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitXY"
+        android:src="@drawable/arthropod_info" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="The most diverse phylum of invertebrates, distinguished by a segmented body, jointed appendages, and a rigid, chitinous exoskeleton that must be periodically shed."
+        android:textColor="@android:color/white" />
+</LinearLayout>

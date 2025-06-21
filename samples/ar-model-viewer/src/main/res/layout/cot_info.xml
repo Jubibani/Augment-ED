@@ -1,0 +1,19 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="250dp"
+    android:layout_height="wrap_content"
+    android:background="#14000000"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitXY"
+        android:src="@drawable/cot_info" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Monocot, Dicot, and Cotyledons: Flowering plants (angiosperms) are broadly classified into monocots, possessing one embryonic leaf (cotyledon) in their seeds, and dicots, characterized by having two cotyledons."
+        android:textColor="@android:color/white" />
+</LinearLayout>

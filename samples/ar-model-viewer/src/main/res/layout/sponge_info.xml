@@ -1,0 +1,19 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="250dp"
+    android:layout_height="wrap_content"
+    android:background="#14000000"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitXY"
+        android:src="@drawable/sponge_info" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sponges (Phylum Porifera): Sessile, aquatic invertebrates characterized by a porous body wall that facilitates filter feeding, lacking true tissues or organs, and supported by a skeletal framework of spicules or spongin."
+        android:textColor="@android:color/white" />
+</LinearLayout>

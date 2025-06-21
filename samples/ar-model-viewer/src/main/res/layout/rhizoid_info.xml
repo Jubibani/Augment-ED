@@ -1,0 +1,19 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="250dp"
+    android:layout_height="wrap_content"
+    android:background="#14000000"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitXY"
+        android:src="@drawable/rhizoid_info" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Root-like structures found in some fungi, bryophytes (mosses, liverworts), and ferns that function primarily in anchoring the organism to a substrate and, to a lesser extent, in absorption of water and nutrients."
+        android:textColor="@android:color/white" />
+</LinearLayout>

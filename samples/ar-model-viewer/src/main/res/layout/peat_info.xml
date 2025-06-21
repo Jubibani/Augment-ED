@@ -1,0 +1,19 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="250dp"
+    android:layout_height="wrap_content"
+    android:background="#14000000"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitXY"
+        android:src="@drawable/peat_info" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="An accumulation of partially decayed plant matter, primarily Sphagnum moss, formed in anaerobic, waterlogged conditions such as bogs and fens. It is characterized by its high water-holding capacity, acidic pH, and dark brown color."
+        android:textColor="@android:color/white" />
+</LinearLayout>

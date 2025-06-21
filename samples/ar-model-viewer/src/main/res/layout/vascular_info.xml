@@ -1,0 +1,19 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="250dp"
+    android:layout_height="wrap_content"
+    android:background="#14000000"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitXY"
+        android:src="@drawable/vascular_info" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Vascular plants possess specialized tissues (xylem and phloem) for efficient transport of water and nutrients throughout their bodies, whereas non-vascular plants lack these true vascular systems and primarily rely on diffusion and osmosis for material transport."
+        android:textColor="@android:color/white" />
+</LinearLayout>

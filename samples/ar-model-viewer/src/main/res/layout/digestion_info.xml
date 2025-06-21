@@ -1,0 +1,19 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="250dp"
+    android:layout_height="wrap_content"
+    android:background="#14000000"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitXY"
+        android:src="@drawable/digestion_info" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Mechanical digestion is the physical breakdown of food into smaller pieces, increasing its surface area for chemical digestion, which is the enzymatic breakdown of complex molecules into simpler ones, primarily facilitated by specific proteins called enzymes."
+        android:textColor="@android:color/white" />
+</LinearLayout>

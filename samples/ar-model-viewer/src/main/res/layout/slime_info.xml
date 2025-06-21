@@ -1,0 +1,19 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="250dp"
+    android:layout_height="wrap_content"
+    android:background="#14000000"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitXY"
+        android:src="@drawable/slime_info" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=" A broad group of eukaryotic organisms that can live freely as single cells but can aggregate into a multicellular structure (a plasmodium) that functions as a single unit, capable of movement and nutrient uptake by phagocytosis."
+        android:textColor="@android:color/white" />
+</LinearLayout>

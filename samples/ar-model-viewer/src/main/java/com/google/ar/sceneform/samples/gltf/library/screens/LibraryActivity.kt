@@ -348,9 +348,50 @@ fun getModelItems(): List<ModelItemData> {
         ModelItemData("Salinarum", "models/salinarum.glb", R.drawable.salinarum),
         ModelItemData("Halococcus", "models/halococcus.glb", R.drawable.halococcus),
 
+        //-------- 10 Pages [223 - 242] -------------
+        // Page 223 (6)
+        ModelItemData("Cyano", "models/cyano.glb", R.drawable.cyano),
 
-        // Add more items as needed
-    )
+        // Page 234 (6)
+        ModelItemData("Protist", "models/protist.glb", R.drawable.protist),
+        ModelItemData("Chlorophyll", "models/chlorophyll.glb", R.drawable.chlorophyll),
+        ModelItemData("Dinoflagellate", "models/dinoflagellate.glb", R.drawable.dinoflaglette),
+        ModelItemData("Euglanoid", "models/euglanoid.glb", R.drawable.euglanoid),
+
+        // Page 235 (7)
+        ModelItemData("Chlorella", "models/chlorella.glb", R.drawable.chlorella),
+        ModelItemData("Pediastrum", "models/pediastrum.glb", R.drawable.pediastrum),
+        ModelItemData("Spirogyra", "models/spirogyra.glb", R.drawable.spirogyra),
+
+        // Page 237 (8)
+        ModelItemData("Eucheuma", "models/eucheuma.glb", R.drawable.eucheuma),
+        ModelItemData("Gracilaria", "models/gracilaria.glb", R.drawable.gracilaria),
+
+        // Page 238 (8)
+        ModelItemData("Radiolarian", "models/radiolarian.glb", R.drawable.radiolarian),
+        ModelItemData("Foraminifera", "models/foraminifera.glb", R.drawable.foraminifera),
+        ModelItemData("Amoeba", "models/amoeba.glb", R.drawable.amoeba),
+
+        // Page 239 (9)
+        ModelItemData("Paramecium", "models/paramecium.glb", R.drawable.paramecium),
+        ModelItemData("Didinium", "models/didinium.glb", R.drawable.didinium),
+        ModelItemData("Vorticella", "models/vorticella.glb", R.drawable.vorticella),
+        ModelItemData("Slime", "models/slime.glb", R.drawable.slime),
+        ModelItemData("Watermold", "models/watermold.glb", R.drawable.watermold),
+
+        // Page 240 (9)
+        ModelItemData("Saprophyte", "models/saprophyte.glb", R.drawable.saprophyte),
+        ModelItemData("Hyphae", "models/hyphae.glb", R.drawable.hyphae),
+        ModelItemData("Rhizoid", "models/rhizoid.glb", R.drawable.rhizoid),
+
+        // Page 242 (10)
+        ModelItemData("Vascular", "models/vascular.glb", R.drawable.vascular),
+
+        // Page 242 (10)
+        ModelItemData("Peat", "models/peat.glb", R.drawable.peat),
+
+
+        )
 }
 
 @Composable
@@ -468,6 +509,7 @@ fun getVideoItems(): List<VideoItemData> {
         VideoItemData("Six Kingdom Classifications", R.raw.sixkingdomsofclassifications),
         VideoItemData("Kingdom of Archaea Bacteria", R.raw.archaekingdom),
         VideoItemData("What is Hydrogen Sulfide?", R.raw.whatishydrogensulfide),
+        VideoItemData("What is Cyanobacteria", R.raw.cyanobacteria),
 
 
 

@@ -137,11 +137,47 @@ abstract class AppDatabase : RoomDatabase() {
             modelDao.insertModel(ModelEntity("Halococcus", "models/halococcus.glb", R.layout.halococcus_info, "Tap to halococcus hydrogen structures!", R.raw.bacteriasound))
 
 
+            //-------- 10 Pages [223 - 242] -------------
+            // Page 233 (6)
+            modelDao.insertModel(ModelEntity("Cyano", "models/cyano.glb", R.layout.cyano_info, "Tap to cyano cyano structures!", R.raw.bacteriasound))
 
+            // Page 234 (6)
+            modelDao.insertModel(ModelEntity("Protist", "models/protist.glb", R.layout.protist_info, "Tap to protist protist structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Chlorophyll", "models/chlorophyll.glb", R.layout.chlorophyll_info, "Tap to protist chlorophyll structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Dinoflagellate", "models/dinoflagellate.glb", R.layout.dinoflagellate_info, "Tap to protist dinoflagellate structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Euglanoid", "models/euglanoid.glb", R.layout.euglanoid_info, "Tap to protist euglanoid structures!", R.raw.bacteriasound))
 
+            // Page 235 (7)
+            modelDao.insertModel(ModelEntity("Chlorella", "models/chlorella.glb", R.layout.chlorella_info, "Tap to protist chlorella structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Pediastrum", "models/pediastrum.glb", R.layout.pediastrum_info, "Tap to protist pediastrum structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Spirogyra", "models/spirogyra.glb", R.layout.spirogyra_info, "Tap to protist spirogyra structures!", R.raw.bacteriasound))
 
+            // Page 237 (8)
+            modelDao.insertModel(ModelEntity("Eucheuma", "models/eucheuma.glb", R.layout.eucheuma_info, "Tap to protist eucheuma structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Gracilaria", "models/gracilaria.glb", R.layout.gracilaria_info, "Tap to  gracilaria structures!", R.raw.bacteriasound))
 
+            // Page 238 (8)
+            modelDao.insertModel(ModelEntity("Radiolarian", "models/radiolarian.glb", R.layout.radiolarian_info, "Tap to  radiolarian structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Foraminifera", "models/foraminifera.glb", R.layout.foraminifera_info, "Tap to foraminifera structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Amoeba", "models/amoeba.glb", R.layout.amoeba_info, "Tap to protist amoeba structures!", R.raw.bacteriasound))
 
+            // Page 239 (9)
+            modelDao.insertModel(ModelEntity("Paramecium", "models/paramecium.glb", R.layout.paramecium_info, "Tap to protist paramecium structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Didinium", "models/didinium.glb", R.layout.didinium_info, "Tap to protist didinium structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Vorticella", "models/vorticella.glb", R.layout.vorticella_info, "Tap to protist vorticella structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Slime", "models/slime.glb", R.layout.slime_info, "Tap to protist slime structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Watermold", "models/watermold.glb", R.layout.watermold_info, "Tap to protist watermold structures!", R.raw.bacteriasound))
+
+            // Page 240 (9)
+            modelDao.insertModel(ModelEntity("Saprophyte", "models/saprophyte.glb", R.layout.saprophyte_info, "Tap to  saprophyte structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Hyphae", "models/hyphae.glb", R.layout.hyphae_info, "Tap to  hyphae structures!", R.raw.bacteriasound))
+            modelDao.insertModel(ModelEntity("Rhizoid", "models/rhizoid.glb", R.layout.rhizoid_info, "Tap to rhizoid structures!", R.raw.bacteriasound))
+
+            // Page 242 (10)
+            modelDao.insertModel(ModelEntity("Vascular", "models/vascular.glb", R.layout.vascular_info, "Tap to vascular structures!", R.raw.bacteriasound))
+
+            // Page 242 (10)
+            modelDao.insertModel(ModelEntity("Peat", "models/peat.glb", R.layout.peat_info, "Tap to protist peat structures!", R.raw.bacteriasound))
 
 
             // Ensure Initial Brain Points Exist

@@ -1,0 +1,19 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="250dp"
+    android:layout_height="wrap_content"
+    android:background="#14000000"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitXY"
+        android:src="@drawable/cri_du_chat_info" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="A rare genetic disorder caused by a partial deletion of the short arm of chromosome 5, characterized by a distinctive high-pitched cry resembling a cat's meow, intellectual disability, and specific facial features."
+        android:textColor="@android:color/white" />
+</LinearLayout>

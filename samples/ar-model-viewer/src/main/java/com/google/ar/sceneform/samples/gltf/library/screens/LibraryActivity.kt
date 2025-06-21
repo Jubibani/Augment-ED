@@ -443,7 +443,16 @@ fun getModelItems(): List<ModelItemData> {
         ModelItemData("Marsupials", "models/marsupials.glb", R.drawable.marsupials),
         ModelItemData("Monotremes", "models/monotremes.glb", R.drawable.monotremes),
 
+        //--------------[Second Batch] Pages [283- 342]
+        //10 Pages [288- 302]
+        // Page 264 (1)
+        ModelItemData("Monoculture", "models/monoculture.glb", R.drawable.monoculture),
 
+        // Page 291 (5)
+        ModelItemData("Digestion", "models/digestion.glb", R.drawable.digestion),
+
+        // Page 300 (9)
+        ModelItemData("Bromelain", "models/bromelain.glb", R.drawable.bromelain),
 
 
 

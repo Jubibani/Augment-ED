@@ -232,6 +232,16 @@ abstract class AppDatabase : RoomDatabase() {
             modelDao.insertModel(ModelEntity("Marsupials", "models/marsupials.glb", R.layout.marsupials_info, "Tap to marsupials structures!", R.raw.bacteriasound))
             modelDao.insertModel(ModelEntity("Monotremes", "models/monotremes.glb", R.layout.monotremes_info, "Tap to monotremes structures!", R.raw.bacteriasound))
 
+            //--------------[Second Batch] Pages [283- 342]
+            //10 Pages [288- 302]
+            // Page 264 (1)
+            modelDao.insertModel(ModelEntity("Monoculture", "models/monoculture.glb", R.layout.monoculture_info, "Tap to monoculture structures!", R.raw.bacteriasound))
+
+            // Page 291 (5)
+            modelDao.insertModel(ModelEntity("Digestion", "models/digestion.glb", R.layout.digestion_info, "Tap to digestion structures!", R.raw.bacteriasound))
+
+            // Page 300 (9)
+            modelDao.insertModel(ModelEntity("Bromelain", "models/bromelain.glb", R.layout.bromelain_info, "Tap to bromelain structures!", R.raw.bacteriasound))
 
 
 

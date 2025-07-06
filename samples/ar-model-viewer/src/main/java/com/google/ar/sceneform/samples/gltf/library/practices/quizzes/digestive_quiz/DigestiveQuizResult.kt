@@ -115,6 +115,7 @@ class DigestiveQuizResult : AppCompatActivity() {
         // Exit button logic: Redirect to PracticeActivity
         btnExit.setOnClickListener {
             val intent = Intent(this, PracticeActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
             finish()
         }

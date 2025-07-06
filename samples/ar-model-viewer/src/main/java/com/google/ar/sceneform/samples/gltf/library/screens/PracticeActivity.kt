@@ -176,128 +176,6 @@ class PracticeActivity : FragmentActivity() {
     }
 }
 
-/*@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun PracticeScreen(
-    finish: () -> Unit,
-    repository: PointsRepository,
-    playPurchaseSound: () -> Unit,
-    playBackSound: () -> Unit,
-    playSwitchSound: () -> Unit,
-    rewardsViewModel: RewardsViewModel
-) {
-    val scope = rememberCoroutineScope()
-    val pointsFlow = repository.pointsFlow.collectAsState(initial = null)
-    val points = pointsFlow.value?.points ?: 0 //  Get current points from Flow
-
-
-    val showInfoDialog by rewardsViewModel.showInfoDialog.collectAsState()
-    val infoDialogMessage by rewardsViewModel.infoDialogMessage.collectAsState()
-
-
-    PointsDisplay(points)
-
-
-    val addPoints: (Int) -> Unit = { earnedPoints ->
-        scope.launch {
-            val currentPoints = repository.getPoints() // Get current points
-            val newPoints = currentPoints + earnedPoints
-            repository.updatePoints(newPoints) // Update points
-
-            Log.d("PointsDebug", "Updated Points: $newPoints") //  Debugging log
-        }
-    }
-
-
-    Column {
-        PointsDisplay(points = points) //  Show updated points
-        Button(onClick = { addPoints(10) }) { // Example button to add points
-            Text("Earn 10 Points")
-        }
-    }
-
-    val onRedeem: (Int) -> Unit = { cost ->
-        if (points >= cost) {
-            CoroutineScope(Dispatchers.IO).launch {
-                repository.updatePoints(points - cost) //  Deduct points
-            }
-        }
-    }
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Practice", style = MaterialTheme.typography.headlineMedium) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                ),
-                navigationIcon = {
-                    IconButton(onClick = {
-                        playBackSound()
-                        finish()
-                    }) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = "Back to Main"
-                        )
-                    }
-                },
-                actions = {
-                    PointsDisplay(points)
-                }
-            )
-        }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            var selectedTabIndex by remember { mutableStateOf(0) }
-
-            TabRow(
-                selectedTabIndex = selectedTabIndex,
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                indicator = { tabPositions ->
-                    TabRowDefaults.Indicator(
-                        Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-                        color = Color(0xFFFFD700) // Gold color for the indicator
-                    )
-                }
-            ) {
-                listOf("Learn and Earn", "Rewards").forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTabIndex == index,
-                        onClick = {
-                            selectedTabIndex = index
-                            playSwitchSound()
-                        },
-                        text = {
-                            Text(
-                                text = title,
-                                color = if (selectedTabIndex == index) Color(0xFFFFD700) else MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                        }
-                    )
-                }
-            }
-
-            when (selectedTabIndex) {
-                0 -> LearnAndEarnContent(playSwitchSound, addPoints, onRedeem) // ✅ Pass addPoints
-                1 -> RewardsContent(points, onRedeem, playSwitchSound, playPurchaseSound, rewardsViewModel)
-            }
-        }
-    }
-    // Show the InfoDialog if the flag is true
-    if (showInfoDialog) {
-        InfoDialog(
-            message = infoDialogMessage,
-            onDismiss = { rewardsViewModel.showInfoDialog.value = false }
-        )
-    }
-}*/
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PracticeScreen(
@@ -465,12 +343,14 @@ fun LearnAndEarnContent(
 /*            PracticeItemData("Quiz Challenge", "Test your knowledge", R.drawable.quiz_icon) {
                 playSwitchSound()
 
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
                 addPoints(10)
             },*/
             PracticeItemData("Module 1 Quiz", "Review key concepts", R.drawable.flashcard_icon) {
                 playSwitchSound()
 
                 val intent = Intent(context, OrganismQuizQuestion::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
                 context.startActivity(intent)
 
             },
@@ -478,6 +358,7 @@ fun LearnAndEarnContent(
                 playSwitchSound()
 
                 val intent = Intent(context, InteractionQuizQuestion::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
                 context.startActivity(intent)
 
             },
@@ -485,6 +366,7 @@ fun LearnAndEarnContent(
                 playSwitchSound()
 
                 val intent = Intent(context, DigestiveQuizQuestion::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
                 context.startActivity(intent)
 
             },
@@ -492,6 +374,7 @@ fun LearnAndEarnContent(
                 playSwitchSound()
 
                 val intent = Intent(context, NutritionQuizQuestion::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
                 context.startActivity(intent)
 
             },
@@ -499,6 +382,7 @@ fun LearnAndEarnContent(
                 playSwitchSound()
 
                 val intent = Intent(context, GeneticQuizQuestion::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
                 context.startActivity(intent)
 
             },

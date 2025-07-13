@@ -310,6 +310,18 @@ abstract class AppDatabase : RoomDatabase() {
                 )
             }
 
+            // Check and insert rageSailor
+            if (miniGameDao.getMiniGameById("rageSailor") == null) {
+                miniGameDao.insertGame(
+                    MiniGameEntity(
+                        gameId = "rageSailor",
+                        name = "Rage Sailor",
+                        isUnlocked = false,
+                        isInstalled = false
+                    )
+                )
+            }
+
             Log.d("DatabaseDebug", "Inserted initial rewards")
 
 

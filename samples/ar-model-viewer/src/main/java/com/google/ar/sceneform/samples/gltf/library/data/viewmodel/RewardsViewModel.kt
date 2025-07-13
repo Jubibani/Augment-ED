@@ -8,22 +8,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.core.content.FileProvider
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -38,7 +22,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
@@ -48,7 +31,6 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
     private val miniGameDao: MiniGameDao = db.miniGameDao()
     private val pointsDao: PointsDao = db.brainPointsDao()
 
-    //flags
     val showInfoDialog = MutableStateFlow(false)
     val infoDialogMessage = MutableStateFlow("")
 
@@ -58,31 +40,40 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
     init {
         refreshRewards()
     }
-
-
     private fun refreshRewards() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                // Define a mapping of game IDs to their respective costs
                 val gameCosts = mapOf(
-                    "breakBaller" to 75, // Cost for breakBaller
-                    "blueGuy" to 100,
+                    "breakBaller" to 75,
+                    "blueGuy" to 50,
                     "snakeGame" to 85,
                     "rageSailor" to 10,
+                    "flyingBlock" to 10,
                 )
 
-                // Fetch all mini-games from the database
+                val context = getApplication<Application>()
                 val miniGames = miniGameDao.getAllMiniGames()
                 Log.d("DatabaseDebug", "Fetched from DB: $miniGames")
 
-                // Map mini-games to RewardItemData
-                val rewardItems = miniGames.map { game ->
+                // Synchronize installed status with real device state
+                miniGames.forEach { game ->
+                    val packageName = "com.DefaultCompany.${game.gameId}"
+                    val actuallyInstalled = isGameInstalled(context, packageName)
+                    if (game.isInstalled != actuallyInstalled) {
+                        miniGameDao.insertGame(game.copy(isInstalled = actuallyInstalled))
+                        Log.d("DatabaseDebug", "Updated ${game.gameId} install status to $actuallyInstalled")
+                    }
+                }
+
+                // Fetch again after possible updates
+                val updatedGames = miniGameDao.getAllMiniGames()
+                val rewardItems = updatedGames.map { game ->
                     RewardItemData(
                         id = game.gameId,
                         name = game.name,
                         description = "Unlock to play ${game.name}",
                         imageResId = R.drawable.question_icon,
-                        cost = gameCosts[game.gameId] ?: 75, // Default cost if not in the map
+                        cost = gameCosts[game.gameId] ?: 75,
                         isUnlocked = game.isUnlocked,
                         isInstalled = game.isInstalled,
                         onClickAction = {
@@ -112,7 +103,6 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
                     )
                 }
 
-                // Update the StateFlow on the main thread
                 withContext(Dispatchers.Main) {
                     _rewardItems.value = rewardItems
                     Log.d("DatabaseDebug", "Updated reward items: $rewardItems")
@@ -131,6 +121,10 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
 
         if (game.isInstalled && isGameInstalled(context, packageName)) {
             Log.d("MiniGameDebug", "Launching game: $packageName")
+
+
+            refreshRewards()
+
             launchGame(context, packageName)
         } else {
             Log.d("MiniGameDebug", "Game not installed. Installing: $packageName")
@@ -143,59 +137,17 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
 
     private fun isGameInstalled(context: Context, packageName: String): Boolean {
         return try {
+
             context.packageManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES)
-            Log.d("MiniGameDebug", "Game installed status for $packageName: true (using getPackageInfo)")
+            Log.d("MiniGameDebug", "Game installed status for $packageName: true")
             true
         } catch (e: PackageManager.NameNotFoundException) {
-            Log.d("MiniGameDebug", "Game installed status for $packageName: false (using getPackageInfo)")
+            Log.d("MiniGameDebug", "Game installed status for $packageName: false")
             false
         }
     }
 
-
-
-/*    private fun launchGame(context: Context, packageName: String) {
-        val activityClassNameGame = "com.unity3d.player.UnityPlayerGameActivity"
-        val activityClassName = "com.unity3d.player.UnityPlayerActivity"
-        var launchIntent: Intent? = null
-
-        // Try to launch UnityPlayerGameActivity first
-        try {
-            val componentNameGame = ComponentName(packageName, activityClassNameGame)
-            launchIntent = Intent().setComponent(componentNameGame)
-            launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            Log.d("MiniGameDebug", "Attempting to start activity: $componentNameGame")
-            context.startActivity(launchIntent)
-            Log.d("MiniGameDebug", "Successfully launched game (GameActivity): $packageName")
-            return // Exit the function if successful
-        } catch (e: android.content.ActivityNotFoundException) {
-            Log.w("MiniGameDebug", "UnityPlayerGameActivity not found. Trying UnityPlayerActivity...")
-            launchIntent = null // Reset launchIntent for the next attempt
-        } catch (e: Exception) {
-            Log.e("MiniGameDebug", "Error attempting to launch UnityPlayerGameActivity: ${e.message}")
-            launchIntent = null
-        }
-
-        // If UnityPlayerGameActivity failed, try to launch UnityPlayerActivity
-        if (launchIntent == null) {
-            try {
-                val componentName = ComponentName(packageName, activityClassName)
-                launchIntent = Intent().setComponent(componentName)
-                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                Log.d("MiniGameDebug", "Attempting to start activity: $componentName")
-                context.startActivity(launchIntent)
-                Log.d("MiniGameDebug", "Successfully launched game (Activity): $packageName")
-            } catch (e: android.content.ActivityNotFoundException) {
-                Log.e("MiniGameDebug", "Both UnityPlayerGameActivity and UnityPlayerActivity not found for package: $packageName")
-            } catch (e: Exception) {
-                Log.e("MiniGameDebug", "Error attempting to launch UnityPlayerActivity: ${e.message}")
-            }
-        }
-
-    }*/
-
     private fun launchGame(context: Context, packageName: String) {
-        // First, try the robust PackageManager method (works for most well-formed APKs)
         val pm = context.packageManager
         val launchIntent = pm.getLaunchIntentForPackage(packageName)
         if (launchIntent != null) {
@@ -207,12 +159,11 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
             Log.w("MiniGameDebug", "No launch intent from PackageManager, trying known activities...")
         }
 
-        // Fallback: try known main activity classnames (Unity, Godot, etc)
         val activities = listOf(
             "com.unity3d.player.UnityPlayerGameActivity",
             "com.unity3d.player.UnityPlayerActivity",
             "org.godotengine.godot.Godot",
-            "com.godot.game.GodotApp" // <-- Godot 4+ export default
+            "com.godot.game.GodotApp"
         )
         for (activityClass in activities) {
             try {
@@ -253,10 +204,8 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
                 val miniGame = miniGameDao.getMiniGameById(gameId)
 
                 if (miniGame != null) {
-                    // Update the existing mini-game to mark it as unlocked
                     miniGameDao.insertGame(miniGame.copy(isUnlocked = true))
                 } else {
-                    // Insert a new mini-game only if it doesn't exist
                     miniGameDao.insertGame(MiniGameEntity(gameId, name = "Unknown Game", isUnlocked = true, isInstalled = false))
                 }
 
@@ -265,8 +214,7 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-
-
+    // Only intent logic here, no permission check
     private fun installApk(context: Context, apkFile: File) {
         val apkUri: Uri = FileProvider.getUriForFile(
             context,
@@ -280,23 +228,8 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
         }
 
         context.startActivity(intent)
-
-/*        // Update the database to mark the game as installed
-        viewModelScope.launch(Dispatchers.IO) {
-            val gameId = apkFile.nameWithoutExtension
-            val miniGame = miniGameDao.getMiniGameById(gameId)
-            if (miniGame != null) {
-                miniGameDao.insertGame(miniGame.copy(isInstalled = true))
-                Log.d("MiniGameDebug", "Updated game state in DB: $gameId isInstalled=true")
-
-                // Show the info dialog on the main thread
-                withContext(Dispatchers.Main) {
-                    showInfoDialog.value = true // Correctly update the StateFlow
-                    infoDialogMessage.value = "Go to Home Screen and back here to refresh! "
-                }
-            }
-        }*/
     }
+
     fun onApkInstalled(gameId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val miniGame = miniGameDao.getMiniGameById(gameId)

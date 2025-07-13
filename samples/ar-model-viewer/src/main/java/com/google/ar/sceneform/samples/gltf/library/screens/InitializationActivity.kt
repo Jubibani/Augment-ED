@@ -1,11 +1,15 @@
 package com.google.ar.sceneform.samples.gltf.library.screens
 
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.annotation.OptIn
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
@@ -27,9 +31,9 @@ class InitializationActivity : AppCompatActivity() {
 
     private lateinit var progressBar: ProgressBar
     private lateinit var modelDir: File
+    private val REQUEST_CODE_INSTALL_PERMISSION = 1234
 
-    @OptIn(UnstableApi::class)
-    override fun onCreate(savedInstanceState: Bundle?) {
+    @OptIn(UnstableApi::class) override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         System.setProperty("jna.nosys", "true")
         System.setProperty("jna.boot.library.path", applicationInfo.nativeLibraryDir)
@@ -38,6 +42,15 @@ class InitializationActivity : AppCompatActivity() {
         progressBar = findViewById(R.id.progressBar)
         modelDir = File(cacheDir, "vosk-model-small-en-us-0.15")
 
+        // 1. Check install permission BEFORE MainActivity
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (!packageManager.canRequestPackageInstalls()) {
+                showInstallPermissionDialog()
+                return // Wait for permission result before continuing initialization!
+            }
+        }
+
+        // Existing initialization code below
         Log.d("InitializationActivity", "Starting model file copy")
         CoroutineScope(Dispatchers.Main).launch {
             copyModelFiles()
@@ -65,8 +78,40 @@ class InitializationActivity : AppCompatActivity() {
         }
     }
 
-    @OptIn(UnstableApi::class)
-    private suspend fun initializeModel(modelPath: String) {
+    private fun showInstallPermissionDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Permission Required")
+            .setMessage("This app needs permission to install mini-game APKs. Please allow this in the next screen.")
+            .setCancelable(false)
+            .setPositiveButton("Allow") { _, _ ->
+                val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                    data = Uri.parse("package:$packageName")
+                }
+                startActivityForResult(intent, REQUEST_CODE_INSTALL_PERMISSION)
+            }
+            .setNegativeButton("Exit") { _, _ ->
+                Toast.makeText(this, "Permission is required to install games.", Toast.LENGTH_LONG).show()
+                finish()
+            }
+            .show()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CODE_INSTALL_PERMISSION) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (packageManager.canRequestPackageInstalls()) {
+                    // Permission granted, continue initialization
+                    recreate() // or call your initialization code here directly
+                } else {
+                    Toast.makeText(this, "Permission not granted. Cannot continue.", Toast.LENGTH_LONG).show()
+                    finish()
+                }
+            }
+        }
+    }
+
+    @OptIn(UnstableApi::class) private suspend fun initializeModel(modelPath: String) {
         Log.d("InitializationActivity", "Starting model initialization")
         withContext(Dispatchers.Main) {
             try {
@@ -93,8 +138,7 @@ class InitializationActivity : AppCompatActivity() {
         }
     }
 
-    @OptIn(UnstableApi::class)
-    private suspend fun copyModelFiles() = withContext(Dispatchers.IO) {
+    @OptIn(UnstableApi::class) private suspend fun copyModelFiles() = withContext(Dispatchers.IO) {
         val assetManager = assets
         if (!modelDir.exists()) {
             modelDir.mkdirs()
@@ -115,8 +159,7 @@ class InitializationActivity : AppCompatActivity() {
         }
     }
 
-    @OptIn(UnstableApi::class)
-    private fun unzip(zipInputStream: InputStream, destDir: File) {
+    @OptIn(UnstableApi::class) private fun unzip(zipInputStream: InputStream, destDir: File) {
         ZipInputStream(zipInputStream).use { zis ->
             var entry = zis.nextEntry
             while (entry != null) {
@@ -141,14 +184,12 @@ class InitializationActivity : AppCompatActivity() {
             }
             zis.closeEntry()
         }
-        // Log the contents of the unzipped directory
         destDir.listFiles()?.forEach { file ->
             Log.d("InitializationActivity", "Unzipped file: ${file.absolutePath}")
         }
     }
 
-    @OptIn(UnstableApi::class)
-    private fun startMainActivity() {
+    @OptIn(UnstableApi::class) private fun startMainActivity() {
         Log.d("InitializationActivity", "Starting MainActivity")
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)

@@ -68,6 +68,7 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
                     "breakBaller" to 75, // Cost for breakBaller
                     "blueGuy" to 100,
                     "snakeGame" to 85,
+                    "rageSailor" to 10,
                 )
 
                 // Fetch all mini-games from the database
@@ -153,7 +154,7 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
 
 
 
-    private fun launchGame(context: Context, packageName: String) {
+/*    private fun launchGame(context: Context, packageName: String) {
         val activityClassNameGame = "com.unity3d.player.UnityPlayerGameActivity"
         val activityClassName = "com.unity3d.player.UnityPlayerActivity"
         var launchIntent: Intent? = null
@@ -190,6 +191,45 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
                 Log.e("MiniGameDebug", "Error attempting to launch UnityPlayerActivity: ${e.message}")
             }
         }
+
+    }*/
+
+    private fun launchGame(context: Context, packageName: String) {
+        // First, try the robust PackageManager method (works for most well-formed APKs)
+        val pm = context.packageManager
+        val launchIntent = pm.getLaunchIntentForPackage(packageName)
+        if (launchIntent != null) {
+            launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            Log.d("MiniGameDebug", "Launching via PackageManager: $packageName")
+            context.startActivity(launchIntent)
+            return
+        } else {
+            Log.w("MiniGameDebug", "No launch intent from PackageManager, trying known activities...")
+        }
+
+        // Fallback: try known main activity classnames (Unity, Godot, etc)
+        val activities = listOf(
+            "com.unity3d.player.UnityPlayerGameActivity",
+            "com.unity3d.player.UnityPlayerActivity",
+            "org.godotengine.godot.Godot",
+            "com.godot.game.GodotApp" // <-- Godot 4+ export default
+        )
+        for (activityClass in activities) {
+            try {
+                val componentName = ComponentName(packageName, activityClass)
+                val intent = Intent().setComponent(componentName)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                Log.d("MiniGameDebug", "Attempting to start activity: $componentName")
+                context.startActivity(intent)
+                Log.d("MiniGameDebug", "Successfully launched: $componentName")
+                return
+            } catch (e: android.content.ActivityNotFoundException) {
+                Log.w("MiniGameDebug", "$activityClass not found, trying next...")
+            } catch (e: Exception) {
+                Log.e("MiniGameDebug", "Error launching $activityClass: ${e.message}")
+            }
+        }
+        Log.e("MiniGameDebug", "None of the known activities found for $packageName")
     }
 
     private fun copyApkFromAssets(context: Context, apkName: String): File {
@@ -252,7 +292,7 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
                 // Show the info dialog on the main thread
                 withContext(Dispatchers.Main) {
                     showInfoDialog.value = true // Correctly update the StateFlow
-                    infoDialogMessage.value = "You can now play your game in the rewards collection!"
+                    infoDialogMessage.value = "Go to Home Screen and back here to refresh! "
                 }
             }
         }

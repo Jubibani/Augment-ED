@@ -15,6 +15,7 @@
         <package android:name="com.DefaultCompany.breakBaller" />
         <package android:name="com.DefaultCompany.blueGuy" />
         <package android:name="com.DefaultCompany.snakeGame" />
+        <package android:name="com.DefaultCompany.rageSailor" />
     </queries>
 
     <!-- Needed to load gltf from network. -->

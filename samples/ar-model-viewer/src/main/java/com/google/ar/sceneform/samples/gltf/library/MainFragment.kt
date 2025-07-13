@@ -167,21 +167,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         modelDao = database.modelDao()
 
         arFragment = childFragmentManager.findFragmentById(R.id.arFragment) as ArFragment
-/*      [old code]
-        modelLiveData.observe(viewLifecycleOwner) { modelsList ->
-            if (modelsList.isEmpty()) {
-                Log.e("MainFragment", "Database is empty! Models were not inserted.")
-            } else {
-                Log.d("MainFragment", "Loaded models: ${modelsList.map { it.name }}")
-            }
-            modelInfoMap.clear()
-            modelsList.forEach { modelInfoMap[it.name] = it }
 
-            recognizableModelNames.clear()
-            recognizableModelNames.addAll(modelsList.map { it.name })
-
-            preloadModels()
-        }*/
 
         modelLiveData.observe(viewLifecycleOwner) { modelsList ->
             if (modelsList.isEmpty()) {

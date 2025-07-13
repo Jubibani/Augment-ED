@@ -60,64 +60,6 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
     }
 
 
-/*    private fun refreshRewards() {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                // Fetch all mini-games from the database
-                val miniGames = miniGameDao.getAllMiniGames()
-                Log.d("DatabaseDebug", "Fetched from DB: $miniGames")
-
-                // Map mini-games to RewardItemData
-                val rewardItems = miniGames.map { game ->
-                    RewardItemData(
-                        id = game.gameId,
-                        name = game.name,
-                        description = when (game.gameId) {
-                            "1", "2", "3" -> "Unlock to receive a surprise!"
-                            else -> "Unlock to play ${game.name}"
-                        },
-                        imageResId = R.drawable.question_icon,
-                        cost = if (game.gameId in listOf("1", "2", "3")) 50 else 75,
-                        isUnlocked = game.isUnlocked,
-                        isInstalled = game.isInstalled,
-                        onClickAction = {
-                            when {
-                                game.isInstalled -> handleMiniGameLaunch(game)
-                                game.isUnlocked -> {
-                                    Log.d("MiniGameDebug", "Installing game: ${game.name}")
-                                    Toast.makeText(
-                                        getApplication(),
-                                        "Installing ${game.name}...",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    val apkFileName = "${game.gameId}.apk"
-                                    val apkFile = copyApkFromAssets(getApplication(), apkFileName)
-                                    installApk(getApplication(), apkFile)
-                                }
-                                else -> {
-                                    Log.d("MiniGameDebug", "Not enough points to unlock ${game.name}")
-                                    Toast.makeText(
-                                        getApplication(),
-                                        "Not enough points to unlock ${game.name}",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
-                        }
-                    )
-                }
-
-                // Update the StateFlow on the main thread
-                withContext(Dispatchers.Main) {
-                    _rewardItems.value = rewardItems
-                    Log.d("DatabaseDebug", "Updated reward items: $rewardItems")
-                }
-            } catch (e: Exception) {
-                Log.e("DatabaseDebug", "Error refreshing rewards: ${e.message}")
-            }
-        }
-    }*/
-
     private fun refreshRewards() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -125,6 +67,7 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
                 val gameCosts = mapOf(
                     "breakBaller" to 75, // Cost for breakBaller
                     "blueGuy" to 100,
+                    "snakeGame" to 85,
                 )
 
                 // Fetch all mini-games from the database
@@ -209,20 +152,6 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
     }
 
 
-/*    private fun launchGame(context: Context, packageName: String) {
-        val activityClassName = "com.unity3d.player.UnityPlayerGameActivity" // Changed to the enabled Activity
-        val componentName = ComponentName(packageName, activityClassName)
-        val launchIntent = Intent().setComponent(componentName)
-        launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-        try {
-            Log.d("MiniGameDebug", "Attempting to start activity: $componentName")
-            context.startActivity(launchIntent)
-            Log.d("MiniGameDebug", "Successfully launched game: $packageName")
-        } catch (e: Exception) {
-            Log.e("MiniGameDebug", "Failed to launch game $packageName with explicit intent: Unable to find activity: ${e.message}")
-        }
-    }*/
 
     private fun launchGame(context: Context, packageName: String) {
         val activityClassNameGame = "com.unity3d.player.UnityPlayerGameActivity"
@@ -296,30 +225,7 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-/*    private fun installApk(context: Context, apkFile: File) {
-        val apkUri: Uri = FileProvider.getUriForFile(
-            context,
-            "${context.packageName}.fileprovider",
-            apkFile
-        )
 
-        val intent = Intent(Intent.ACTION_VIEW).apply {
-            setDataAndType(apkUri, "application/vnd.android.package-archive")
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
-        }
-
-        context.startActivity(intent)
-
-        // Update the database to mark the game as installed
-        viewModelScope.launch(Dispatchers.IO) {
-            val gameId = apkFile.nameWithoutExtension
-            val miniGame = miniGameDao.getMiniGameById(gameId)
-            if (miniGame != null) {
-                miniGameDao.insertGame(miniGame.copy(isInstalled = true))
-                Log.d("MiniGameDebug", "Updated game state in DB: $gameId isInstalled=true")
-            }
-        }
-    }*/
 
     private fun installApk(context: Context, apkFile: File) {
         val apkUri: Uri = FileProvider.getUriForFile(

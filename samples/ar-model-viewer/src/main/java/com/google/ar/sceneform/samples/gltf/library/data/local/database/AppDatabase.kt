@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 
 @Database(
     entities = [ModelEntity::class, BrainPointsEntity::class, MiniGameEntity::class],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -270,10 +270,45 @@ abstract class AppDatabase : RoomDatabase() {
             brainPointsDao.updatePoints(0)
 
             // Populate the database with contents ready to be unlocked and interacted as rewards
-            miniGameDao.insertGame(MiniGameEntity(gameId = "blueGuy", name = "Blue Guy", isUnlocked = false, isInstalled = false))
+ /*           miniGameDao.insertGame(MiniGameEntity(gameId = "blueGuy", name = "Blue Guy", isUnlocked = false, isInstalled = false))
             miniGameDao.insertGame(MiniGameEntity(gameId = "breakBaller", name = "Break Baller", isUnlocked = false, isInstalled = false))
-  /*          miniGameDao.insertGame(MiniGameEntity(gameId = "sportyka", name = "sportyka", isUnlocked = false, isInstalled = false))
+            miniGameDao.insertGame(MiniGameEntity(gameId = "snakeGame", name = "Snake Game", isUnlocked = false, isInstalled = false))
 */
+            // Check and insert Blue Guy
+            if (miniGameDao.getMiniGameById("blueGuy") == null) {
+                miniGameDao.insertGame(
+                    MiniGameEntity(
+                        gameId = "blueGuy",
+                        name = "Blue Guy",
+                        isUnlocked = false,
+                        isInstalled = false
+                    )
+                )
+            }
+
+            // Check and insert Break Baller
+            if (miniGameDao.getMiniGameById("breakBaller") == null) {
+                miniGameDao.insertGame(
+                    MiniGameEntity(
+                        gameId = "breakBaller",
+                        name = "Break Baller",
+                        isUnlocked = false,
+                        isInstalled = false
+                    )
+                )
+            }
+
+            // Check and insert Snake Game
+            if (miniGameDao.getMiniGameById("snakeGame") == null) {
+                miniGameDao.insertGame(
+                    MiniGameEntity(
+                        gameId = "snakeGame",
+                        name = "Snake Game",
+                        isUnlocked = false,
+                        isInstalled = false
+                    )
+                )
+            }
 
             Log.d("DatabaseDebug", "Inserted initial rewards")
 

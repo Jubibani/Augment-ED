@@ -1,6 +1,6 @@
 package com.google.ar.sceneform.samples.gltf.library.screens
 
-import LibraryFragment
+import com.google.ar.sceneform.samples.gltf.library.fragments.LibraryFragment
 import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -119,54 +119,6 @@ class LibraryActivity : FragmentActivity() {
     }
 }
 
-/*
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun LibraryScreen(
-    finish: () -> Unit,
-    playBackSound: () -> Unit,
-    playFlipSound: () -> Unit,
-    onModelSelected: (ModelItemData) -> Unit
-) {
-    val context = LocalContext.current
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Library", style = MaterialTheme.typography.headlineMedium) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                ),
-                navigationIcon = {
-                    IconButton(onClick = {
-                        playBackSound()
-                        val intent = Intent(context, MainActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                        context.startActivity(intent)
-                        finish()
-                    }) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = "Back to Main"
-                        )
-                    }
-                }
-            )
-        }
-    ) { innerPadding ->
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 160.dp),
-            contentPadding = PaddingValues(16.dp),
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            items(getModelItems()) { item ->
-                ModelItem(item, playFlipSound, onModelSelected)
-            }
-        }
-    }
-}
-*/
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryScreen(
@@ -278,15 +230,7 @@ data class ModelItemData(
     val previewImageResId: Int
 )
 
-/* [Old Code]
-val modelActivityMap = mapOf(
-    "Amphibian" to AmphibianActivity::class.java,
-    "Bacteria" to BacteriaActivity::class.java,
-    "Digestive System" to DigestiveActivity::class.java,
-    "Platypus" to PlatypusActivity::class.java,
-    "Heart" to HeartActivity::class.java
-    // Add more mappings as needed
-)*/
+
 
 fun getModelItems(): List<ModelItemData> {
     return listOf(
@@ -604,8 +548,5 @@ fun getVideoItems(): List<VideoItemData> {
         VideoItemData("Learn about F1 Generation", R.raw.mendelgeneration),
 
 
-
-
-        // Add more videos as needed, using R.raw.<your_video_file_name>
     )
 }

@@ -105,13 +105,6 @@ class DigestiveQuizResult : AppCompatActivity() {
             )
         )
 
-        // Restart button logic: Redirect to the quiz activity
-/*        btnRestart.setOnClickListener {
-            val intent = Intent(this, DigestiveQuizQuestion::class.java)
-            startActivity(intent)
-            finish()
-        }*/
-
         // Exit button logic: Redirect to PracticeActivity
         btnExit.setOnClickListener {
             val intent = Intent(this, PracticeActivity::class.java)

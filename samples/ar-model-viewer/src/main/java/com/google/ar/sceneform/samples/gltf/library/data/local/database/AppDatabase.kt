@@ -335,22 +335,9 @@ abstract class AppDatabase : RoomDatabase() {
             }
             Log.d("DatabaseDebug", "Inserted initial rewards")
 
-
-
         }
 
-
-
-/*        suspend fun populateDatabase(miniGameDao: MiniGameDao) {
-            Log.d("DatabaseDebug", "Inserting initial mini-games")
-            miniGameDao.insertGame(MiniGameEntity("1", "RewardsContent1", false))
-            miniGameDao.insertGame(MiniGameEntity("2", "RewardsContent2", false))
-            miniGameDao.insertGame(MiniGameEntity("11", "RewardsContent3", false))
-
-            Log.d("DatabaseDebug", "Inserted mini-games successfully!")
-        }*/
     }
 
-
-    }
+}
 

@@ -281,7 +281,7 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
 
         context.startActivity(intent)
 
-        // Update the database to mark the game as installed
+/*        // Update the database to mark the game as installed
         viewModelScope.launch(Dispatchers.IO) {
             val gameId = apkFile.nameWithoutExtension
             val miniGame = miniGameDao.getMiniGameById(gameId)
@@ -294,6 +294,15 @@ class RewardsViewModel(application: Application) : AndroidViewModel(application)
                     showInfoDialog.value = true // Correctly update the StateFlow
                     infoDialogMessage.value = "Go to Home Screen and back here to refresh! "
                 }
+            }
+        }*/
+    }
+    fun onApkInstalled(gameId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val miniGame = miniGameDao.getMiniGameById(gameId)
+            if (miniGame != null && !miniGame.isInstalled) {
+                miniGameDao.insertGame(miniGame.copy(isInstalled = true))
+                refreshRewards()
             }
         }
     }

@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -50,6 +51,9 @@ class LibraryFragment : Fragment() {
     private lateinit var refreshSound: MediaPlayer
     private lateinit var magnifyingGlassButton: ImageButton
 
+    private lateinit var instructionLabel: TextView
+
+
     private var anchorNode: AnchorNode? = null
 
     override fun onCreateView(
@@ -58,6 +62,8 @@ class LibraryFragment : Fragment() {
     ): View? {
 
         val view = inflater.inflate(R.layout.fragment_main, container, false)
+
+        instructionLabel = view.findViewById<TextView>(R.id.instructionLabel)
 
         modelName = arguments?.getString("modelName")
         modelDao = AppDatabase.getDatabase(requireContext(), lifecycleScope).modelDao()

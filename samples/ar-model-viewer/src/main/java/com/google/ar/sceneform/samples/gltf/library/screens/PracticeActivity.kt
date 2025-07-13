@@ -1,6 +1,9 @@
 package com.google.ar.sceneform.samples.gltf.library.screens
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
@@ -93,6 +96,9 @@ class PracticeActivity : FragmentActivity() {
     private var backSound: MediaPlayer? = null
     private var switchSound: MediaPlayer? = null
 
+    private lateinit var apkInstallReceiver: BroadcastReceiver
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initializeSounds()
@@ -114,8 +120,38 @@ class PracticeActivity : FragmentActivity() {
                 )
             }
         }
+
+        // Register receiver
+        val filter = IntentFilter(Intent.ACTION_PACKAGE_ADDED)
+        filter.addDataScheme("package")
+        apkInstallReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (intent?.action == Intent.ACTION_PACKAGE_ADDED) {
+                    val packageName = intent.data?.schemeSpecificPart ?: return
+                    // Map packageName to gameId as needed
+                    val gameId = mapPackageNameToGameId(packageName)
+                    if (gameId != null) {
+                        rewardsViewModel.onApkInstalled(gameId)
+                    }
+                }
+            }
+        }
+        registerReceiver(apkInstallReceiver, filter)
     }
 
+
+    // Helper function to convert package name to gameId
+    private fun mapPackageNameToGameId(packageName: String): String? {
+        // If your gameId and packageName are the same, return as is.
+        // Otherwise, create a proper mapping.
+        return when (packageName) {
+            "com.DefaultCompany.breakBaller" -> "breakBaller"
+            "com.DefaultCompany.blueGuy" -> "blueGuy"
+            "com.DefaultCompany.snakeGame" -> "snakeGame"
+            "com.DefaultCompany.rageSailor" -> "rageSailor"
+            else -> null
+        }
+    }
 
     private fun initializeSounds() {
         try {
@@ -154,6 +190,7 @@ class PracticeActivity : FragmentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         releaseMediaPlayers()
+        unregisterReceiver(apkInstallReceiver)
     }
 
     private fun releaseMediaPlayers() {

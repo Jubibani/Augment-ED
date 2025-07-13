@@ -16,6 +16,7 @@
         <package android:name="com.DefaultCompany.blueGuy" />
         <package android:name="com.DefaultCompany.snakeGame" />
         <package android:name="com.DefaultCompany.rageSailor" />
+        <package android:name="com.DefaultCompany.flyingBlock" />
     </queries>
 
     <!-- Needed to load gltf from network. -->

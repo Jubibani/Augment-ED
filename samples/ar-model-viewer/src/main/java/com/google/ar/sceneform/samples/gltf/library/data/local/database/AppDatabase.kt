@@ -322,6 +322,17 @@ abstract class AppDatabase : RoomDatabase() {
                 )
             }
 
+            // Check and insert flyingBlock
+            if (miniGameDao.getMiniGameById("flyingBlock") == null) {
+                miniGameDao.insertGame(
+                    MiniGameEntity(
+                        gameId = "flyingBlock",
+                        name = "Flying Block",
+                        isUnlocked = false,
+                        isInstalled = false
+                    )
+                )
+            }
             Log.d("DatabaseDebug", "Inserted initial rewards")
 
 

@@ -30,6 +30,7 @@ import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import android.widget.VideoView
 
@@ -86,6 +87,8 @@ class MainFragment : Fragment(R.layout.fragment_main) {
     //for scan to text recognition then render
     private val textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
     private var isModelPlaced = false
+    private lateinit var instructionLabel: TextView
+
 
     //for scan to text recognition then display
     private lateinit var showTextRecognizer: TextRecognizer
@@ -164,6 +167,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         super.onViewCreated(view, savedInstanceState)
 
         val database = AppDatabase.getDatabase(requireContext(), CoroutineScope(Dispatchers.IO))
+        instructionLabel = view.findViewById<TextView>(R.id.instructionLabel)
         modelDao = database.modelDao()
 
         arFragment = childFragmentManager.findFragmentById(R.id.arFragment) as ArFragment
@@ -290,6 +294,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         arSceneView.scene.addOnUpdateListener {
             if (hasPlaneBeenDetectedOnce) return@addOnUpdateListener  // Do nothing if already triggered once
 
+            instructionLabel.visibility = View.VISIBLE
             startRepeatingPing()
 
             val frame = arSceneView.arFrame ?: return@addOnUpdateListener
@@ -300,6 +305,8 @@ class MainFragment : Fragment(R.layout.fragment_main) {
             if (isPlaneDetected) {
                 hasPlaneBeenDetectedOnce = true  // Set flag so this block never runs again
 
+                /*instructionLabel.visibility = View.GONE*/
+                instructionLabel.text = "Hold the magnifying glass button."
                 stopRepeatingPing()
 
                 // Ensure the text recognition result is available
@@ -353,6 +360,8 @@ class MainFragment : Fragment(R.layout.fragment_main) {
             magnifyingGlassNode?.setParent(arFragment.arSceneView.scene.camera)
         }
         magnifyingGlassNode?.isEnabled = true
+        instructionLabel.visibility = View.VISIBLE
+        instructionLabel.text = "Hold to Render"
     }
 
     private fun hideMagnifyingGlass() {
@@ -362,6 +371,9 @@ class MainFragment : Fragment(R.layout.fragment_main) {
 
         magnifyingGlassNode?.setParent(null)
         magnifyingGlassNode?.isEnabled = false
+
+        instructionLabel.visibility = View.VISIBLE
+        instructionLabel.text = "Search for highlighted words."
 
     }
 
@@ -485,6 +497,8 @@ class MainFragment : Fragment(R.layout.fragment_main) {
                                 for (modelName in recognizableModelNames) {
                                     if (recognizedText.contains(modelName.lowercase())) {
                                         Log.d("ModelRecognition", "Model name '$modelName' found in text.")
+                                        instructionLabel.visibility = View.VISIBLE
+                                        instructionLabel.text = "Hold to render 3D Model"
                                         recognizeTextThenRenderModel(modelName, currentTimeMs)
                                         break
                                     }
@@ -634,43 +648,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         return Pair(inputImage, circularBitmap)
     }
 
-/*  [Old Code]
-    private fun renderModelOnSurface(modelName: String) {
-        val modelEntity = modelInfoMap[modelName] ?: return // Get model from DB
 
-        if (models[modelName] == null || modelViews[modelName] == null) {
-            vibrate()
-            pingSound()
-            Toast.makeText(context, "Loading...", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        arFragment.arSceneView.scene.addOnUpdateListener { frameTime ->
-            val frame = arFragment.arSceneView.arFrame ?: return@addOnUpdateListener
-            val planes = frame.getUpdatedTrackables(Plane::class.java)
-
-            for (plane in planes) {
-                if (plane.trackingState == TrackingState.TRACKING && !isModelPlaced) {
-                    val pose = plane.centerPose
-                    val anchor = plane.createAnchor(pose)
-                    placeModel(anchor, modelEntity)
-                    isModelPlaced = true
-
-                    // Ensure button visibility is updated on the main thread
-                    activity?.runOnUiThread {
-                        watchButton.visibility = View.VISIBLE
-                        watchButton.bringToFront() // Bring to front if needed
-                    }
-
-                    // Set up the watch button once the model is placed
-                    setupWatchButton(modelEntity)
-                    setupCloseButton()
-
-                    break
-                }
-            }
-        }
-    }*/
 private fun renderModelOnSurface(modelName: String) {
     val modelEntity = modelInfoMap[modelName] ?: return // Get model from DB
 
@@ -889,6 +867,7 @@ private fun renderModelOnSurface(modelName: String) {
         stopRepeatingPing()
         isModelPlaced = true
         infoButton.visibility = View.VISIBLE
+        instructionLabel.visibility = View.GONE
     }
 
     private fun showToast(message: String) {

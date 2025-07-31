@@ -77,6 +77,8 @@ import com.google.ar.sceneform.samples.gltf.R
 import com.google.ar.sceneform.samples.gltf.library.data.local.database.AppDatabase
 import com.google.ar.sceneform.samples.gltf.library.data.repository.PointsRepository
 import com.google.ar.sceneform.samples.gltf.library.data.viewmodel.RewardsViewModel
+import com.google.ar.sceneform.samples.gltf.library.practices.quizzes.custom_quiz.CustomQuizActivity
+import com.google.ar.sceneform.samples.gltf.library.practices.quizzes.custom_quiz.UserQuizListActivity
 import com.google.ar.sceneform.samples.gltf.library.practices.quizzes.digestive_quiz.DigestiveQuizQuestion
 import com.google.ar.sceneform.samples.gltf.library.practices.quizzes.genetic_quiz.GeneticQuizQuestion
 import com.google.ar.sceneform.samples.gltf.library.practices.quizzes.interaction_quiz.InteractionQuizQuestion
@@ -423,6 +425,22 @@ fun LearnAndEarnContent(
                 context.startActivity(intent)
 
             },
+            PracticeItemData("Custom Quiz", "Take your own quizzes", R.drawable.quiz_icon) {
+                playSwitchSound()
+                val intent = Intent(context, CustomQuizActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                context.startActivity(intent)
+            }
+
+/*            PracticeItemData("Custom Quiz", "Take your own quizzes", R.drawable.quiz_icon) {
+                playSwitchSound()
+                val intent = Intent(context, UserQuizListActivity::class.java) // Or UserQuizAttemptActivity if only one quiz exists
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                context.startActivity(intent)
+            }*/
+
+
+
 /*            PracticeItemData("AR Practice", "Learn with augmented reality", R.drawable.quiz_icon) {
                 playSwitchSound()
 

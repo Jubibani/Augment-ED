@@ -208,6 +208,12 @@
             android:exported="true"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.custom_quiz.UserQuizListActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.google.ar.sceneform.samples.gltf.library.practices.quizzes.custom_quiz.CustomQuizActivity"
+            android:exported="false" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.google.ar.sceneform.samples.gltf.fileprovider"

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Quiz Title -->
+        <EditText
+            android:id="@+id/etQuizTitle"
+            android:hint="Quiz Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"/>
+
+        <!-- Question Text -->
+        <EditText
+            android:id="@+id/etQuestion"
+            android:hint="Question"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:layout_marginTop="24dp"/>
+
+        <!-- Choices -->
+        <EditText
+            android:id="@+id/etChoice1"
+            android:hint="Choice 1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"/>
+
+        <EditText
+            android:id="@+id/etChoice2"
+            android:hint="Choice 2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/etChoice3"
+            android:hint="Choice 3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/etChoice4"
+            android:hint="Choice 4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <!-- Correct Answer Selection -->
+        <RadioGroup
+            android:id="@+id/rgCorrect"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center">
+
+            <RadioButton
+                android:id="@+id/rb1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1"/>
+            <RadioButton
+                android:id="@+id/rb2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2"/>
+            <RadioButton
+                android:id="@+id/rb3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3"/>
+            <RadioButton
+                android:id="@+id/rb4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="4"/>
+        </RadioGroup>
+
+        <!-- Buttons -->
+        <Button
+            android:id="@+id/btnAddQuestion"
+            android:text="Add Question"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"/>
+
+        <Button
+            android:id="@+id/btnSaveQuiz"
+            android:text="Save Quiz"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"/>
+
+    </LinearLayout>
+</ScrollView>

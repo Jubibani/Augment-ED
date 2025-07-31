@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Creation Layout -->
+        <LinearLayout
+            android:id="@+id/layoutCreate"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/etQuizTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Quiz Title"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add Question"
+                android:textStyle="bold"
+                android:paddingTop="16dp"/>
+
+            <EditText
+                android:id="@+id/etQuestion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Question"/>
+
+            <EditText
+                android:id="@+id/etChoice1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Choice 1"/>
+            <EditText
+                android:id="@+id/etChoice2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Choice 2"/>
+            <EditText
+                android:id="@+id/etChoice3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Choice 3"/>
+            <EditText
+                android:id="@+id/etChoice4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Choice 4"/>
+
+            <RadioGroup
+                android:id="@+id/rgCorrect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="8dp">
+
+                <RadioButton
+                    android:id="@+id/rb1Correct"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1"/>
+                <RadioButton
+                    android:id="@+id/rb2Correct"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2"/>
+                <RadioButton
+                    android:id="@+id/rb3Correct"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="3"/>
+                <RadioButton
+                    android:id="@+id/rb4Correct"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="4"/>
+            </RadioGroup>
+
+            <Button
+                android:id="@+id/btnAddQuestion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add Question"
+                android:layout_marginTop="16dp"/>
+            <Button
+                android:id="@+id/btnStartQuiz"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Start Quiz"
+                android:layout_marginTop="8dp"/>
+        </LinearLayout>
+
+        <!-- Attempt Layout -->
+        <LinearLayout
+            android:id="@+id/layoutAttempt"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:paddingTop="16dp">
+
+            <TextView
+                android:id="@+id/tvAttemptQuestion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Question"
+                android:textStyle="bold"/>
+
+            <RadioGroup
+                android:id="@+id/rgAttemptChoices"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="8dp">
+
+                <RadioButton
+                    android:id="@+id/rbAttempt1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+                <RadioButton
+                    android:id="@+id/rbAttempt2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+                <RadioButton
+                    android:id="@+id/rbAttempt3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+                <RadioButton
+                    android:id="@+id/rbAttempt4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </RadioGroup>
+
+            <Button
+                android:id="@+id/btnNextAttempt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Next"/>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
